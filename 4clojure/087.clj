@@ -6,11 +6,11 @@
                 \5 5 \6 6 \7 7 \8 8 \9 9} n))
 
             (happy [n]
-              (as-> n $
-                (str $)
-                (map parse $)
-                (map #(* % %) $)
-                (apply + $)))
+              (->> n
+                (str)
+                (map parse)
+                (map #(* % %))
+                (apply +)))
 
             (terminates? [sequence]
               (reduce (fn [seen value]
