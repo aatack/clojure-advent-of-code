@@ -1,16 +1,16 @@
 (def __
   (fn [number]
-    (letfn [(parse [n]
+    (letfn [(parse [number']
               ;; TODO: find an easier way of parsing integers
               ({\0 0 \1 1 \2 2 \3 3 \4 4
-                \5 5 \6 6 \7 7 \8 8 \9 9} n))
+                \5 5 \6 6 \7 7 \8 8 \9 9} number'))
 
-            (happy [n]
-              (->> n
-                (str)
-                (map parse)
-                (map #(* % %))
-                (apply +)))
+            (happy [number']
+              (->> number'
+                   (str)
+                   (map parse)
+                   (map #(* % %))
+                   (apply +)))
 
             (terminates? [sequence]
               (reduce (fn [seen value]
