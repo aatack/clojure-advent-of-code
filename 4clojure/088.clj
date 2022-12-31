@@ -17,11 +17,15 @@
 
 (defn dynamic-for [item-lists]
   ;; TODO: implement this properly
-  [item-lists])
+  (if (= (count item-lists) 1)
+    (map list (first item-lists))
+    (for [head (first item-lists)
+          tail (dynamic-for (rest item-lists))]
+      (cons head tail))))
 
-(defn possible-expressions [numbers]
+(defn possible-expressions [numbers] ; TODO: add a flag for including equals
   (if (= (count numbers) 1)
-    (first numbers)
+    [(first numbers)]
     (for [operator [+ - / *]
           ;; TODO: also include permutations in the loop
           partitions (map (fn [sequence] (remove #(= % 0) sequence))
@@ -31,3 +35,7 @@
           :let [groups (variable-length-partition numbers partitions)]
           expressions (dynamic-for (map possible-expressions groups))]
       (cons operator expressions))))
+
+(for [expression (possible-expressions [3 4 7])
+      :when (= (eval expression) 7)]
+  expression)
