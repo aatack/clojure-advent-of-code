@@ -1,7 +1,7 @@
 (defn custom-reverse [sequence]
   (if (empty? sequence)
     []
-    (conj (custom-reverse (rest sequence)) (first sequence))))
+    (cons (first sequence) (custom-reverse (rest sequence)))))
 
 (def __ custom-reverse)
 
