@@ -44,4 +44,6 @@
         expressions (filter (fn [expression] (= target (eval expression)))
                             (possible-expressions (butlast numbers)))]
     (when (not-empty expressions)
-      (list '= (first expressions) target))))
+      (let [count (fn [expression] (count (re-seq #"\(" (str expression))))
+            expression (apply min-key count expressions)]
+        (list '= expression target)))))
