@@ -27,7 +27,7 @@
   ([numbers equality]
    (if (= (count numbers) 1)
      [(first numbers)]
-     (for [operator (if equality [=] [+ - / *])
+     (for [operator (if equality '[=] '[+ - / *])
           ;; TODO: also include permutations in the loop
            partitions (map (fn [sequence] (remove #(= % 0) sequence))
                            (numbers-summing-to (count numbers)
@@ -39,6 +39,9 @@
   ([numbers]
    (possible-expressions numbers false)))
 
-(for [expression (possible-expressions [3 4 5 6] true)
-      :when (eval expression)]
-  expression)
+(defn __ [& numbers]
+  (let [target (last numbers)
+        expressions (filter (fn [expression] (= target (eval expression)))
+                            (possible-expressions (butlast numbers)))]
+    (when (not-empty expressions)
+      (list '= (first expressions) target))))
