@@ -23,19 +23,22 @@
           tail (dynamic-for (rest item-lists))]
       (cons head tail))))
 
-(defn possible-expressions [numbers] ; TODO: add a flag for including equals
-  (if (= (count numbers) 1)
-    [(first numbers)]
-    (for [operator [+ - / *]
+(defn possible-expressions
+  ([numbers equality]
+   (if (= (count numbers) 1)
+     [(first numbers)]
+     (for [operator (if equality [=] [+ - / *])
           ;; TODO: also include permutations in the loop
-          partitions (map (fn [sequence] (remove #(= % 0) sequence))
-                          (numbers-summing-to (count numbers)
-                                              (count numbers)))
-          :when (> (count partitions) 1)
-          :let [groups (variable-length-partition numbers partitions)]
-          expressions (dynamic-for (map possible-expressions groups))]
-      (cons operator expressions))))
+           partitions (map (fn [sequence] (remove #(= % 0) sequence))
+                           (numbers-summing-to (count numbers)
+                                               (count numbers)))
+           :when (> (count partitions) 1)
+           :let [groups (variable-length-partition numbers partitions)]
+           expressions (dynamic-for (map possible-expressions groups))]
+       (cons operator expressions))))
+  ([numbers]
+   (possible-expressions numbers false)))
 
-(for [expression (possible-expressions [3 4 7])
-      :when (= (eval expression) 7)]
+(for [expression (possible-expressions [3 4 5 6] true)
+      :when (eval expression)]
   expression)
