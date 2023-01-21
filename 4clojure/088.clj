@@ -27,7 +27,7 @@
   ([numbers equality]
    (if (= (count numbers) 1)
      [(first numbers)]
-     (for [operator (if equality '[=] '[+ - / *])
+     (for [operator (if equality '[=] '[+ - *])
           ;; TODO: also include permutations in the loop
            partitions (map (fn [sequence] (remove #(= % 0) sequence))
                            (numbers-summing-to (count numbers)
