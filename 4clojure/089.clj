@@ -11,6 +11,21 @@
     (let [edges (set graph)]
       (boolean (some #(or (has-path % edges true) (has-path % edges false)) (set (flatten graph)))))))
 
+(defn has-path? [node edges]
+  (if (empty? edges)
+    true
+    (some (fn [edge]
+            (let [next-node (cond
+                              (= node (first edge)) (second edge)
+                              (= node (second edge)) (first edge)
+                              :else nil)]
+              (when next-node (has-path? next-node (disj edges edge)))))
+          edges)))
+
+
+(has-path? 3 #{[1 2]})
+
+
 (= true (__ [[:a :b]]))
 (= false (__ [[:a :a] [:b :b]]))
 (= false (__ [[:a :b] [:a :b] [:a :c] [:c :a]
@@ -22,3 +37,5 @@
 (= false (__ [[1 2] [2 3] [2 4] [2 5]]))
 
 (__  [[:a :b] [:a :c] [:c :b]])
+
+;; --- Something like "some (fn [edge] (and (has node edge))) edges"
