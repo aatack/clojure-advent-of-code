@@ -1,7 +1,13 @@
 (defn __ [graph]
-  (letfn [(explore [visited edges]
-            nil)]
-    '(loop)))
+  (loop [nodes #{(ffirst (vec graph))}
+         edges graph]
+    (if (empty? nodes)
+      (boolean (empty? graph))
+      (let [new-edges (filter
+                       (fn [edge] (or (nodes (first edge)) (nodes (second edge))))
+                       edges)]
+        (recur (set (flatten new-edges))
+               (apply disj edges new-edges))))))
 
 (= true (__ #{[:a :a]}))
 (= true (__ #{[:a :b]}))
