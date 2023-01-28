@@ -11,3 +11,8 @@
                 ((if (>= left right) + -) total left))
               0
               pairs))))
+
+(= 14 (__ "XIV"))
+(= 827 (__ "DCCCXXVII"))
+(= 3999 (__ "MMMCMXCIX"))
+(= 48 (__ "XLVIII"))
