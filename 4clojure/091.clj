@@ -2,7 +2,7 @@
   (loop [nodes #{(ffirst (vec graph))}
          edges graph]
     (if (empty? nodes)
-      (boolean (empty? graph))
+      (boolean (empty? edges))
       (let [new-edges (filter
                        (fn [edge] (or (nodes (first edge)) (nodes (second edge))))
                        edges)]
