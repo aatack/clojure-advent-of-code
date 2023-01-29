@@ -19,3 +19,13 @@
                                 (modify index character left)))]
         (inc (apply min (count right)
                     (map #(naive-levenshtein % right) sequences)))))))
+
+(defn beam-search [initial-node explore-node evaluate-node]
+  (loop [queued-nodes [initial-node]]
+    (let [current-node (first queued-nodes)
+          remaining-nodes (rest queued-nodes)]
+      (if (= 0 (evaluate-node current-node))
+        current-node
+        (recur (sort-by evaluate-node
+                        (concat remaining-nodes
+                                (explore-node current-node))))))))
