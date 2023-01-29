@@ -21,14 +21,16 @@
                     (map #(naive-levenshtein % right) sequences)))))))
 
 (defn beam-search [initial-node explore evaluate space]
-  (loop [queued-nodes [initial-node]]
+  (loop [queued-nodes [initial-node]
+         attempts 0]
     (let [node (first queued-nodes)
           nodes (rest queued-nodes)]
       (if (= 0 (evaluate node))
-        node
+        attempts
         (recur (take space (sort-by evaluate
                                     (concat nodes
-                                            (explore node)))))))))
+                                            (explore node))))
+               (inc attempts))))))
 
 (defn levenshtein-distance [start target]
   (let [characters (set target)]
@@ -56,6 +58,6 @@
                 (/ (reduce + (map #(if (= %1 %2) 0 1) word target))
                    (count word))))]
 
-      (evaluate start))))
+      (beam-search start explore evaluate 10))))
 
-(levenshtein-distance (map identity "hello") (map identity "hello"))
+(levenshtein-distance (map identity "") (map identity "123456"))
