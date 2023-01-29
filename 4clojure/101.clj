@@ -29,3 +29,33 @@
         (recur (take space (sort-by evaluate
                                     (concat nodes
                                             (explore node)))))))))
+
+(defn levenshtein-distance [start target]
+  (let [characters (set target)]
+    (letfn [(delete [index word]
+              (concat (take index word)
+                      (nthrest word (inc index))))
+            (insert [index character word]
+              (concat (take index word) [character] (nthrest word index)))
+            (modify [index character word]
+              (concat (take index word)
+                      [character]
+                      (nthrest word (inc index))))
+
+            (explore [word]
+              (concat (map #(delete % word) (range (count word)))
+                      (for [index (range (inc (count word)))
+                            character characters]
+                        (insert index character word))
+                      (for [index (range (count word))
+                            character characters]
+                        (modify index character word))))
+            (evaluate [word]
+              (if (not= (count word) (count target))
+                (abs (- (count word) (count target)))
+                (/ (reduce + (map #(if (= %1 %2) 0 1) word target))
+                   (count word))))]
+
+      (evaluate start))))
+
+(levenshtein-distance (map identity "hello") (map identity "hello"))
