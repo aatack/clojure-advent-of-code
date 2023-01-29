@@ -53,11 +53,12 @@
                             character characters]
                         (modify index character word))))
             (evaluate [word]
-              (if (not= (count word) (count target))
-                (abs (- (count word) (count target)))
-                (/ (reduce + (map #(if (= %1 %2) 0 1) word target))
-                   (count word))))]
+              (+
+               (abs (- (count word) (count target)))
+               (if (empty? word) 0
+                   (/ (reduce + (map #(if (= %1 %2) 0 1) word target))
+                      (count word)))))]
 
       (beam-search start explore evaluate 10))))
 
-(levenshtein-distance (map identity "") (map identity "123456"))
+(levenshtein-distance (map identity "gaattctaatctc") (map identity "caaacaaaaaattt"))
