@@ -6,7 +6,7 @@
                   \C 100
                   \D 500
                   \M 1000}]
-    (let [pairs (partition 2 1 (concat [0] (map numerals numeral) [0]))]
+    (let [pairs (partition 2 1 (concat (map numerals numeral) [0]))]
       (reduce (fn [total [left right]]
                 ((if (>= left right) + -) total left))
               0

@@ -1,15 +1,17 @@
 (defn __ [number]
-  (let [numerals {\M 1000
-                  \D 500
-                  \C 100
-                  \L 50
-                  \X 10
-                  \V 5
-                  \I 1}]
+  (let [numerals {1000 [\M]
+                  500 [\D]
+                  100 [\C]
+                  50 [\L]
+                  10 [\X]
+                  5 [\V]
+                  1 [\I]}]
     (loop [remaining number
            numeral []]
       (if (= remaining 0)
         (apply str numeral)
-        (let [[largest-numeral largest-value]
-              (first (filter (fn [[_ n]] (<= n remaining)) numerals))]
-          (recur (- remaining largest-value) (conj numeral largest-numeral)))))))
+        (let [[value sequence]
+              (first (filter (fn [[value' _]] (<= value' remaining)) numerals))]
+          (recur (- remaining value) (concat numeral sequence)))))))
+
+(__ 827)
