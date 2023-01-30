@@ -20,3 +20,12 @@
               [value sequence]
               (first (reverse (sort-by first possibilities)))]
           (recur (- remaining value) (concat numeral sequence)))))))
+
+(= "I" (__ 1))
+(= "I" (__ 1))
+(= "XXX" (__ 30))
+(= "IV" (__ 4))
+(= "CXL" (__ 140))
+(= "DCCCXXVII" (__ 827))
+(= "MMMCMXCIX" (__ 3999))
+(= "XLVIII" (__ 48))
