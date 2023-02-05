@@ -4,6 +4,4 @@
                  (partition-by identity)
                  (map #(list (count %) (first %)))
                  (apply concat)))]
-    (pronounce initial-sequence)))
-
-(__ [1 1 2])
+    (lazy-seq (cons initial-sequence (__ (pronounce initial-sequence))))))
