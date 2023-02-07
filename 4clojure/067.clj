@@ -1,10 +1,10 @@
 (def __
   (fn [n]
-    (let [prime? (fn [number]
-                   (case number
-                     1 false
-                     2 true
-                     (every? #(not= (mod number %) 0) (range 2 number))))]
+    (letfn [(prime? [number]
+              (case number
+                1 false
+                2 true
+                (every? #(not= (mod number %) 0) (range 2 number))))]
       (take n (filter prime? (rest (range)))))))
 
 (= (__ 2) [2 3])
