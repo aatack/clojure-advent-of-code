@@ -1,7 +1,8 @@
 (defn __ [function sequence]
   (if (empty? sequence)
     ()
-    (lazy-seq (cons (function (first sequence)) (__ function (rest sequence))))))
+    (lazy-seq (cons (function (first sequence))
+                    (__ function (rest sequence))))))
 
 (= [3 4 5 6 7]
    (__ inc [2 3 4 5 6]))
