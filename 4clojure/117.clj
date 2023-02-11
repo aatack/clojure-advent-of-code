@@ -3,6 +3,7 @@
         width (count (first maze))
 
         lookup (fn [x y]
+                 (println x y)
                  (if (< -1 y height)
                    (if (< -1 x width)
                      (nth (nth maze y) x)
@@ -25,8 +26,9 @@
                  explored #{}]
             (let [current (first unexplored)]
               (cond
+                (nil? current) false
+                (accept? current) true
                 (explored current) (recur (rest unexplored) explored)
-                (accept? current) current
                 :else (recur (concat (explore current) (rest unexplored))
                              (conj explored current))))))]
 
@@ -41,7 +43,7 @@
               #(= % cheese)))))
 
 (__ ["#######"
-     "#    ##"
+     "#     #"
      "#  #  #"
      "#M # C#"
      "#######"])
