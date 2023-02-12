@@ -9,18 +9,26 @@
                       (piece-sequence (map + coordinate delta) direction))
                 [])))
 
+          (sequence-flips [sequence]
+            (reduce (fn [flips [piece-coordinate piece]]
+                      (cond
+                        (= piece 'e) (reduced [])
+                        (= piece player) (reduced flips)
+                        :else (conj flips [piece-coordinate piece])))
+                    []
+                    (concat (rest sequence) [[nil 'e]])))
+
           (flipped [coordinate]
             (for [direction [:x+ :x- :y+ :y-]
                   [piece-coordinate piece]
-                  (take-while #(not (#{'e player} (second %)))
-                              (rest (piece-sequence coordinate direction)))]
+                  (sequence-flips (piece-sequence coordinate direction))]
               piece-coordinate))]
 
     (apply hash-map (apply concat (filter #(not (empty? (second %)))
-                                          (for [x (range 0 4)
-                                                y (range 0 4)
-                                                :when (= (get-in board [x y]) 'e)]
-                                            [[x y] (set (flipped [x y]))]))))))
+                                            (for [x (range 0 4)
+                                                  y (range 0 4)
+                                                  :when (= (get-in board [x y]) 'e)]
+                                              [[x y] (set (flipped [x y]))]))))))
 
 (= {[1 3] #{[1 2]}
     [0 2] #{[1 2]}
