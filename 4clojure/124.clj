@@ -3,11 +3,10 @@
             (and (<= 0 x 3) (<= 0 y 3)))
 
           (piece-sequence [coordinate direction]
-            (let [delta ({:x+ [1 0] :x- [-1 0] :y+ [0 1] :y- [0 -1]} direction)]
-              (if (in-bounds? coordinate)
-                (cons [coordinate (get-in board coordinate)]
-                      (piece-sequence (map + coordinate delta) direction))
-                [])))
+                          (if (in-bounds? coordinate)
+                            (cons [coordinate (get-in board coordinate)]
+                                  (piece-sequence (map + coordinate direction) direction))
+                            []))
 
           (sequence-flips [sequence]
             (reduce (fn [flips [piece-coordinate piece]]
@@ -19,7 +18,7 @@
                     (concat (rest sequence) [[nil 'e]])))
 
           (flipped [coordinate]
-            (for [direction [:x+ :x- :y+ :y-]
+            (for [direction [[1 0] [-1 0] [0 1] [0 -1] [1 1] [1 -1] [-1 1] [-1 -1]]
                   [piece-coordinate piece]
                   (sequence-flips (piece-sequence coordinate direction))]
               piece-coordinate))]
