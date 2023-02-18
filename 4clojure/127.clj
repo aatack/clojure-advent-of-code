@@ -18,12 +18,23 @@
 
           (parse-rock [numbers]
             (let [maximum (apply max numbers)
-                  power-of-two (first (drop-while #(> maximum (power %)) (range)))
+                  power-of-two (first (drop-while #(>= maximum (power %)) (range)))
                   matrix (map #(binary power-of-two %) numbers)
                   coordinates (leaves [] matrix)]
               {:minerals (set (map first (filter #(= (second %) 1) coordinates)))
-               :waste (set (map first (filter #(= (second %) 0) coordinates)))}))]
+               :waste (set (map first (filter #(= (second %) 0) coordinates)))}))
 
-    (parse-rock ocr-output)))
+          (transform [rock function]
+            {:minerals (set (filter identity (map function (rock :minerals))))
+             :waste (set (filter identity (map function (rock :waste))))})
+
+          (rotate [rock]
+            (transform rock (fn [[x y]] [(- 0 y) x])))
+
+          (shear-vertical [rock x]
+            (transform rock (fn [[x' y']] (when (> x' x) [x' y']))))]
+
+    (shear-vertical (parse-rock ocr-output) 1)))
 
 (__ [1 3 7 15 31])
+(__ [1 2])
