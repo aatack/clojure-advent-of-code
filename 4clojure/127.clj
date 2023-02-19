@@ -31,23 +31,40 @@
           (focus [rock]
                  ;; Ensure all the defined coordinates have positive x- and y-values
             (let [coordinates (concat (rock :minerals) (rock :waste))
-                  minimum-x (apply min (map first coordinates))
-                  minimum-y (apply min (map second coordinates))]
+                  minimum-x (apply min 0 (map first coordinates))
+                  minimum-y (apply min 0 (map second coordinates))]
               (transform rock (fn [[x y]] [(- x minimum-x) (- y minimum-y)]))))
 
           (rotate [rock]
-            (focus (transform rock (fn [[x y]] [(- 0 y) x]))))
+            (-> rock
+                (transform (fn [[x y]] [(- 0 y) x]))
+                focus))
 
           (rotations [rock]
             (take 4 (iterate rotate rock)))
 
           (shear-vertical [rock vertical]
-            (focus (transform rock (fn [[x y]] (when (<= x vertical) [x y])))))
+            (-> rock
+                (transform (fn [[x y]] (when (>= x vertical) [x y])))
+                focus))
 
           (shear-diagonal [rock diagonal]
-            (focus (transform rock (fn [[x y]] (when (<= (+ x y) diagonal) [x y])))))]
+            (-> rock
+                (transform (fn [[x y]] (when (>= (+ x y) diagonal) [x y])))
+                focus))
 
-    (rotate (parse-rock ocr-output))))
+          (shears [rock]
+            (->> (for [rotation (rotations rock)]
+                   (concat (take-while #(not (empty? (% :minerals)))
+                                       (map #(shear-vertical rotation %)
+                                            (range)))
+                           (take-while #(not (empty? (% :minerals)))
+                                       (map #(shear-diagonal rotation %)
+                                            (range)))))
+                 (apply concat)
+                 set))]
+
+    (shears (parse-rock ocr-output))))
 
 (__ [1 3 7 15 31])
-(__ [1 2])
+(__ [2 2])
