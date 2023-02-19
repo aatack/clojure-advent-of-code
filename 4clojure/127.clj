@@ -83,29 +83,26 @@
                    attempts 0]
               (let [node (first queued-nodes)
                     nodes (rest queued-nodes)]
-                (if (accept? node)
-                  node
-                  (recur (take beam-width
-                               (sort-by heuristic
-                                        (concat nodes (explore node))))
-                         (inc attempts))))))]
+                (cond
+                  (nil? node) nil
+                  (accept? node) [attempts node]
+                  :else (recur (take beam-width
+                                     (sort-by heuristic
+                                              (concat nodes (explore node))))
+                               (inc attempts))))))]
 
     (beam-search (parse-rock ocr-output)
-        shears
-        size
-        pure?
-        10)
+                 shears
+                 size
+                 pure?
+                 10)
     ;; (parse-rock ocr-output)
     #_(-> ocr-output
-        parse-rock
-        (shear-vertical 2)
-        rotate
-        rotate
-        (shear-vertical 1)
-        rotate
-        ;; rotate
-        (shear-vertical 1)
-        shears)
+          parse-rock
+          (shear-diagonal 4)
+          rotate
+          rotate
+          (shear-diagonal 3))
     #_(shears {:minerals #{[0 1]} :waste #{[0 0]}})))
 
 (__ [1 3 7 15 31])
