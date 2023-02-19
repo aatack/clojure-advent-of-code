@@ -54,15 +54,15 @@
                 focus))
 
           (shears [rock]
-            (->> (for [rotation (rotations rock)]
-                   (concat (take-while #(not (empty? (% :minerals)))
-                                       (map #(shear-vertical rotation %)
-                                            (range)))
-                           (take-while #(not (empty? (% :minerals)))
-                                       (map #(shear-diagonal rotation %)
-                                            (range)))))
-                 (apply concat)
-                 set))]
+            (disj (->> (for [rotation (rotations rock)]
+                         (concat (take-while #(not (empty? (% :minerals)))
+                                             (map #(shear-vertical rotation %)
+                                                  (range)))
+                                 (take-while #(not (empty? (% :minerals)))
+                                             (map #(shear-diagonal rotation %)
+                                                  (range)))))
+                       (apply concat)
+                       set) rock))]
 
     (shears (parse-rock ocr-output))))
 
