@@ -81,30 +81,38 @@
               (* -1 (+ minerals (/ minerals (+ minerals waste 1))))))
 
           (vertical-isosceles-size [rock [x y]]
-            (or (last (take-while (fn [size]
-                                    (every?
-                                     (rock :minerals)
-                                     (for [index (range size)]
-                                       [(+ x (- size index 1))
-                                        (+ y index)])))
-                                  (rest (range))))
-                0))
+            (let [dimension
+                  (or (last (take-while (fn [size]
+                                          (every?
+                                           (rock :minerals)
+                                           (for [index (range size)]
+                                             [(+ x (- size index 1))
+                                              (+ y index)])))
+                                        (rest (range))))
+                      0)]
+              (/ (+ (* dimension dimension) dimension) 2)))
 
           (diagonal-isosceles-size [rock [x y]]
-            (or (last (take-while (fn [size]
-                                    (every?
-                                     (rock :minerals)
-                                     (concat (for [index (range size)]
-                                               [(+ x (- size index 1))
-                                                (+ y index)])
-                                             (for [index (range size)]
-                                               [(- x (- size index 1))
-                                                (+ y index)]))))
-                                  (rest (range))))
-                0))
+            (let [dimension
+                  (or (last (take-while (fn [size]
+                                          (every?
+                                           (rock :minerals)
+                                           (concat (for [index (range size)]
+                                                     [(+ x (- size index 1))
+                                                      (+ y index)])
+                                                   (for [index (range size)]
+                                                     [(- x (- size index 1))
+                                                      (+ y index)]))))
+                                        (rest (range))))
+                      0)]
+              (* dimension dimension)))
 
           (pure? [rock]
-            (empty? (rock :waste)))
+            (if (empty? (rock :waste))
+              (apply max (map (fn [rotation]
+                                (vertical-isosceles-size rotation [0 0]))
+                              (rotations rock)))
+              0))
 
           (beam-search [initial-node explore heuristic accept? beam-width]
             (loop [queued-nodes [initial-node]
@@ -113,7 +121,7 @@
                     nodes (rest queued-nodes)]
                 (cond
                   (nil? node) nil
-                  (accept? node) node
+                  (not= (accept? node) 0) (accept? node)
                   :else (recur (take beam-width
                                      (sort-by heuristic
                                               (concat nodes (explore node))))
@@ -123,8 +131,9 @@
                  shears
                  mineral-count
                  pure?
-                 10)))
+                 20)))
 
 (__ [1 3 7 15 31])
 (__ [1 2])
 (__ [21 10 21 10])
+(__ [17 22 6 14 22])
