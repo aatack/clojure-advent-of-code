@@ -65,16 +65,28 @@
                        set)
                   rock))
 
-          (score [rock]
+          (size [rock]
                  ;; Give rocks a slightly higher score if they contain less waste
             (let [minerals (count (rock :minerals))
                   waste (count (rock :waste))]
               (+ minerals (/ minerals (+ minerals waste)))))
 
-          (accept? [rock]
-            (empty? (rock :waste)))]
+          (pure? [rock]
+            (empty? (rock :waste)))
 
-    (map accept? (shears (parse-rock ocr-output)))))
+          (beam-search [initial-node explore heuristic accept? beam-width]
+            (loop [queued-nodes [initial-node]
+                   attempts 0]
+              (let [node (first queued-nodes)
+                    nodes (rest queued-nodes)]
+                (if (accept? node)
+                  node
+                  (recur (take beam-width
+                               (sort-by heuristic
+                                        (concat nodes (explore node))))
+                         (inc attempts))))))]
+
+    (parse-rock ocr-output)))
 
 (__ [1 3 7 15 31])
 (__ [1 2])
