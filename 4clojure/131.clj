@@ -10,8 +10,17 @@
 
           (subsets [input-set]
             (apply concat (map #(k-combinations % input-set)
-                               (-> input-set count inc range))))]
+                               (-> input-set count inc range))))
 
-    (subsets #{0 1 2})))
+          (subset-sums [input-set]
+            (set (map #(apply + %) (subsets input-set))))]
 
-(__ 1)
+    (let [sums (map subset-sums input-sets)
+          others (rest sums)]
+      (some (fn [value]
+              (every? #(% value) others))
+            (first sums)))))
+
+(= true (__ #{-1 1 99}
+            #{-2 2 888}
+            #{-3 3 7777}))
