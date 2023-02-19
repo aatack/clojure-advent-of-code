@@ -71,14 +71,16 @@
                                                    (map #(shear-diagonal rotation %)
                                                         (range)))))
                              (apply concat)
+                             (filter #(>= (count (% :minerals)) 3))
                              set)
                    (rotations rock)))
 
-          (mineral-count [rock]
-                 ;; Give rocks a slightly higher score if they contain less waste
+          (total-size [rock]
             (let [minerals (count (rock :minerals))
-                  waste (count (rock :waste))]
-              (* -1 (+ minerals (/ minerals (+ minerals waste 1))))))
+                  waste (count (rock :waste))
+                  size (+ minerals waste)
+                  purity (/ minerals size)]
+              (* -1 purity)))
 
           (vertical-isosceles-size [rock [x y]]
             (let [dimension
@@ -121,17 +123,22 @@
                     nodes (rest queued-nodes)]
                 (cond
                   (nil? node) nil
-                  (not= (accept? node) 0) (accept? node)
+                  (>= (accept? node) 4) (accept? node)
                   :else (recur (take beam-width
                                      (sort-by heuristic
                                               (concat nodes (explore node))))
                                (inc attempts))))))]
 
-    (beam-search (parse-rock ocr-output)
+    (beam-search (rotate (rotate (parse-rock ocr-output)))
                  shears
-                 mineral-count
+                 total-size
                  pure?
-                 20)))
+                 1000)
+    #_(-> ocr-output
+          parse-rock
+          rotate
+          rotate
+          (diagonal-isosceles-size [2 1]))))
 
 (__ [1 3 7 15 31])
 (__ [1 2])
