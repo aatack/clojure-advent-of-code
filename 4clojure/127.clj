@@ -74,11 +74,34 @@
                              set)
                    (rotations rock)))
 
-          (size [rock]
+          (mineral-count [rock]
                  ;; Give rocks a slightly higher score if they contain less waste
             (let [minerals (count (rock :minerals))
                   waste (count (rock :waste))]
               (* -1 (+ minerals (/ minerals (+ minerals waste 1))))))
+
+          (vertical-isosceles-size [rock [x y]]
+            (or (last (take-while (fn [size]
+                                    (every?
+                                     (rock :minerals)
+                                     (for [index (range size)]
+                                       [(+ x (- size index 1))
+                                        (+ y index)])))
+                                  (rest (range))))
+                0))
+
+          (diagonal-isosceles-size [rock [x y]]
+            (or (last (take-while (fn [size]
+                                    (every?
+                                     (rock :minerals)
+                                     (concat (for [index (range size)]
+                                               [(+ x (- size index 1))
+                                                (+ y index)])
+                                             (for [index (range size)]
+                                               [(- x (- size index 1))
+                                                (+ y index)]))))
+                                  (rest (range))))
+                0))
 
           (pure? [rock]
             (empty? (rock :waste)))
@@ -98,7 +121,7 @@
 
     (beam-search (parse-rock ocr-output)
                  shears
-                 size
+                 mineral-count
                  pure?
                  10)))
 
