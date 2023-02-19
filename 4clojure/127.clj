@@ -28,13 +28,26 @@
             {:minerals (set (filter identity (map function (rock :minerals))))
              :waste (set (filter identity (map function (rock :waste))))})
 
+          (focus [rock]
+                 ;; Ensure all the defined coordinates have positive x- and y-values
+            (let [coordinates (concat (rock :minerals) (rock :waste))
+                  minimum-x (apply min (map first coordinates))
+                  minimum-y (apply min (map second coordinates))]
+              (transform rock (fn [[x y]] [(- x minimum-x) (- y minimum-y)]))))
+
           (rotate [rock]
-            (transform rock (fn [[x y]] [(- 0 y) x])))
+            (focus (transform rock (fn [[x y]] [(- 0 y) x]))))
 
-          (shear-vertical [rock x]
-            (transform rock (fn [[x' y']] (when (> x' x) [x' y']))))]
+          (rotations [rock]
+            (take 4 (iterate rotate rock)))
 
-    (shear-vertical (parse-rock ocr-output) 1)))
+          (shear-vertical [rock vertical]
+            (focus (transform rock (fn [[x y]] (when (<= x vertical) [x y])))))
+
+          (shear-diagonal [rock diagonal]
+            (focus (transform rock (fn [[x y]] (when (<= (+ x y) diagonal) [x y])))))]
+
+    (rotate (parse-rock ocr-output))))
 
 (__ [1 3 7 15 31])
 (__ [1 2])
