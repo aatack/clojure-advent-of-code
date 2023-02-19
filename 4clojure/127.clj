@@ -1,3 +1,8 @@
+;; NOTE: I realise in hindsight that it would have been much simpler to have
+;;       a look for desirable structures within the existing data structure,
+;;       rather than bother implementing all the shearing behaviour; I'm too
+;;       far down this road now, though...
+
 (defn __ [ocr-output]
   (letfn [(power [number]
             (apply * (repeat number 2)))
@@ -85,7 +90,7 @@
                     nodes (rest queued-nodes)]
                 (cond
                   (nil? node) nil
-                  (accept? node) [attempts node]
+                  (accept? node) node
                   :else (recur (take beam-width
                                      (sort-by heuristic
                                               (concat nodes (explore node))))
@@ -95,15 +100,7 @@
                  shears
                  size
                  pure?
-                 10)
-    ;; (parse-rock ocr-output)
-    #_(-> ocr-output
-          parse-rock
-          (shear-diagonal 4)
-          rotate
-          rotate
-          (shear-diagonal 3))
-    #_(shears {:minerals #{[0 1]} :waste #{[0 0]}})))
+                 10)))
 
 (__ [1 3 7 15 31])
 (__ [1 2])
