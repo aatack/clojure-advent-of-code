@@ -31,8 +31,12 @@
           (focus [rock]
                  ;; Ensure all the defined coordinates have positive x- and y-values
             (let [coordinates (concat (rock :minerals) (rock :waste))
-                  minimum-x (apply min 0 (map first coordinates))
-                  minimum-y (apply min 0 (map second coordinates))]
+                  minimum-x (if (empty? coordinates)
+                              0
+                              (apply min (map first coordinates)))
+                  minimum-y (if (empty? coordinates)
+                              0
+                              (apply min (map second coordinates)))]
               (transform rock (fn [[x y]] [(- x minimum-x) (- y minimum-y)]))))
 
           (rotate [rock]
@@ -54,22 +58,22 @@
                 focus))
 
           (shears [rock]
-            (disj (->> (for [rotation (rotations rock)]
-                         (concat (take-while #(not (empty? (% :minerals)))
-                                             (map #(shear-vertical rotation %)
-                                                  (range)))
-                                 (take-while #(not (empty? (% :minerals)))
-                                             (map #(shear-diagonal rotation %)
-                                                  (range)))))
-                       (apply concat)
-                       set)
-                  rock))
+            (apply disj (->> (for [rotation (rotations rock)]
+                               (concat (take-while #(not (empty? (% :minerals)))
+                                                   (map #(shear-vertical rotation %)
+                                                        (range)))
+                                       (take-while #(not (empty? (% :minerals)))
+                                                   (map #(shear-diagonal rotation %)
+                                                        (range)))))
+                             (apply concat)
+                             set)
+                   (rotations rock)))
 
           (size [rock]
                  ;; Give rocks a slightly higher score if they contain less waste
             (let [minerals (count (rock :minerals))
                   waste (count (rock :waste))]
-              (+ minerals (/ minerals (+ minerals waste)))))
+              (* -1 (+ minerals (/ minerals (+ minerals waste 1))))))
 
           (pure? [rock]
             (empty? (rock :waste)))
@@ -86,7 +90,24 @@
                                         (concat nodes (explore node))))
                          (inc attempts))))))]
 
-    (parse-rock ocr-output)))
+    (beam-search (parse-rock ocr-output)
+        shears
+        size
+        pure?
+        10)
+    ;; (parse-rock ocr-output)
+    #_(-> ocr-output
+        parse-rock
+        (shear-vertical 2)
+        rotate
+        rotate
+        (shear-vertical 1)
+        rotate
+        ;; rotate
+        (shear-vertical 1)
+        shears)
+    #_(shears {:minerals #{[0 1]} :waste #{[0 0]}})))
 
 (__ [1 3 7 15 31])
 (__ [1 2])
+(__ [21 10 21 10])
