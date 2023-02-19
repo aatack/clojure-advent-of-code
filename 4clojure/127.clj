@@ -62,9 +62,19 @@
                                              (map #(shear-diagonal rotation %)
                                                   (range)))))
                        (apply concat)
-                       set) rock))]
+                       set)
+                  rock))
 
-    (shears (parse-rock ocr-output))))
+          (score [rock]
+                 ;; Give rocks a slightly higher score if they contain less waste
+            (let [minerals (count (rock :minerals))
+                  waste (count (rock :waste))]
+              (+ minerals (/ minerals (+ minerals waste)))))
+
+          (accept? [rock]
+            (empty? (rock :waste)))]
+
+    (map accept? (shears (parse-rock ocr-output)))))
 
 (__ [1 3 7 15 31])
-(__ [2 2])
+(__ [1 2])
