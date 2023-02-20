@@ -41,38 +41,37 @@
             (apply concat (map #(k-combinations % input-set)
                                (-> input-set count inc range))))]
 
-    (-> #{#{'a 'B 'C 'd}
-          #{'A 'b 'c 'd}
-          #{'A 'b 'c 'D}
-          #{'A 'b 'C 'd}
-          #{'A 'b 'C 'D}
-          #{'A 'B 'c 'd}
-          #{'A 'B 'c 'D 1}
-          #{'A 'B 'C 'd 2}
-          #{'A 'b 'c 'D 3}
-          #{'A 'b 'C 'd 4}
-          #{'A 'b 'C 'D 5}
-          #{'A 'B 'c 'd 6}
-          #{'A 'B 'c 'D 7}
-          #{'A 'B 'C 'd 8}}
-        subsets
-        count)
+    (let [candidates (for [function-subset function
+                           subset-value function-subset
+                           :let [comparison (swap-value function-subset
+                                                        subset-value)
+                                 new-subset (disj function-subset
+                                                  subset-value)]
+                           :when (and (not (function new-subset))
+                                      (function comparison))]
+                       (with-meta new-subset {:parents [function-subset comparison]}))]
 
-    #_(let [candidates (for [function-subset function
-                             subset-value function-subset
-                             :let [comparison (swap-value function-subset
-                                                          subset-value)
-                                   new-subset (disj function-subset
-                                                    subset-value)]
-                             :when (and (not (function new-subset))
-                                        (function comparison))]
-                         (with-meta new-subset {:parents [function-subset comparison]}))]
+      (if (not (empty? candidates))
+        (__ (apply conj function candidates))
 
-        (if (empty? candidates)
-          function ; TODO: remove the parents of each of the values
-          (__ (apply conj function candidates))))))
+        (let [parents (apply concat
+                             (map #(-> % meta :parents (or []))
+                                  function))
+              reduced (apply disj function parents)
+              possibilities (subsets reduced)
+              filtered (filter #(check function %) possibilities)]
+          (first (sort-by count filtered)))))))
 
-(__ nil)
+(__ #{#{'A 'B 'C 'D}
+      #{'A 'B 'C 'd}})
+(__ #{#{'a 'B 'C 'd}
+      #{'A 'b 'c 'd}
+      #{'A 'b 'c 'D}
+      #{'A 'b 'C 'd}
+      #{'A 'b 'C 'D}
+      #{'A 'B 'c 'd}
+      #{'A 'B 'c 'D}
+      #{'A 'B 'C 'd}})
 
 (= (__ #{#{'a 'B 'C 'd}
          #{'A 'b 'c 'd}
