@@ -21,9 +21,42 @@
                                         'C 'c
                                         'd 'D
                                         'D 'd} condition)))))
-                    left))]
+                    left))
 
-    (implies #{'A 'b 'c 'd} #{'A 'c})
+          (check [input output]
+            (every? (fn [input']
+                      (some #(implies input' %) output))
+                    input))
+
+          (k-combinations [length items]
+            (case length
+              0 #{}
+              1 (set (map #(set [%]) items))
+              (set (for [outer (k-combinations (dec length) items)
+                         inner items
+                         :when (not (outer inner))]
+                     (conj outer inner)))))
+
+          (subsets [input-set]
+            (apply concat (map #(k-combinations % input-set)
+                               (-> input-set count inc range))))]
+
+    (-> #{#{'a 'B 'C 'd}
+          #{'A 'b 'c 'd}
+          #{'A 'b 'c 'D}
+          #{'A 'b 'C 'd}
+          #{'A 'b 'C 'D}
+          #{'A 'B 'c 'd}
+          #{'A 'B 'c 'D 1}
+          #{'A 'B 'C 'd 2}
+          #{'A 'b 'c 'D 3}
+          #{'A 'b 'C 'd 4}
+          #{'A 'b 'C 'D 5}
+          #{'A 'B 'c 'd 6}
+          #{'A 'B 'c 'D 7}
+          #{'A 'B 'C 'd 8}}
+        subsets
+        count)
 
     #_(let [candidates (for [function-subset function
                              subset-value function-subset
@@ -38,6 +71,8 @@
         (if (empty? candidates)
           function ; TODO: remove the parents of each of the values
           (__ (apply conj function candidates))))))
+
+(__ nil)
 
 (= (__ #{#{'a 'B 'C 'd}
          #{'A 'b 'c 'd}
@@ -126,3 +161,34 @@
          #{'A 'b 'C 'd}})
    #{#{'B 'D}
      #{'b 'd}})
+
+; Every one of the outputs must imply at least one of the inputs
+
+aBCd
+Abcd <-
+AbcD
+AbCd <-
+AbCD
+ABcd <-
+ABcD
+ABCd <-
+
+Abc
+AbC -- Ab Ac
+ABc
+
+BCd
+
+
+
+
+aBCd
+Abcd
+AbcD
+AbCd
+AbCD
+ABcd
+ABcD
+ABCd
+BCd
+Abc
