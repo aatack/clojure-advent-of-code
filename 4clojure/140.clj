@@ -8,21 +8,36 @@
                     'c 'C
                     'C 'c
                     'd 'D
-                    'D 'd} value)))]
+                    'D 'd} value)))
 
-    (let [candidates (for [function-subset function
-                           subset-value function-subset
-                           :let [comparison (swap-value function-subset
-                                                        subset-value)
-                                 new-subset (disj function-subset
-                                                  subset-value)]
-                           :when (and (not (function new-subset))
-                                      (function comparison))]
-                       (with-meta new-subset {:parents [function-subset comparison]}))]
+          (implies [left right]
+            (every? (fn [condition]
+                      (or (right condition)
+                          (not (right ({'a 'A
+                                        'A 'a
+                                        'b 'B
+                                        'B 'b
+                                        'c 'C
+                                        'C 'c
+                                        'd 'D
+                                        'D 'd} condition)))))
+                    left))]
 
-      (if (empty? candidates)
-        function ; TODO: remove the parents of each of the values
-        (__ (apply conj function candidates))))))
+    (implies #{'A 'b 'c 'd} #{'A 'c})
+
+    #_(let [candidates (for [function-subset function
+                             subset-value function-subset
+                             :let [comparison (swap-value function-subset
+                                                          subset-value)
+                                   new-subset (disj function-subset
+                                                    subset-value)]
+                             :when (and (not (function new-subset))
+                                        (function comparison))]
+                         (with-meta new-subset {:parents [function-subset comparison]}))]
+
+        (if (empty? candidates)
+          function ; TODO: remove the parents of each of the values
+          (__ (apply conj function candidates))))))
 
 (= (__ #{#{'a 'B 'C 'd}
          #{'A 'b 'c 'd}
