@@ -62,17 +62,6 @@
               filtered (filter #(check function %) possibilities)]
           (first (sort-by count filtered)))))))
 
-(__ #{#{'A 'B 'C 'D}
-      #{'A 'B 'C 'd}})
-(__ #{#{'a 'B 'C 'd}
-      #{'A 'b 'c 'd}
-      #{'A 'b 'c 'D}
-      #{'A 'b 'C 'd}
-      #{'A 'b 'C 'D}
-      #{'A 'B 'c 'd}
-      #{'A 'B 'c 'D}
-      #{'A 'B 'C 'd}})
-
 (= (__ #{#{'a 'B 'C 'd}
          #{'A 'b 'c 'd}
          #{'A 'b 'c 'D}
@@ -160,34 +149,3 @@
          #{'A 'b 'C 'd}})
    #{#{'B 'D}
      #{'b 'd}})
-
-; Every one of the outputs must imply at least one of the inputs
-
-aBCd
-Abcd <-
-AbcD
-AbCd <-
-AbCD
-ABcd <-
-ABcD
-ABCd <-
-
-Abc
-AbC -- Ab Ac
-ABc
-
-BCd
-
-
-
-
-aBCd
-Abcd
-AbcD
-AbCd
-AbCD
-ABcd
-ABcD
-ABCd
-BCd
-Abc
