@@ -11,18 +11,18 @@
                     'D 'd} value)))]
 
     (let [candidates (for [function-subset function
-                           subset-value function-subset]
-                       [function-subset
-                        (swap-value function-subset
-                                    subset-value)])
-          incumbants (filter #(function (second %)) candidates)]
+                           subset-value function-subset
+                           :let [comparison (swap-value function-subset
+                                                        subset-value)
+                                 new-subset (disj function-subset
+                                                  subset-value)]
+                           :when (and (not (function new-subset))
+                                      (function comparison))]
+                       (with-meta new-subset {:parents [function-subset comparison]}))]
 
-      (if (empty? incumbants)
-        function
-        (let [selected (first incumbants)]
-          (__ (conj (apply disj function selected)
-                    (set (filter (first selected)
-                                 (second selected))))))))))
+      (if (empty? candidates)
+        function ; TODO: remove the parents of each of the values
+        (__ (apply conj function candidates))))))
 
 (= (__ #{#{'a 'B 'C 'd}
          #{'A 'b 'c 'd}
