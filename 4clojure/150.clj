@@ -24,23 +24,21 @@
                           (palindrome :digits))]
               (if carry
                 {:digits (if (palindrome :even)
-                           (vector (concat [1] digits))
+                           (apply vector (concat digits [1]))
                            (assoc digits 0 1))
                  :even (not (palindrome :even))}
-                (assoc palindrome :digits digits))))]
-    (increment {:digits [9 9] :even false})))
+                (assoc palindrome :digits digits))))
 
-(__ 0)
+          (palindrome->number [palindrome]
+            (-> (concat (reverse (palindrome :digits))
+                        ((if (palindrome :even) identity rest)
+                         (palindrome :digits)))
+                digits->number))]
 
-99 false
-10 true
-999 1001
-10001
+    (map palindrome->number
+         (iterate increment {:digits [0] :even false}))))
 
-odd->even
-999 -- 99
-1001 -- 10
-
-even->odd
-99 -- 9
-101 -- 10
+(= (take 26 (__ 0))
+   [0 1 2 3 4 5 6 7 8 9
+    11 22 33 44 55 66 77 88 99
+    101 111 121 131 141 151 161])
