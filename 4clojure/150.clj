@@ -11,7 +11,7 @@
                   \8 8
                   \9 9} (str number)))
           (digits->number [digits]
-            (->> digits (apply str) Long/parseLong))
+            (->> digits (apply str) read-string))
 
           (increment [palindrome]
             (let [[digits carry]
