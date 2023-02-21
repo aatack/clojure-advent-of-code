@@ -25,7 +25,7 @@
               (if carry
                 {:digits (if (palindrome :even)
                            (apply vector (concat digits [1]))
-                           (assoc digits 0 1))
+                           (assoc digits (dec (count digits)) 1))
                  :even (not (palindrome :even))}
                 (assoc palindrome :digits digits))))
 
