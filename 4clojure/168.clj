@@ -16,7 +16,7 @@
    (letfn [(drop' [items sequence]
                   (if (= 0 items)
                     sequence
-                    (drop' (dec items) (rest sequence))))]
+                    (lazy-seq (drop' (dec items) (rest sequence)))))]
      (->> (__ function)
         (map #(drop' drop-columns %))
         (drop' drop-rows))))
