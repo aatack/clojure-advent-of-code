@@ -1,13 +1,25 @@
 (defn __
   ([function]
-   (for [x (range)]
-     (for [y (range)]
-       (function x y))))
+   (letfn [(iterate' [iterator value]
+             (lazy-seq (cons value
+                             (iterate' iterator
+                                       (iterator value)))))
+           (range' []
+             (iterate' inc 0))]
+     (map (fn [x]
+            (map (fn [y]
+                   (function x y))
+                 (range)))
+          (range'))))
 
   ([function drop-rows drop-columns]
-   (->> (__ function)
-        (map #(drop drop-columns %))
-        (drop drop-rows)))
+   (letfn [(drop' [items sequence]
+                  (if (= 0 items)
+                    sequence
+                    (drop' (dec items) (rest sequence))))]
+     (->> (__ function)
+        (map #(drop' drop-columns %))
+        (drop' drop-rows))))
 
   ([function drop-rows drop-columns take-rows take-columns]
    (->> (__ function drop-rows drop-columns)
