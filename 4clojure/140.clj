@@ -23,7 +23,7 @@
                                         'D 'd} condition)))))
                     left))
 
-          (check [input output]
+          (satisfies? [input output]
             (every? (fn [input']
                       (some #(implies input' %) output))
                     input))
@@ -49,17 +49,30 @@
                                                   subset-value)]
                            :when (and (not (function new-subset))
                                       (function comparison))]
-                       (with-meta new-subset {:parents [function-subset comparison]}))]
+                       (with-meta new-subset
+                         {:parents [function-subset comparison]}))]
 
       (if (not (empty? candidates))
+
+        ;; We have new candidates so may be able to make further
+        ;; reductions
         (__ (apply conj function candidates))
 
+        ;; Iterate through all subsets of the remaining conditions
+        ;; to find those that are equivalent to the original function,
+        ;; then pick the one that contains the fewest branches.  To 
+        ;; speed up the check, we remove all conditions which we know
+        ;; are not going to be part of the final subset (since they
+        ;; were used to create a union in the first place).  Although
+        ;; this is a slightly hacky/brute force solution, we're a
+        ;; hundred and forty problems in and it's time to wrap these
+        ;; up soon
         (let [parents (apply concat
                              (map #(-> % meta :parents (or []))
                                   function))
               reduced (apply disj function parents)
               possibilities (subsets reduced)
-              filtered (filter #(check function %) possibilities)]
+              filtered (filter #(satisfies? function %) possibilities)]
           (first (sort-by count filtered)))))))
 
 (= (__ #{#{'a 'B 'C 'd}
