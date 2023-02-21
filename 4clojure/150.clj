@@ -35,8 +35,21 @@
                          (palindrome :digits)))
                 digits->number))]
 
-    (map palindrome->number
-         (iterate increment {:digits [0] :even false}))))
+    (let [initial-digits (number->digits initial)
+          initial-even? (even? (count initial-digits))
+          initial-count (if initial-even?
+                          (/ (count initial-digits) 2)
+                          (/ (inc (count initial-digits)) 2))
+
+          initial-palindrome
+          (first (filter #(>= (palindrome->number %) initial)
+                         (iterate increment
+                                  {:digits (into [] (reverse (take initial-count
+                                                          initial-digits)))
+                                   :even initial-even?})))]
+
+      (map palindrome->number
+             (iterate increment initial-palindrome)))))
 
 (= (take 26 (__ 0))
    [0 1 2 3 4 5 6 7 8 9
