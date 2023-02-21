@@ -5,10 +5,14 @@
        (function x y))))
 
   ([function drop-rows drop-columns]
-   nil)
+   (->> (__ function)
+        (map #(drop drop-columns %))
+        (drop drop-rows)))
 
-  ([function drop-rows drop-columns skip-rows skip-columns]
-   nil))
+  ([function drop-rows drop-columns take-rows take-columns]
+   (->> (__ function drop-rows drop-columns)
+        (take take-rows)
+        (map #(take take-columns %)))))
 
 (= (take 5 (map #(take 6 %) (__ str)))
    [["00" "01" "02" "03" "04" "05"]
