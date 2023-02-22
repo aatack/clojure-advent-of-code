@@ -5,11 +5,24 @@
                       \] [:bracket false]
                       \{ [:brace true]
                       \} [:brace false]}]
-    (boolean (reduce (fn [stack [kind open]]
-                       (cond
-                         open (cons kind stack)
-                         (empty? stack) (reduced false)
-                         (= kind (first stack)) (rest stack)
-                         :else (reduced false)))
-                     ()
-                     (map bracket-type (filter bracket-type string))))))
+    (empty? (reduce (fn [stack [kind open]]
+                      (cond
+                        open (cons kind stack)
+                        (empty? stack) (reduced [nil])
+                        (= kind (first stack)) (rest stack)
+                        :else (reduced [nil])))
+                    ()
+                    (map bracket-type (filter bracket-type string))))))
+
+(__ "This string has no brackets.")
+(__ "class Test {
+         public static void main(String[] args) {
+             System.out.println(\"Hello world.\");
+         }
+     }")
+(not (__ "(start, end]"))
+(not (__ "())"))
+(not (__ "[ { ] } "))
+(__ "([]([(()){()}(()(()))(([[]]({}()))())]((((()()))))))")
+(not (__ "([]([(()){()}(()(()))(([[]]({}([)))())]((((()()))))))"))
+(not (__ "["))
