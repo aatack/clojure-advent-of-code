@@ -1,8 +1,8 @@
 (ns advent-of-code.solutions.day-01 
-  (:require [advent-of-code.utils :refer [defsolution]]
+  (:require [advent-of-code.utils :refer [load-input]]
             [clojure.string :refer [split-lines]]))
 
-(defsolution day-01a
+(defn day-01a [input]
   (->> input
        split-lines
        (partition-by empty?)
@@ -11,5 +11,4 @@
        (map #(apply + %))
        (apply max)))
 
-(day-01a)
-
+(day-01a (load-input :day-01a))
