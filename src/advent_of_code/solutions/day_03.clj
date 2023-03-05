@@ -16,7 +16,13 @@
     (+ 1 (- (int item) (int \a)))))
 
 (defn day-03a [input]
-  input)
+  (->> input
+       split-lines
+       (map compartments)
+       (map shared-items)
+       (map first)
+       (map priority)
+       (apply +)))
 
 (defn day-03b [input]
   input)
