@@ -12,6 +12,10 @@
   (and (<= (first outer) (first inner))
        (>= (second outer) (second inner))))
 
+(defn overlaps [left right]
+  (not (or (< (second left) (first right))
+           (< (second right) (first left)))))
+
 (defn day-04a [input]
   (->> input
        split-lines
@@ -21,4 +25,8 @@
        count))
 
 (defn day-04b [input]
-  (->> input))
+  (->> input
+       split-lines
+       (map parse-assignment)
+       (filter #(apply overlaps %))
+       count))
