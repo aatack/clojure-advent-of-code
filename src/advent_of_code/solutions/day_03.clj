@@ -15,6 +15,12 @@
     (+ 27 (- (int item) (int \A)))
     (+ 1 (- (int item) (int \a)))))
 
+(defn badge [group]
+     (->> group
+          (map set)
+          (apply intersection)
+          first))
+
 (defn day-03a [input]
   (->> input
        split-lines
@@ -25,4 +31,9 @@
        (apply +)))
 
 (defn day-03b [input]
-  input)
+  (->> input
+       split-lines
+       (partition 3)
+       (map badge)
+       (map priority)
+       (apply +)))
