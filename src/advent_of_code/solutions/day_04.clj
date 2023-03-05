@@ -8,10 +8,17 @@
        (map read-string)
        (partition 2)))
 
+(defn contains [outer inner]
+  (and (<= (first outer) (first inner))
+       (>= (second outer) (second inner))))
+
 (defn day-04a [input]
   (->> input
        split-lines
-       (map parse-assignment)))
+       (map parse-assignment)
+       (filter #(or (contains (first %) (second %))
+                    (contains (second %) (first %))))
+       count))
 
 (defn day-04b [input]
   (->> input))
