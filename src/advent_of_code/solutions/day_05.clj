@@ -1,5 +1,5 @@
 (ns advent-of-code.solutions.day-05
-  (:require [clojure.string :refer [split-lines]]))
+  (:require [clojure.string :refer [split-lines split]]))
 
 (defn transpose [sequences]
   (apply map vector sequences))
@@ -21,13 +21,20 @@
        transpose
        (map #(drop-while (fn [character] (= character \space)) %))))
 
-(defn parse-procedure [procedure])
+(defn parse-procedure [procedure]
+  (->> procedure
+       (map #(split % #" "))
+       (map rest)
+       (map #(take-nth 2 %))
+       (map #(map read-string %))
+       (map (fn [[move from to]]
+              {:move move :from from :to to}))))
 
 (defn day-05a [input]
   (let [[stack-input procedure-input] (split-input input)
         stack (parse-stack stack-input)
         procedure (parse-procedure procedure-input)]
-    (parse-stack stack-input)))
+    (parse-procedure procedure-input)))
 
 (defn day-05b [input]
   (->> input))
