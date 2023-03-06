@@ -31,19 +31,25 @@
        (map (fn [[amount from to]]
               {:amount amount :from from :to to}))))
 
-(defn apply-procedure [stack procedure]
-  (let [amount (procedure :amount)
-        crates (reverse (take amount (stack (procedure :from))))]
-    (-> stack
-        (update (procedure :from) #(drop amount %))
-        (update (procedure :to) #(concat crates %)))))
+(defn make-apply-procedure [reversed?]
+  (fn [stack procedure]
+    (let [amount (procedure :amount)
+          crates ((if reversed? reverse identity)
+                  (take amount (stack (procedure :from))))]
+      (-> stack
+          (update (procedure :from) #(drop amount %))
+          (update (procedure :to) #(concat crates %))))))
 
-(defn day-05a [input]
+(defn apply-procedure [input reversed?]
   (let [[stack-input procedure-input] (split-input input)
         initial-stack (parse-stack stack-input)
         procedure (parse-procedure procedure-input)
-        final-stack (reduce apply-procedure initial-stack procedure)]
+        final-stack (reduce (make-apply-procedure reversed?)
+                            initial-stack procedure)]
     (apply str (map #(first (final-stack %)) (sort (keys final-stack))))))
 
+(defn day-05a [input]
+  (apply-procedure input true))
+
 (defn day-05b [input]
-  (->> input))
+  (apply-procedure input false))
