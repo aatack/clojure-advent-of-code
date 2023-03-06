@@ -19,7 +19,8 @@
        (map #(take-nth 4 %))
        (map #(apply str %))
        transpose
-       (map #(drop-while (fn [character] (= character \space)) %))))
+       (map #(drop-while (fn [character] (= character \space)) %))
+       (zipmap (rest (range)))))
 
 (defn parse-procedure [procedure]
   (->> procedure
@@ -27,14 +28,22 @@
        (map rest)
        (map #(take-nth 2 %))
        (map #(map read-string %))
-       (map (fn [[move from to]]
-              {:move move :from from :to to}))))
+       (map (fn [[amount from to]]
+              {:amount amount :from from :to to}))))
+
+(defn apply-procedure [stack procedure]
+  (let [amount (procedure :amount)
+        crates (reverse (take amount (stack (procedure :from))))]
+    (-> stack
+        (update (procedure :from) #(drop amount %))
+        (update (procedure :to) #(concat crates %)))))
 
 (defn day-05a [input]
   (let [[stack-input procedure-input] (split-input input)
-        stack (parse-stack stack-input)
-        procedure (parse-procedure procedure-input)]
-    (parse-procedure procedure-input)))
+        initial-stack (parse-stack stack-input)
+        procedure (parse-procedure procedure-input)
+        final-stack (reduce apply-procedure initial-stack procedure)]
+    (apply str (map #(first (final-stack %)) (sort (keys final-stack))))))
 
 (defn day-05b [input]
   (->> input))
