@@ -62,7 +62,13 @@
   (let [filtered-sizes (filter #(and % (>= % size)) sizes)]
     (when (not-empty filtered-sizes) (apply min filtered-sizes))))
 
-(defn find-smallest-sufficient-folder [folder size]
+(defn find-smallest-sufficient-folder
+  "Get the size of the folder and the smallest child folder above a threshold.
+   
+   TODO: this should be modified such that it also takes the root folder into
+         consideration, removing the need for the outer call to
+         `pick-smallest-sufficient-folder` in the calling function below."
+  [folder size]
   (reduce (fn [[folder-size smallest-size] [_ size-or-folder]]
             (if (integer? size-or-folder)
               [(+ folder-size size-or-folder) smallest-size]
