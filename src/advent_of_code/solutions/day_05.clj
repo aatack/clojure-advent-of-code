@@ -1,8 +1,6 @@
 (ns advent-of-code.solutions.day-05
-  (:require [clojure.string :refer [split-lines split]]))
-
-(defn transpose [sequences]
-  (apply map vector sequences))
+  (:require [clojure.string :refer [split-lines split]]
+            [advent-of-code.utils :refer [transpose]]))
 
 (defn split-input
   "Splits input into stack and procedure sections."

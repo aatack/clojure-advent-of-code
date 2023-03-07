@@ -5,3 +5,6 @@
   (slurp (str "src/advent_of_code/inputs/"
               (string/replace (name problem) "-" "_")
               ".txt")))
+
+(defn transpose [sequences]
+  (apply map vector sequences))
