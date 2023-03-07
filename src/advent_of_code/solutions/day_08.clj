@@ -67,4 +67,6 @@
 
 (defn day-08b [input]
   (let [forest (->> input parse-forest)]
-    nil))
+    (apply max (for [x (range (count forest))
+                     y (range (count (nth forest x)))]
+                 (scenic-score forest [x y])))))
