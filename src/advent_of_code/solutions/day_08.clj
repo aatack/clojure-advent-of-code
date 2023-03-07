@@ -27,7 +27,17 @@
     (map #(- length % 1) (visible-from-front (reverse trees)))))
 
 (defn day-08a [input]
-  (->> input))
+  (let [forest (->> input parse-forest)]
+    (concat (mapcat (fn [index row]
+                      (map (fn [coordinate] [index coordinate])
+                           (concat (visible-from-front row)
+                                   (visible-from-back row))))
+                    (range) forest)
+            (mapcat (fn [index column]
+                      (map (fn [coordinate] [coordinate index])
+                           (concat (visible-from-front column)
+                                   (visible-from-back column))))
+                    (range) (transpose forest)))))
 
 (defn day-08b [input]
   (->> input))
