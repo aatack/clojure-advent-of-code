@@ -36,10 +36,26 @@
 (defn build-files [terminal-lines]
   (reduce update-files [{} []] terminal-lines))
 
+(defn size-of-small-folders [folder]
+  (reduce (fn [[folder-size total-size] [_ size-or-folder]]
+            (if (integer? size-or-folder)
+              [(+ folder-size size-or-folder) total-size]
+              (let [[child-folder-size child-total-size]
+                    (size-of-small-folders size-or-folder)]
+                [(+ folder-size child-folder-size)
+                 (+ total-size
+                    child-total-size
+                    (if (< child-folder-size 100000)
+                      child-folder-size
+                      0))])))
+          [0 0]
+          folder))
+
 (defn day-07a [input]
-  (->> input
-       split-lines
-       build-files))
+  (second (size-of-small-folders (->> input
+                                      split-lines
+                                      build-files
+                                      first))))
 
 (defn day-07b [input]
   (->> input))
