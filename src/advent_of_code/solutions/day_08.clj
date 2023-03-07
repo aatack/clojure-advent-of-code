@@ -2,17 +2,22 @@
   (:require [clojure.string :refer [split-lines]]
             [advent-of-code.utils :refer [transpose]]))
 
+(def maximum-height 9)
+
 (defn parse-forest [input]
   (->> input
        split-lines
        (map #(map str %))
-       (map #(map read-string %))))
+       (map #(map read-string %))
+       (map #(apply vector %))
+       (apply vector)
+       ))
 
 (defn visible-from-front 
   "Get the coordinates of trees in a row visible from the front."
   [trees]
   (first (reduce (fn [[coordinates tallest] [coordinate height]]
-                   (if (= height 9)
+                   (if (= height maximum-height)
                      (reduced [(conj coordinates coordinate) height])
                      (if (> height tallest)
                        [(conj coordinates coordinate) height]
@@ -41,5 +46,15 @@
         set
         count)))
 
+(defn look
+  "Lazily iterate through tree heights in the given direction."
+  [forest [x y] [dx dy]]
+  (let [height (get-in forest [x y])]
+    (if height
+      (lazy-seq (cons height
+                  (look forest [(+ x dx) (+ y dy)] [dx dy])))
+      [maximum-height])))
+
 (defn day-08b [input]
-  (->> input))
+  (let [forest (->> input parse-forest)]
+    (reverse (look forest [0 0] [0 1]))))
