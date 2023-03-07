@@ -28,16 +28,18 @@
 
 (defn day-08a [input]
   (let [forest (->> input parse-forest)]
-    (concat (mapcat (fn [index row]
-                      (map (fn [coordinate] [index coordinate])
-                           (concat (visible-from-front row)
-                                   (visible-from-back row))))
-                    (range) forest)
-            (mapcat (fn [index column]
-                      (map (fn [coordinate] [coordinate index])
-                           (concat (visible-from-front column)
-                                   (visible-from-back column))))
-                    (range) (transpose forest)))))
+    (-> (concat (mapcat (fn [index row]
+                          (map (fn [coordinate] [index coordinate])
+                               (concat (visible-from-front row)
+                                       (visible-from-back row))))
+                        (range) forest)
+                (mapcat (fn [index column]
+                          (map (fn [coordinate] [coordinate index])
+                               (concat (visible-from-front column)
+                                       (visible-from-back column))))
+                        (range) (transpose forest)))
+        set
+        count)))
 
 (defn day-08b [input]
   (->> input))
