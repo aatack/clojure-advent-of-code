@@ -57,5 +57,30 @@
                                       build-files
                                       first))))
 
+(defn pick-smallest-sufficient-folder [sizes size]
+  (prn sizes)
+  (let [filtered-sizes (filter #(and % (>= % size)) sizes)]
+    (when (not-empty filtered-sizes) (apply min filtered-sizes))))
+
+(defn find-smallest-sufficient-folder [folder size]
+  (reduce (fn [[folder-size smallest-size] [_ size-or-folder]]
+            (if (integer? size-or-folder)
+              [(+ folder-size size-or-folder) smallest-size]
+              (let [[child-folder-size child-smallest-size]
+                    (find-smallest-sufficient-folder size-or-folder size)]
+                [(+ folder-size child-folder-size)
+                 (pick-smallest-sufficient-folder
+                  [smallest-size child-smallest-size child-folder-size]
+                  size)])))
+          [0 nil]
+          folder))
+
 (defn day-07b [input]
-  (->> input))
+  (let [folder (->> input
+                    split-lines
+                    build-files
+                    first)
+        size (- 30000000
+                (- 70000000 (first (size-of-small-folders folder))))]
+    (pick-smallest-sufficient-folder (find-smallest-sufficient-folder folder size)
+                                     size)))
