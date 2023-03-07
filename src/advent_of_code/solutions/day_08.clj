@@ -46,15 +46,25 @@
         set
         count)))
 
-(defn look
-  "Lazily iterate through tree heights in the given direction."
-  [forest [x y] [dx dy]]
-  (let [height (get-in forest [x y])]
-    (if height
-      (lazy-seq (cons height
-                  (look forest [(+ x dx) (+ y dy)] [dx dy])))
-      [maximum-height])))
+(defn view-distance [forest view-height step coordinate]
+  (let [tree-height (get-in forest coordinate)]
+    (cond
+      (nil? tree-height) 0
+      (>= tree-height view-height) 1
+      :else (+ 1 (view-distance forest
+                                view-height
+                                step
+                                (map + coordinate step))))))
+
+(defn scenic-score [forest coordinate]
+  (let [height (get-in forest coordinate)]
+    (apply * (map (fn [step]
+           (view-distance forest
+                          height
+                          step
+                          (map + coordinate step)))
+         [[0 1] [0 -1] [1 0] [-1 0]]))))
 
 (defn day-08b [input]
   (let [forest (->> input parse-forest)]
-    (reverse (look forest [0 0] [0 1]))))
+    nil))
