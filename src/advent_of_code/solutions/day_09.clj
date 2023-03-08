@@ -28,4 +28,10 @@
   (-> input head-positions tail-positions set count))
 
 (defn day-09b [input]
-  (->> input))
+  (->> input
+       head-positions
+       (iterate tail-positions)
+       (drop 9)
+       first
+       set
+       count))
