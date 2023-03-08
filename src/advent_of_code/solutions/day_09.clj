@@ -12,8 +12,20 @@
                                                  "D" [0 -1]} direction)))))
        (reductions (fn [position step] (map + position step)) [0 0])))
 
+(defn clamp [value] (if (< value -1) -1 (if (> value 1) 1 value)))
+
+(defn tail-positions [heads]
+  (rest (reductions (fn [tail head]
+                      (let [difference (map - head tail)
+                            adjacent? (every? #(= (clamp %) %) difference)]
+                        (if adjacent?
+                          tail
+                          (map + tail (map clamp difference)))))
+                    [0 0]
+                    heads)))
+
 (defn day-09a [input]
-  (head-positions input))
+  (-> input head-positions tail-positions set count))
 
 (defn day-09b [input]
   (->> input))
