@@ -9,7 +9,8 @@
                  (if (= command ["noop"])
                    [0]
                    [0 (read-string (second command))])))
-       (reductions + 1)))
+       (reductions + 1)
+       (zipmap (rest (range)))))
 
 (defn nths [indices sequence]
   (map #(nth sequence %) indices))
