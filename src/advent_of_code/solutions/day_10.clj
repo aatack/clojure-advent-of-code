@@ -10,6 +10,7 @@
                    [0]
                    [0 (read-string (second command))])))
        (reductions + 1)
+       butlast
        (zipmap (rest (range)))))
 
 (defn nths [indices sequence]
@@ -24,4 +25,11 @@
          (apply +))))
 
 (defn day-10b [input]
-  (->> input))
+  (let [signal (signal-strength input)]
+    (->> (map (fn [index]
+           (if (<= 0 (- (mod index 40) (signal index)) 2)
+             "#"
+             "."))
+         (sort (keys signal)))
+         (partition 40)
+         (map #(apply str %)))))
