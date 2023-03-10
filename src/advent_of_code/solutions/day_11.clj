@@ -58,10 +58,20 @@
         (update-in [monkey-index :items] rest)
         (update-in [final-monkey :items] #(concat % [worry])))))
 
+(defn perform-round [initial-monkeys]
+  (loop [monkey-index 0
+         monkeys initial-monkeys]
+    (cond
+      (>= monkey-index (count initial-monkeys))
+      monkeys
+      (empty? (get-in monkeys [monkey-index :items]))
+      (recur (inc monkey-index) monkeys)
+      :else
+      (recur monkey-index (process-monkey monkey-index monkeys)))))
+
 (defn day-11a [input]
   (->> input
-       parse-monkeys
-       (process-monkey 0)))
+       parse-monkeys))
 
 (defn day-11b [input]
   (->> input))
