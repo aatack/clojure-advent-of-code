@@ -16,7 +16,7 @@
                               (list ({"+" '+
                                       "-" '-
                                       "/" '/
-                                      "*" '*} operator)
+                                      "*" '*'} operator)
                                     (if (= left "old")
                                       'old
                                       (read-string left))
@@ -45,13 +45,13 @@
        (map parse-monkey)
        (apply vector)))
 
-(defn process-monkey [monkey-index monkeys]
+(defn process-monkey [monkey-index monkeys worry-factor]
   (let [initial-monkey (nth monkeys monkey-index)
         worry (-> initial-monkey
                   :items
                   first
                   ((initial-monkey :operation))
-                  (quot 3))
+                  (quot worry-factor))
         final-monkey (if (= 0 (mod worry (initial-monkey :condition)))
                        (initial-monkey :then)
                        (initial-monkey :otherwise))]
@@ -60,7 +60,7 @@
         (update-in [monkey-index :inspected] inc)
         (update-in [final-monkey :items] #(concat % [worry])))))
 
-(defn perform-round [initial-monkeys]
+(defn perform-round [initial-monkeys worry-factor]
   (loop [monkey-index 0
          monkeys initial-monkeys]
     (cond
@@ -69,12 +69,12 @@
       (empty? (get-in monkeys [monkey-index :items]))
       (recur (inc monkey-index) monkeys)
       :else
-      (recur monkey-index (process-monkey monkey-index monkeys)))))
+      (recur monkey-index (process-monkey monkey-index monkeys worry-factor)))))
 
 (defn day-11a [input]
   (->> input
        parse-monkeys
-       (iterate perform-round)
+       (iterate #(perform-round % 3))
        (drop 20)
        first
        (map :inspected)
@@ -84,4 +84,13 @@
        (apply *)))
 
 (defn day-11b [input]
-  (->> input))
+  (->> input
+       parse-monkeys
+       (iterate #(perform-round % 1))
+       (drop 10000)
+       first
+       (map :inspected)
+       sort
+       reverse
+       (take 2)
+       (apply *)))
