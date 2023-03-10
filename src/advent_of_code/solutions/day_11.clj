@@ -34,7 +34,8 @@
      :otherwise (-> otherwise
                     (split #" ")
                     last
-                    read-string)}))
+                    read-string)
+     :inspected 0}))
 
 (defn parse-monkeys [input]
   (->> input
@@ -56,6 +57,7 @@
                        (initial-monkey :otherwise))]
     (-> monkeys
         (update-in [monkey-index :items] rest)
+        (update-in [monkey-index :inspected] inc)
         (update-in [final-monkey :items] #(concat % [worry])))))
 
 (defn perform-round [initial-monkeys]
@@ -71,7 +73,15 @@
 
 (defn day-11a [input]
   (->> input
-       parse-monkeys))
+       parse-monkeys
+       (iterate perform-round)
+       (drop 20)
+       first
+       (map :inspected)
+       sort
+       reverse
+       (take 2)
+       (apply *)))
 
 (defn day-11b [input]
   (->> input))
