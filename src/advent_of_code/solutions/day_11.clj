@@ -41,11 +41,27 @@
        split-lines
        (partition-by empty?)
        (take-nth 2)
-       (map parse-monkey)))
+       (map parse-monkey)
+       (apply vector)))
+
+(defn process-monkey [monkey-index monkeys]
+  (let [initial-monkey (nth monkeys monkey-index)
+        worry (-> initial-monkey
+                  :items
+                  first
+                  ((initial-monkey :operation))
+                  (quot 3))
+        final-monkey (if (= 0 (mod worry (initial-monkey :condition)))
+                       (initial-monkey :then)
+                       (initial-monkey :otherwise))]
+    (-> monkeys
+        (update-in [monkey-index :items] rest)
+        (update-in [final-monkey :items] #(concat % [worry])))))
 
 (defn day-11a [input]
   (->> input
-       parse-monkeys))
+       parse-monkeys
+       (process-monkey 0)))
 
 (defn day-11b [input]
   (->> input))
