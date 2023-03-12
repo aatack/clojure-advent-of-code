@@ -1,6 +1,25 @@
 (ns advent-of-code.solutions.day-11
   (:require [clojure.string :refer [split-lines split]]))
 
+;; TODO: extract this from the puzzle input directly
+(def divisors [11 2 5 7 17 193 13])
+
+(defn parse-modulos [number]
+  ;; TODO: put into a map
+  (map #(list % (mod number %)) divisors))
+
+(defn multiply
+  "Multiple the modulos of a number by another number."
+  [modulos number])
+
+(defn square
+  "Square the modulos of a number."
+  [modulos number])
+
+(defn add
+  "Add a constant to the modulos of a number."
+  [modulos number])
+
 (defn parse-monkey [monkey]
   (let [[_ items operation condition then otherwise] monkey]
     {:items (map read-string (-> items
