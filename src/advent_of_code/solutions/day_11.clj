@@ -5,8 +5,7 @@
 (def divisors [11 2 5 7 17 193 13])
 
 (defn parse-modulos [number]
-  ;; TODO: put into a map
-  (map #(list % (mod number %)) divisors))
+  (into {} (map #(list % (mod number %)) divisors)))
 
 (defn multiply
   "Multiple the modulos of a number by another number."
