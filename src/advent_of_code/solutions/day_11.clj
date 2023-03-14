@@ -1,7 +1,7 @@
 (ns advent-of-code.solutions.day-11
   (:require [clojure.string :refer [split-lines split]]))
 
-(def divisors [11 2 5 7 17 19 3 13])
+(def divisors [11 2 5 7 17 19 3 13 23])
 
 (defn parse-modulos
   "Store a number as its modulos of each of the divisors.
@@ -81,13 +81,13 @@
       (= 0 (mod worry constant))
       (= (worry constant) 0))))
 
-(defn parse-monkey [monkey]
+(defn parse-monkey [monkey integer-worries?]
   (let [[_ items operation condition then otherwise] monkey
         worries (map read-string (-> items
                                      (split #": ")
                                      second
                                      (split #", ")))]
-    {:items worries
+    {:items (map (if integer-worries? identity parse-modulos) worries)
      :operation (let [[left operator right]
                       (-> operation
                           (split #" = ")
@@ -111,12 +111,12 @@
                     read-string)
      :inspected 0}))
 
-(defn parse-monkeys [input]
+(defn parse-monkeys [integer-worries? input]
   (->> input
        split-lines
        (partition-by empty?)
        (take-nth 2)
-       (map parse-monkey)
+       (map #(parse-monkey % integer-worries?))
        (apply vector)))
 
 (defn process-monkey [monkey-index monkeys]
@@ -147,7 +147,7 @@
 
 (defn day-11a [input]
   (->> input
-       parse-monkeys
+       (parse-monkeys true)
        (iterate perform-round)
        (drop 20)
        first
@@ -159,4 +159,12 @@
 
 (defn day-11b [input]
   (->> input
-       parse-monkeys))
+       (parse-monkeys false)
+       (iterate perform-round)
+       (drop 10000)
+       first
+       (map :inspected)
+       sort
+       reverse
+       (take 2)
+       (apply *)))
