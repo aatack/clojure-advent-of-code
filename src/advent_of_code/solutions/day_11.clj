@@ -21,11 +21,13 @@
    term is always divisible by k, so can be ignored; the second
    and third terms will then be stored as (j + n) % k."
   [constant]
-  (fn [modulos]
-    (zipmap (keys modulos)
-            (map (fn [[multiple offset]]
-                   (mod (+ offset constant) multiple))
-                 modulos))))
+  (fn [worry]
+    (if (integer? worry)
+      (+ worry constant)
+      (zipmap (keys worry)
+              (map (fn [[multiple offset]]
+                     (mod (+ offset constant) multiple))
+                   worry)))))
 
 (defn multiply
   "Build a function to multiply a number's modulos by a constant.
@@ -35,11 +37,13 @@
    term is always divisible by k, so can be ignored; the second
    term will then be stored as jn % k."
   [constant]
-  (fn [modulos]
-    (zipmap (keys modulos)
-            (map (fn [[multiple offset]]
-                   (mod (* offset constant) multiple))
-                 modulos))))
+  (fn [worry]
+    (if (integer? worry)
+      (* worry constant)
+      (zipmap (keys worry)
+              (map (fn [[multiple offset]]
+                     (mod (* offset constant) multiple))
+                   worry)))))
 
 (defn square
   "Build a function to square a number's modulos.
@@ -52,11 +56,22 @@
    Hence the first two terms are divisible by k and can be
    ignored; the final term can be stored as j^2 % k."
   []
-  (fn [modulos]
-    (zipmap (keys modulos)
-            (map (fn [[multiple offset]]
-                   (mod (* offset offset) multiple))
-                 modulos))))
+  (fn [worry]
+    (if (integer? worry)
+      (* worry worry)
+      (zipmap (keys worry)
+              (map (fn [[multiple offset]]
+                     (mod (* offset offset) multiple))
+                   worry)))))
+
+(defn relieve
+  "Reduce the worry level about an item.
+   
+   Does nothing to worry levels stored as modulos."
+  [worry]
+  (if (integer? worry)
+    (quot worry 3)
+    worry))
 
 (defn divisible
   "Build a function for determining whether modulos are divisible."
@@ -65,32 +80,25 @@
     (= (modulos constant) 0)))
 
 (defn parse-monkey [monkey]
-  (let [[_ items operation condition then otherwise] monkey]
-    {:items (map (comp parse-modulos read-string)
-                 (-> items
-                     (split #": ")
-                     second
-                     (split #", ")))
+  (let [[_ items operation condition then otherwise] monkey
+        worries (map read-string (-> items
+                                     (split #": ")
+                                     second
+                                     (split #", ")))]
+    {:items worries
      :operation (let [[left operator right]
                       (-> operation
                           (split #" = ")
                           second
                           (split #" "))]
-                  (eval (list 'fn '[old]
-                              (list ({"+" '+
-                                      "-" '-
-                                      "/" '/
-                                      "*" '*'} operator)
-                                    (if (= left "old")
-                                      'old
-                                      (read-string left))
-                                    (if (= right "old")
-                                      'old
-                                      (read-string right))))))
-     :condition (-> condition
-                    (split #" ")
-                    last
-                    read-string)
+                  (cond
+                    (= left right "old") (square)
+                    (= operator "*") (multiply (read-string right))
+                    :else (add (read-string right))))
+     :condition (divisible (-> condition
+                               (split #" ")
+                               last
+                               read-string))
      :then (-> then
                (split #" ")
                last
@@ -109,14 +117,14 @@
        (map parse-monkey)
        (apply vector)))
 
-(defn process-monkey [monkey-index monkeys worry-factor]
+(defn process-monkey [monkey-index monkeys]
   (let [initial-monkey (nth monkeys monkey-index)
         worry (-> initial-monkey
                   :items
                   first
                   ((initial-monkey :operation))
-                  (quot worry-factor))
-        final-monkey (if (= 0 (mod worry (initial-monkey :condition)))
+                  relieve)
+        final-monkey (if ((initial-monkey :condition) worry)
                        (initial-monkey :then)
                        (initial-monkey :otherwise))]
     (-> monkeys
@@ -124,7 +132,7 @@
         (update-in [monkey-index :inspected] inc)
         (update-in [final-monkey :items] #(concat % [worry])))))
 
-(defn perform-round [initial-monkeys worry-factor]
+(defn perform-round [initial-monkeys]
   (loop [monkey-index 0
          monkeys initial-monkeys]
     (cond
@@ -133,12 +141,12 @@
       (empty? (get-in monkeys [monkey-index :items]))
       (recur (inc monkey-index) monkeys)
       :else
-      (recur monkey-index (process-monkey monkey-index monkeys worry-factor)))))
+      (recur monkey-index (process-monkey monkey-index monkeys)))))
 
 (defn day-11a [input]
   (->> input
        parse-monkeys
-       (iterate #(perform-round % 3))
+       (iterate perform-round)
        (drop 20)
        first
        (map :inspected)
