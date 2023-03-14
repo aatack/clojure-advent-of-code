@@ -3,12 +3,29 @@
 
 (def divisors [11 2 5 7 17 19 3 13])
 
-(defn parse-modulos [number]
+(defn parse-modulos
+  "Store a number as its modulos of each of the divisors.
+   
+   The number will be represented as a map of the form `{k j}`,
+   where `k` is a number from `divisors` and `j` is an integer
+   strictly less than `k`.  This denotes that there is some
+   integer `i` for which `ik = j` is true."
+  [number]
   (zipmap divisors (map #(mod number %) divisors)))
 
 (defn multiply
-  "Multiple the modulos of a number by another number."
-  [modulos number])
+  "Build a function to multiply a number's modulos by a constant.
+   
+   Each modulo, stored in the form ik + j (where `i` is
+   unknown) is multiplied by n, giving ikn + jn.  The first
+   term is always divisible by k, so can be ignored; the second
+   term will then be stored as jn % k."
+  [constant]
+  (fn [modulos]
+    (zipmap (keys modulos)
+            (map (fn [[multiple offset]]
+                   (mod (* offset constant) multiple))
+                 modulos))))
 
 (defn square
   "Square the modulos of a number."
