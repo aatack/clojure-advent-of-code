@@ -13,6 +13,20 @@
   [number]
   (zipmap divisors (map #(mod number %) divisors)))
 
+(defn add
+  "Build a function to add a constant to a number's modulos.
+   
+   Each modulo, stored in the form ik + j (where `i` is
+   unknown) has n added to it, giving ikn + j + n.  The first
+   term is always divisible by k, so can be ignored; the second
+   and third terms will then be stored as (j + n) % k."
+  [constant]
+  (fn [modulos]
+    (zipmap (keys modulos)
+            (map (fn [[multiple offset]]
+                   (mod (+ offset constant) multiple))
+                 modulos))))
+
 (defn multiply
   "Build a function to multiply a number's modulos by a constant.
    
@@ -29,10 +43,6 @@
 
 (defn square
   "Square the modulos of a number."
-  [modulos number])
-
-(defn add
-  "Add a constant to the modulos of a number."
   [modulos number])
 
 (defn parse-monkey [monkey]
