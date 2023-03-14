@@ -2,8 +2,11 @@
   (:require [clojure.string :refer [split-lines]]
             [advent-of-code.utils :refer [breadth-first-search]]))
 
-(def start-height (int \a))
-(def end-height (int \z))
+;; NOTE: this may technically make some paths that were previously
+;;       possible impossible, since eg. the start will not be able to
+;;       hop straight from `S` to `b`
+(def start-height (dec (int \a)))
+(def end-height (inc (int \z)))
 (def wall-height 200)
 
 (defn parse-height-map [input]
@@ -45,7 +48,7 @@
                            [x (inc y)]
                            [x (dec y)]])))
               #(= % end))]
-    (count path)))
+    (dec (count path))))
 
 (defn day-12b [input]
   (->> input))
