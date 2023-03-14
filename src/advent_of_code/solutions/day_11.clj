@@ -58,6 +58,12 @@
                    (mod (* offset offset) multiple))
                  modulos))))
 
+(defn divisible
+  "Build a function for determining whether modulos are divisible."
+  [constant]
+  (fn [modulos]
+    (= (modulos constant) 0)))
+
 (defn parse-monkey [monkey]
   (let [[_ items operation condition then otherwise] monkey]
     {:items (map (comp parse-modulos read-string)
