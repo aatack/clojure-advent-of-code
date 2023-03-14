@@ -42,8 +42,21 @@
                  modulos))))
 
 (defn square
-  "Square the modulos of a number."
-  [modulos number])
+  "Build a function to square a number's modulos.
+   
+   Each modulo, stored in the form ik + j (where `i` is
+   unknown) is multiplied by itself, giving:
+   
+     (ik)^2 + 2ik + j^2
+   
+   Hence the first two terms are divisible by k and can be
+   ignored; the final term can be stored as j^2 % k."
+  []
+  (fn [modulos]
+    (zipmap (keys modulos)
+            (map (fn [[multiple offset]]
+                   (mod (* offset offset) multiple))
+                 modulos))))
 
 (defn parse-monkey [monkey]
   (let [[_ items operation condition then otherwise] monkey]
