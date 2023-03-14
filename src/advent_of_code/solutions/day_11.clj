@@ -1,11 +1,10 @@
 (ns advent-of-code.solutions.day-11
   (:require [clojure.string :refer [split-lines split]]))
 
-;; TODO: extract this from the puzzle input directly
-(def divisors [11 2 5 7 17 193 13])
+(def divisors [11 2 5 7 17 19 3 13])
 
 (defn parse-modulos [number]
-  (into {} (map #(list % (mod number %)) divisors)))
+  (zipmap divisors (map #(mod number %) divisors)))
 
 (defn multiply
   "Multiple the modulos of a number by another number."
@@ -21,10 +20,11 @@
 
 (defn parse-monkey [monkey]
   (let [[_ items operation condition then otherwise] monkey]
-    {:items (map read-string (-> items
-                                 (split #": ")
-                                 second
-                                 (split #", ")))
+    {:items (map (comp parse-modulos read-string)
+                 (-> items
+                     (split #": ")
+                     second
+                     (split #", ")))
      :operation (let [[left operator right]
                       (-> operation
                           (split #" = ")
@@ -103,12 +103,4 @@
 
 (defn day-11b [input]
   (->> input
-       parse-monkeys
-       (iterate #(perform-round % 1))
-       (drop 10000)
-       first
-       (map :inspected)
-       sort
-       reverse
-       (take 2)
-       (apply *)))
+       parse-monkeys))
