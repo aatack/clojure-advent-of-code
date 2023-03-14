@@ -76,8 +76,10 @@
 (defn divisible
   "Build a function for determining whether modulos are divisible."
   [constant]
-  (fn [modulos]
-    (= (modulos constant) 0)))
+  (fn [worry]
+    (if (integer? worry)
+      (= 0 (mod worry constant))
+      (= (worry constant) 0))))
 
 (defn parse-monkey [monkey]
   (let [[_ items operation condition then otherwise] monkey
