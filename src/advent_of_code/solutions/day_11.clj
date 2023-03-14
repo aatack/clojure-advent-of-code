@@ -1,6 +1,8 @@
 (ns advent-of-code.solutions.day-11
   (:require [clojure.string :refer [split-lines split]]))
 
+;; TODO: come up with a nicer polymorphic solution for this
+
 (def divisors [11 2 5 7 17 19 3 13 23])
 
 (defn parse-modulos
