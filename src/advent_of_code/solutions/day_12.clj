@@ -35,7 +35,7 @@
     coordinate)))
 
 (defn shortest-path [height-map start end]
-  (-> (breadth-first-search
+  (let [path (breadth-first-search
    start
    (fn [[x y]]
      (let [maximum-height (inc (height height-map [x y]))]
@@ -44,9 +44,8 @@
                 [(dec x) y]
                 [x (inc y)]
                 [x (dec y)]])))
-   #(= % end))
-      count
-      dec))
+   #(= % end))]
+      (when path (dec (count path)))))
 
 (defn day-12a [input]
   (let [height-map (parse-height-map input)
@@ -67,4 +66,5 @@
         end (find-coordinates height-map end-height)]
     (->> starts
          (map #(shortest-path height-map % end))
+         (filter identity)
          (apply min))))
