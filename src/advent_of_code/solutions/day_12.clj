@@ -34,21 +34,37 @@
         ]
     coordinate)))
 
+(defn shortest-path [height-map start end]
+  (-> (breadth-first-search
+   start
+   (fn [[x y]]
+     (let [maximum-height (inc (height height-map [x y]))]
+       (filter #(<= (height height-map %) maximum-height)
+               [[(inc x) y]
+                [(dec x) y]
+                [x (inc y)]
+                [x (dec y)]])))
+   #(= % end))
+      count
+      dec))
+
 (defn day-12a [input]
   (let [height-map (parse-height-map input)
         start (find-coordinates height-map start-height)
-        end (find-coordinates height-map end-height)
-        path (breadth-first-search
-              start
-              (fn [[x y]]
-                (let [maximum-height (inc (height height-map [x y]))]
-                  (filter #(<= (height height-map %) maximum-height)
-                          [[(inc x) y]
-                           [(dec x) y]
-                           [x (inc y)]
-                           [x (dec y)]])))
-              #(= % end))]
-    (dec (count path))))
+        end (find-coordinates height-map end-height)]
+    (shortest-path height-map start end)))
+
+(defn find-lower-coordinates [height-map value]
+  (for [row (range (count height-map))
+        column (range (count (first height-map)))
+        :let [coordinate [row column]]
+        :when (<= (height height-map coordinate) value)]
+    coordinate))
 
 (defn day-12b [input]
-  (->> input))
+  (let [height-map (parse-height-map input)
+        starts (find-lower-coordinates height-map (int \a))
+        end (find-coordinates height-map end-height)]
+    (->> starts
+         (map #(shortest-path height-map % end))
+         (apply min))))
