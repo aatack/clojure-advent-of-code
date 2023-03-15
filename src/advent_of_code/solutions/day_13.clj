@@ -7,8 +7,34 @@
        (partition-by empty?)
        (take-nth 2)
        (map #(map read-string %))
-       first
-       ))
+       first))
+
+(defn compare-lists [left right]
+  (cond
+    (= left right)
+    nil
+
+    (and (integer? left) (integer? right))
+    (< left right)
+    
+    (integer? left)
+    (compare-lists [left] right)
+    
+    (integer? right)
+    (compare-lists left [right])
+    
+    :else
+    (let [comparison (reduce
+                      (fn [_ [inner-left inner-right]]
+                        (let [comparison (compare-lists inner-left inner-right)]
+                          (if (nil? comparison)
+                            nil
+                            (reduced comparison))))
+                      nil
+                      (map vector left right))]
+      (if (nil? comparison)
+        (compare-lists (count left) (count right))
+        comparison))))
 
 (defn day-13a [input]
   (parse-pairs input))
