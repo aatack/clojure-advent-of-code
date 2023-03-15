@@ -8,7 +8,7 @@
         y (inclusive-range start-y end-y)]
     [x y]))
 
-(defn parse-cave [input]
+(defn parse-cave [floor input]
   (let [coordinates
         (->> input
              split-lines
@@ -17,14 +17,19 @@
                           (read-string (str "[" string "]")))
                         %))
              (mapcat parse-rock)
-             set)]
+             set)
+        depth (apply max (map second coordinates))]
     {:coordinates coordinates
-     :depth (apply max (map second coordinates))}))
+     :depth depth
+     :floor (when floor (dec (+ depth floor)))}))
 
 (defn resting-place [cave [x y]]
   (cond
+    (and (cave :floor) (>= y (cave :floor)))
+    [x y]
+
     ;; At the same depth as the lowest item, the sand falls
-    (>= y (cave :depth)) nil
+    (and (not (cave :floor)) (>= y (cave :depth))) nil
 
     (not ((cave :coordinates) [x (inc y)]))
     (resting-place cave [x (inc y)])
@@ -44,11 +49,15 @@
 
 (defn day-14a [input]
   (->> input
-       parse-cave
+       (parse-cave nil)
        (iterate drop-sand)
        (take-while identity)
        count
        dec))
 
 (defn day-14b [input]
-  (->> input))
+  (->> input
+       (parse-cave 2)
+       (iterate drop-sand)
+       (take-while #(not ((% :coordinates) [500 0])))
+       count))
