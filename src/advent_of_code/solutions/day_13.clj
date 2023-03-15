@@ -6,8 +6,7 @@
        split-lines
        (partition-by empty?)
        (take-nth 2)
-       (map #(map read-string %))
-       first))
+       (map #(map read-string %))))
 
 (defn compare-lists [left right]
   (cond
@@ -37,7 +36,12 @@
         comparison))))
 
 (defn day-13a [input]
-  (parse-pairs input))
+  (->> input
+       parse-pairs
+       (map vector (rest (range)))
+       (filter #(apply compare-lists (second %)))
+       (map first)
+       (apply +)))
 
 (defn day-13b [input]
   (->> input))
