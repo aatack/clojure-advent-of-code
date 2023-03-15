@@ -44,8 +44,13 @@
        (apply +)))
 
 (defn day-13b [input]
-  (->> input
-       parse-pairs
-       (mapcat identity)
-       (concat [[[2]] [[6]]])
-       (sort compare-lists)))
+  (let [left-divider [[2]]
+        right-divider [[6]]
+        packets (->> input
+                     parse-pairs
+                     (mapcat identity)
+                     (concat [left-divider right-divider])
+                     (sort compare-lists)
+                     (apply vector))]
+    (* (inc (.indexOf packets left-divider))
+       (inc (.indexOf packets right-divider)))))
