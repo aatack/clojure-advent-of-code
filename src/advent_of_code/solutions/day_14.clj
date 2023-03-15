@@ -25,23 +25,30 @@
   (cond
     ;; At the same depth as the lowest item, the sand falls
     (>= y (cave :depth)) nil
-    
+
     (not ((cave :coordinates) [x (inc y)]))
     (resting-place cave [x (inc y)])
-    
+
     (not ((cave :coordinates) [(dec x) (inc y)]))
     (resting-place cave [(dec x) (inc y)])
-    
+
     (not ((cave :coordinates) [(inc x) (inc y)]))
     (resting-place cave [(inc x) (inc y)])
-    
-    :else [x y]
-    ))
+
+    :else [x y]))
+
+(defn drop-sand [cave]
+  (let [coordinate (resting-place cave [500 0])]
+    (when coordinate
+      (update cave :coordinates #(conj % coordinate)))))
 
 (defn day-14a [input]
-  (parse-cave input))
+  (->> input
+       parse-cave
+       (iterate drop-sand)
+       (take-while identity)
+       count
+       dec))
 
 (defn day-14b [input]
   (->> input))
-
-(partition 2 1 [1 2 3 4 5])
