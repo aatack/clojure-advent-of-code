@@ -2,6 +2,8 @@
   (:require [clojure.string :refer [split-lines split]]
             [advent-of-code.utils :refer [inclusive-range]]))
 
+(def drop-point [500 0])
+
 (defn parse-rock [coordinates]
   (for [[[start-x start-y] [end-x end-y]] (partition 2 1 coordinates)
         x (inclusive-range start-x end-x)
@@ -43,7 +45,7 @@
     :else [x y]))
 
 (defn drop-sand [cave]
-  (let [coordinate (resting-place cave [500 0])]
+  (let [coordinate (resting-place cave drop-point)]
     (when coordinate
       (update cave :coordinates #(conj % coordinate)))))
 
@@ -59,5 +61,5 @@
   (->> input
        (parse-cave 2)
        (iterate drop-sand)
-       (take-while #(not ((% :coordinates) [500 0])))
+       (take-while #(not ((% :coordinates) drop-point)))
        count))
