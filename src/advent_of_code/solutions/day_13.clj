@@ -44,4 +44,8 @@
        (apply +)))
 
 (defn day-13b [input]
-  (->> input))
+  (->> input
+       parse-pairs
+       (mapcat identity)
+       (concat [[[2]] [[6]]])
+       (sort compare-lists)))
