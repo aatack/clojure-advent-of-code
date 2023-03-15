@@ -11,7 +11,8 @@
        (map #(split % #" "))
        (map #(filter integer? (map read-string %)))
        (map (fn [[sensor-x sensor-y beacon-x beacon-y]]
-              [[sensor-x sensor-y] [beacon-x beacon-y]]))))
+              {:sensor {:x sensor-x :y sensor-y}
+               :beacon {:x beacon-x :y beacon-y}}))))
 
 (defn day-15a [input]
   (->> input
