@@ -1,10 +1,11 @@
 (ns advent-of-code.solutions.day-14
-  (:require [clojure.string :refer [split-lines split]]))
+  (:require [clojure.string :refer [split-lines split]]
+            [advent-of-code.utils :refer [inclusive-range]]))
 
 (defn parse-rock [coordinates]
   (for [[[start-x start-y] [end-x end-y]] (partition 2 1 coordinates)
-        x (range start-x (inc end-x))
-        y (range start-y (inc end-y))]
+        x (inclusive-range start-x end-x)
+        y (inclusive-range start-y end-y)]
     [x y]))
 
 (defn parse-cave [input]
@@ -18,7 +19,24 @@
              (mapcat parse-rock)
              set)]
     {:coordinates coordinates
-     :height (apply max (map second coordinates))}))
+     :depth (apply max (map second coordinates))}))
+
+(defn resting-place [cave [x y]]
+  (cond
+    ;; At the same depth as the lowest item, the sand falls
+    (>= y (cave :depth)) nil
+    
+    (not ((cave :coordinates) [x (inc y)]))
+    (resting-place cave [x (inc y)])
+    
+    (not ((cave :coordinates) [(dec x) (inc y)]))
+    (resting-place cave [(dec x) (inc y)])
+    
+    (not ((cave :coordinates) [(inc x) (inc y)]))
+    (resting-place cave [(inc x) (inc y)])
+    
+    :else [x y]
+    ))
 
 (defn day-14a [input]
   (parse-cave input))

@@ -19,3 +19,6 @@
         :else (let [nodes (filter (complement path) (explore node))]
           (recur (concat (rest queue) nodes)
                  (reduce #(assoc %1 %2 node) path nodes)))))))
+
+(defn inclusive-range [start end]
+  (range (min start end) (inc (max start end))))
