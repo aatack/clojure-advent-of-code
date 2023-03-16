@@ -35,13 +35,12 @@
 (defn conj-range
   "Add a new range to an ordered collection of ranges."
   [collection addition]
-  (if (empty? collection)
-    [addition]
-    (let [[body tail]
-          (reduce (fn [[acc old-range] new-range]
-                    (let [[left right] (merge-ranges old-range new-range)]
-                      [(if left (conj acc left) acc)
-                       right]))
-                  [[] addition]
-                  collection)]
-      (conj body tail))))
+  (let [[body tail]
+        (reduce (fn [[acc old-range] new-range]
+                  (let [[left right] (merge-ranges old-range
+                                                   new-range)]
+                    [(if left (conj acc left) acc)
+                     right]))
+                [[] addition]
+                collection)]
+    (conj body tail)))
