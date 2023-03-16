@@ -44,3 +44,10 @@
                 [[] addition]
                 collection)]
     (conj body tail)))
+
+(defn count-ranges [ranges]
+  (->> ranges
+       (map (fn [[left right]] (inc (- right left))))
+       (apply +)))
+
+(count-ranges [[1 2] [5 10]])

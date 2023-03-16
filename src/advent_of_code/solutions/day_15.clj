@@ -1,6 +1,6 @@
 (ns advent-of-code.solutions.day-15
   (:require [clojure.string :refer [split-lines replace split]]
-            [advent-of-code.utils :refer [conj-range]]))
+            [advent-of-code.utils :refer [conj-range count-ranges]]))
 
 (defn parse-sensors-and-beacons [input]
   (->> (-> input
@@ -22,7 +22,13 @@
 (defn day-15a [input]
   (->> input
        parse-sensors-and-beacons
-       (map #(exclusion-range % 10))))
+       (map #(exclusion-range % 2000000))
+       (filter identity)
+       (reduce conj-range [])
+       count-ranges
+       ;; One of the spaces in this range is taken up by a sensor,
+       ;; which - for whatever reason - isn't counted in the total
+       dec))
 
 (defn day-15b [input]
   (->> input))
