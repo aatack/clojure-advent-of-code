@@ -29,5 +29,19 @@
   (let [[[left-start left-end] [right-start right-end]]
         (sort-by first [left right])]
     (if (> right-start (inc left-end))
-      [left right]
+      [[left-start left-end] [right-start right-end]]
       [nil [left-start (max left-end right-end)]])))
+
+(defn conj-range
+  "Add a new range to an ordered collection of ranges."
+  [collection addition]
+  (if (empty? collection)
+    [addition]
+    (let [[body tail]
+          (reduce (fn [[acc old-range] new-range]
+                    (let [[left right] (merge-ranges old-range new-range)]
+                      [(if left (conj acc left) acc)
+                       right]))
+                  [[] addition]
+                  collection)]
+      (conj body tail))))
