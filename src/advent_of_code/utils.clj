@@ -22,3 +22,12 @@
 
 (defn inclusive-range [start end]
   (range (min start end) (inc (max start end))))
+
+(defn merge-ranges
+  "Merge two ranges, described by pairs of inclusive integers."
+  [left right]
+  (let [[[left-start left-end] [right-start right-end]]
+        (sort-by first [left right])]
+    (if (> right-start (inc left-end))
+      [left right]
+      [nil [left-start (max left-end right-end)]])))
