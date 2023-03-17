@@ -49,8 +49,17 @@
       (assoc :valve valve)
       (update :minutes dec)))
 
+(defn explore [state]
+  (let [state (relieve state)
+        valve (state :valve)]
+    (concat [(open state)]
+            (map #(move state %)
+                 (-> state :valves (get valve) :tunnels)))))
+
 (defn day-16a [input]
-  (move (->> input parse-state) "EK"))
+  (->> input
+       parse-state
+       explore))
 
 (defn day-16b [input]
   (->> input))
