@@ -15,7 +15,7 @@
                             (replace "; tunnel leads to valve" "")
                             (split-lines))))]
     {:valve "AA"
-   :open []
+   :open #{}
    :minutes 30
    :relieved 0
    :valves (zipmap (map first valves)
@@ -24,9 +24,21 @@
                            :tunnels tunnels})
                         valves))}))
 
+(defn relieve-state
+  "Relive pressure from all open valves."
+  [state]
+  (update state
+          :relieved
+          #(+ %
+              (apply +
+                     (map (fn [valve]
+                            (get-in state [:valves valve :pressure]))
+                          (state :open))))))
+
 (defn day-16a [input]
   (->> input
-       parse-state))
+       parse-state
+       relieve-state))
 
 (defn day-16b [input]
   (->> input))
