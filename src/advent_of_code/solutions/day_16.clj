@@ -8,7 +8,7 @@
   "Parse the initial state of the problem."
   [input]
   (let [valves (map (fn [[valve pressure & tunnels]]
-                      [valve (read-string pressure) (apply vector tunnels)])
+                      [valve (read-string pressure) (set tunnels)])
                     (map #(split % #" ")
                          (-> input
                              (replace "," "")
@@ -59,7 +59,9 @@
     []
     (let [stepped (relieve state)
           valve (stepped :valve)]
-      (concat [(open stepped)]
+      (concat (if (= 0 (-> state :valves (get (state :valve)) :pressure))
+                []
+                [(open stepped)])
               (map #(move stepped %)
                    (-> stepped :valves (get valve) :tunnels))))))
 
