@@ -20,6 +20,21 @@
           (recur (concat (rest queue) nodes)
                  (reduce #(assoc %1 %2 node) path nodes)))))))
 
+(defn beam-search
+  [initial-node explore evaluate space]
+  (loop [queued-nodes [initial-node]
+         attempts 0
+         seen-nodes #{initial-node}]
+    (if (empty? queued-nodes)
+      seen-nodes
+      (let [node (first queued-nodes)
+            nodes (rest queued-nodes)
+            explored (apply disj (set (explore node)) seen-nodes)]
+        (recur (take space (sort-by evaluate
+                                    (concat nodes explored)))
+               (inc attempts)
+               (conj seen-nodes node))))))
+
 (defn inclusive-range [start end]
   (range (min start end) (inc (max start end))))
 
