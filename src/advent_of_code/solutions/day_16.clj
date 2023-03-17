@@ -36,16 +36,21 @@
                           (state :open))))))
 
 (defn open
-  "Open the current valve."
+  "Open the current valve, incurring the corresponding time penalty."
   [state]
   (-> state
       (update :open #(conj % (state :valve)))
       (update :minutes dec)))
 
+(defn move
+  "Move to a valve, incurring the corresponding time penalty."
+  [state valve]
+  (-> state
+      (assoc :valve valve)
+      (update :minutes dec)))
+
 (defn day-16a [input]
-  (->> input
-       parse-state
-       open))
+  (move (->> input parse-state) "EK"))
 
 (defn day-16b [input]
   (->> input))
