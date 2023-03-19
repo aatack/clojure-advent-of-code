@@ -35,15 +35,16 @@
                (inc attempts)
                (conj seen-nodes node))))))
 
-(defn graph-distance [graph start end]
+(defn graph-distance
   "Compute the shortest distance from one node to another in a graph.
    
    The graph should be a map from a node to the set of other nodes that
    are reachable from it.  No information should be assigned to the
    edges in this setup."
+  [graph start end]
   (-> (breadth-first-search start
-                        graph
-                        #(= % end))
+                            graph
+                            #(= % end))
       count
       dec))
 
