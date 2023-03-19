@@ -33,54 +33,8 @@
                 (get-in state [:valves valve :pressure]))
               (state :open))))
 
-(defn relieve
-  "Relive pressure from all open valves."
-  [state]
-  (update state
-          :relieved
-          #(+ % (relief-rate state))))
-
-(defn open
-  "Open the current valve, incurring the corresponding time penalty."
-  [state]
-  (-> state
-      (update :open #(conj % (state :valve)))
-      (update :minutes dec)))
-
-(defn move
-  "Move to a valve, incurring the corresponding time penalty."
-  [state valve]
-  (-> state
-      (assoc :valve valve)
-      (update :minutes dec)))
-
-(defn explore [state]
-  (if (<= (state :minutes) 0)
-    []
-    (let [stepped (relieve state)
-          valve (stepped :valve)]
-      (concat (if (= 0 (-> state :valves (get (state :valve)) :pressure))
-                []
-                [(open stepped)])
-              (map #(move stepped %)
-                   (-> stepped :valves (get valve) :tunnels))))))
-
-(defn potential [state]
-  (+ (state :relieved)
-     (* (relief-rate state)
-        (state :minutes))))
-
 (defn day-16a [input]
-  (->> (beam-search (parse-state input)
-                    explore
-                    potential
-                    200)
-       (sort-by potential)
-       last))
+  (->> input parse-state))
 
 (defn day-16b [input]
-  (-> input
-      parse-state
-      (move "UO")
-      open
-      potential))
+  (->> input parse-state))
