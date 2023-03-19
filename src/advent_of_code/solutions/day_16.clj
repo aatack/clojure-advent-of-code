@@ -16,16 +16,16 @@
                              (replace "has flow rate=" "")
                              (replace "; tunnels lead to valves" "")
                              (replace "; tunnel leads to valve" "")
-                             (split-lines))))]
-    {:valve "AA"
-     :open #{}
-     :minutes duration
-     :relieved 0
-     :valves (zipmap (map first valves)
-                     (map (fn [[_ pressure tunnels]]
-                            {:pressure pressure
-                             :tunnels tunnels})
-                          valves))}))
+                             (split-lines))))
+        active-valves (filter (fn [[_ pressure _]]
+                                (> pressure 0))
+                              valves)]
+    {:closed (zipmap (map first active-valves)
+                     (map second active-valves))
+     :graph (zipmap (map first valves)
+                    (map (fn [[_ _ tunnels]]
+                           tunnels)
+                         valves))}))
 
 (defn relief-rate [state]
   (apply +
