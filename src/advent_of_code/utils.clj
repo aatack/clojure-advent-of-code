@@ -22,19 +22,19 @@
 
 (defn beam-search
   [initial-node explore evaluate space limit]
-  (loop [queued-nodes [initial-node]
+  (loop [queued-nodes [[(evaluate initial-node) initial-node]]
          attempts 0
-         seen-nodes #{initial-node}]
+         seen-nodes (set queued-nodes)]
     (if (or (> attempts limit) (empty? queued-nodes))
-      (let [best (apply max-key evaluate seen-nodes)]
-        [(evaluate best) best])
-      (let [node (first queued-nodes)
+      (apply max-key first seen-nodes)
+      (let [[score node] (first queued-nodes)
             nodes (rest queued-nodes)
-            explored (apply disj (set (explore node)) seen-nodes)]
-        (recur (take space (reverse (sort-by evaluate
+            explored (apply disj (set (map #(vector (evaluate %) %)
+                                           (explore node))) seen-nodes)]
+        (recur (take space (reverse (sort-by first
                                              (concat nodes explored))))
                (inc attempts)
-               (conj seen-nodes node))))))
+               (apply conj seen-nodes explored))))))
 
 (defn graph-distance
   "Compute the shortest distance from one node to another in a graph.
