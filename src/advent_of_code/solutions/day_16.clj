@@ -62,11 +62,17 @@
 
 (defn day-16a [input]
   (let [state (parse-state input)]
-    (beam-search (apply vector (keys (state :pressures)))
-                 explore-plan
-                 #(evaluate-plan state %)
-                 25
-                 100)))
+    (beam-search
+     ;; This is exactly one swap away from being the optimal strategy,
+     ;; and we know that the optimal optimal strategy does appear in 
+     ;; the list of explored nodes (hence the bug is not in the explore
+     ;; function).  Ergo there must be a bug in the beam search
+     ["BB" "DD" "JJ" "HH" "EE" "CC"]
+    ;  (apply vector (keys (state :pressures)))
+     explore-plan
+     #(evaluate-plan state %)
+     100
+     100)))
 
 (defn day-16b [input]
   (->> input parse-state))
