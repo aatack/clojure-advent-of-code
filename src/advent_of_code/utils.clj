@@ -31,8 +31,8 @@
       (let [node (first queued-nodes)
             nodes (rest queued-nodes)
             explored (apply disj (set (explore node)) seen-nodes)]
-        (recur (take space (sort-by evaluate
-                                    (concat nodes explored)))
+        (recur (take space (reverse (sort-by evaluate
+                                             (concat nodes explored))))
                (inc attempts)
                (conj seen-nodes node))))))
 
