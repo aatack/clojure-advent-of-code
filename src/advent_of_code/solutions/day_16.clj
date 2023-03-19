@@ -63,11 +63,12 @@
 (defn day-16a [input]
   (let [state (parse-state input)]
     (beam-search
-     (apply vector (keys (state :pressures)))
+     (apply vector (reverse (sort-by (state :pressures)
+                                     (keys (state :pressures)))))
      explore-plan
      #(evaluate-plan state %)
-     10
-     100)))
+     100
+     10)))
 
 (defn day-16b [input]
   (->> input parse-state))

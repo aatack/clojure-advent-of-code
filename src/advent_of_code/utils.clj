@@ -27,14 +27,15 @@
          seen-nodes (set queued-nodes)]
     (if (or (> attempts limit) (empty? queued-nodes))
       (apply max-key first seen-nodes)
-      (let [[score node] (first queued-nodes)
+      (let [[_ node] (first queued-nodes)
             nodes (rest queued-nodes)
             explored (apply disj (set (map #(vector (evaluate %) %)
-                                           (explore node))) seen-nodes)]
-        (recur (take space (reverse (sort-by first
-                                             (concat nodes explored))))
+                                           (explore node))) seen-nodes)
+            next-queued-nodes (take space (reverse (sort-by first
+                                             (concat nodes explored))))]
+        (recur next-queued-nodes
                (inc attempts)
-               (apply conj seen-nodes explored))))))
+               (apply conj seen-nodes next-queued-nodes))))))
 
 (defn graph-distance
   "Compute the shortest distance from one node to another in a graph.
