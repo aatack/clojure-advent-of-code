@@ -49,8 +49,17 @@
           (recur (+ pressure (* (get-in state [:pressures next-valve])
                                 remaining-minutes))
                  remaining-minutes
-                 (rest valves)
+                 (apply vector (rest valves))
                  next-valve))))))
+
+(defn explore-plan [plan]
+  (for [i (range (count plan))
+        j (range (inc i) (count plan))
+        :let [left (nth plan i)
+              right (nth plan j)]]
+    (-> plan
+        (assoc i right)
+        (assoc j left))))
 
 (defn day-16a [input]
   (let [state (parse-state input)]
