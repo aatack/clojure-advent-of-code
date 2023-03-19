@@ -1,5 +1,5 @@
 (ns advent-of-code.solutions.day-16
-  (:require [advent-of-code.utils :refer [beam-search]]
+  (:require [advent-of-code.utils :refer [graph-distance]]
             [clojure.string :refer [replace split split-lines]]))
 
 (def duration 30)

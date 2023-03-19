@@ -17,8 +17,8 @@
         (nil? node) nil
         (accept? node) (butlast (take-while identity (iterate path node)))
         :else (let [nodes (filter (complement path) (explore node))]
-          (recur (concat (rest queue) nodes)
-                 (reduce #(assoc %1 %2 node) path nodes)))))))
+                (recur (concat (rest queue) nodes)
+                       (reduce #(assoc %1 %2 node) path nodes)))))))
 
 (defn beam-search
   [initial-node explore evaluate space]
@@ -34,6 +34,18 @@
                                     (concat nodes explored)))
                (inc attempts)
                (conj seen-nodes node))))))
+
+(defn graph-distance [graph start end]
+  "Compute the shortest distance from one node to another in a graph.
+   
+   The graph should be a map from a node to the set of other nodes that
+   are reachable from it.  No information should be assigned to the
+   edges in this setup."
+  (-> (breadth-first-search start
+                        graph
+                        #(= % end))
+      count
+      dec))
 
 (defn inclusive-range [start end]
   (range (min start end) (inc (max start end))))
