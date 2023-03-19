@@ -21,12 +21,13 @@
                        (reduce #(assoc %1 %2 node) path nodes)))))))
 
 (defn beam-search
-  [initial-node explore evaluate space]
+  [initial-node explore evaluate space limit]
   (loop [queued-nodes [initial-node]
          attempts 0
          seen-nodes #{initial-node}]
-    (if (empty? queued-nodes)
-      seen-nodes
+    (if (or (> attempts limit) (empty? queued-nodes))
+      (let [best (apply max-key evaluate seen-nodes)]
+        [(evaluate best) best])
       (let [node (first queued-nodes)
             nodes (rest queued-nodes)
             explored (apply disj (set (explore node)) seen-nodes)]

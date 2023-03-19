@@ -1,5 +1,5 @@
 (ns advent-of-code.solutions.day-16
-  (:require [advent-of-code.utils :refer [graph-distance]]
+  (:require [advent-of-code.utils :refer [graph-distance beam-search]]
             [clojure.string :refer [replace split split-lines]]))
 
 (def duration 30)
@@ -40,12 +40,11 @@
            valves plan
            current-valve "AA"]
       (if (or (empty? valves) (<= minutes 0))
-        [pressure minutes]
+        pressure
         (let [next-valve (first valves)
               distance (graph-distance graph current-valve next-valve)
               ; One more to open the valve
               remaining-minutes (max 0 (- minutes (inc distance)))]
-          (prn next-valve distance remaining-minutes)
           (recur (+ pressure (* (get-in state [:pressures next-valve])
                                 remaining-minutes))
                  remaining-minutes
@@ -63,7 +62,11 @@
 
 (defn day-16a [input]
   (let [state (parse-state input)]
-    (evaluate-plan state ["DD" "BB" "JJ" "HH" "EE" "CC"])))
+    (beam-search (apply vector (keys (state :pressures)))
+                 explore-plan
+                 #(evaluate-plan state %)
+                 25
+                 100)))
 
 (defn day-16b [input]
   (->> input parse-state))
