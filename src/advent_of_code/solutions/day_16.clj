@@ -51,24 +51,33 @@
                  (apply vector (rest valves))
                  next-valve))))))
 
-(defn explore-plan [plan]
-  (for [i (range (count plan))
-        j (range (inc i) (count plan))
-        :let [left (nth plan i)
-              right (nth plan j)]]
-    (-> plan
-        (assoc i right)
-        (assoc j left))))
+(defn explore-plan
+  "Produce a function for exploring plans similar to the given plan."
+  [state]
+  (let [valves (set (keys (state :pressures)))]
+    (fn [plan]
+      (concat
+       (let [options (apply disj valves plan)]
+         (if (empty? options)
+           []
+           (for [option options]
+             (conj plan option))))
+       (for [i (range (count plan))
+             j (range (inc i) (count plan))
+             :let [left (nth plan i)
+                   right (nth plan j)]]
+         (-> plan
+             (assoc i right)
+             (assoc j left)))))))
 
 (defn day-16a [input]
   (let [state (parse-state input)]
     (beam-search
-     (apply vector (reverse (sort-by (state :pressures)
-                                     (keys (state :pressures)))))
-     explore-plan
+     []
+     (explore-plan state)
      #(evaluate-plan state %)
-     100
-     10)))
+     20
+     20)))
 
 (defn day-16b [input]
   (->> input parse-state))
