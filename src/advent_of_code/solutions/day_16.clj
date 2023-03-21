@@ -149,4 +149,5 @@
      (explore-dual-plan state)
      (evaluate-dual-plan state dual-duration)
      200
-     200)))
+     ;; Turns out that running it for longer actually helps here
+     4000)))
