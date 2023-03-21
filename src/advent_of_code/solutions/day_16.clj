@@ -57,13 +57,13 @@
   (let [valves (set (keys (state :pressures)))]
     (fn [plan]
       (let [options (apply disj valves plan)]
-        (if (> (count plan) 7)
+        (if (> (count plan) 7) ; TODO: only stop when time runs out
           []
           (concat
-           (if (empty? options)
-             []
-             (for [option options]
-               (conj plan option)))
+           ;; Append a new step from the available options
+           (for [option options]
+             (conj plan option))
+           ;; Swap any two visits in the current plan
            (for [i (range (count plan))
                  j (range (inc i) (count plan))
                  :let [left (nth plan i)
@@ -71,6 +71,7 @@
              (-> plan
                  (assoc i right)
                  (assoc j left)))
+           ;; Swap an existing visit for one of the options
            (for [i (range (count plan))
                  replacement options]
              (assoc plan i replacement))))))))
