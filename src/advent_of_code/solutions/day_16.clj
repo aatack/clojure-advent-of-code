@@ -92,12 +92,17 @@
             200
             200))))
 
-(defn explore-dual-plan
+(defn evaluate-dual-plan [state duration]
+  (let [inner-evaluate (evaluate-plan state duration)]
+    (fn [plan]
+      (+ (inner-evaluate (plan :elf)) (inner-evaluate (plan :elephant))))))
+
+(defn explore-dual-plan-branch
   "Produce a function for exploring dual plans similar to the one given."
   [state]
   (let [valves (set (keys (state :pressures)))]
     (fn [plan primary secondary]
-      (let [options (apply disj valves (flatten plan))
+      (let [options (apply disj valves (-> plan vals flatten))
             primary-plan (plan primary)
             secondary-plan (plan secondary)]
         (if (> (plan-duration state primary-plan) dual-duration)
@@ -107,11 +112,18 @@
            (for [option options]
              (update plan primary #(conj % option)))))))))
 
+(defn explore-dual-plan
+  [state]
+  (let [inner-explore (explore-dual-plan-branch state)]
+    (fn [plan]
+      (concat (inner-explore plan :elf :elephant)
+              (inner-explore plan :elephant :elf)))))
+
 (defn day-16b [input]
   (let [state (parse-state input)]
-    (first (beam-search
-            {:elf [] :elephant []}
-            (explore-dual-plan state)
-            (evaluate-dual-plan state)
-            200
-            200))))
+    (beam-search
+     {:elf [] :elephant []}
+     (explore-dual-plan state)
+     (evaluate-dual-plan state dual-duration)
+     200
+     200)))
