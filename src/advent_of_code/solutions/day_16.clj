@@ -56,19 +56,24 @@
   [state]
   (let [valves (set (keys (state :pressures)))]
     (fn [plan]
-      (concat
-       (let [options (apply disj valves plan)]
-         (if (empty? options)
-           []
-           (for [option options]
-             (conj plan option))))
-       (for [i (range (count plan))
-             j (range (inc i) (count plan))
-             :let [left (nth plan i)
-                   right (nth plan j)]]
-         (-> plan
-             (assoc i right)
-             (assoc j left)))))))
+      (let [options (apply disj valves plan)]
+        (if (> (count plan) 7)
+          []
+          (concat
+           (if (empty? options)
+             []
+             (for [option options]
+               (conj plan option)))
+           (for [i (range (count plan))
+                 j (range (inc i) (count plan))
+                 :let [left (nth plan i)
+                       right (nth plan j)]]
+             (-> plan
+                 (assoc i right)
+                 (assoc j left)))
+           (for [i (range (count plan))
+                 replacement options]
+             (assoc plan i replacement))))))))
 
 (defn day-16a [input]
   (let [state (parse-state input)]
@@ -76,8 +81,8 @@
      []
      (explore-plan state)
      #(evaluate-plan state %)
-     20
-     20)))
+     200
+     200)))
 
 (defn day-16b [input]
   (->> input parse-state))
