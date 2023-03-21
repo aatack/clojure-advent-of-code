@@ -110,7 +110,30 @@
           (concat
            ;; Append a new step from the available options
            (for [option options]
-             (update plan primary #(conj % option)))))))))
+             (update plan primary #(conj % option)))
+
+           ;; Swap an item from the primary plan with one from the
+           ;; secondary plan
+           (for [i (range (count primary-plan))
+                 j (range (count secondary-plan))
+                 :let [left (nth primary-plan i)
+                       right (nth secondary-plan j)]]
+             {primary (assoc primary-plan i right)
+              secondary (assoc secondary-plan j left)})
+           
+           ;; Swap any two visits in the current plan
+           (for [i (range (count primary-plan))
+                 j (range (inc i) (count primary-plan))
+                 :let [left (nth primary-plan i)
+                       right (nth primary-plan j)]]
+             (assoc plan primary (-> primary-plan
+                                     (assoc i right)
+                                     (assoc j left))))
+           
+           ;; Swap an item from the primary plan with an option
+           (for [i (range (count primary-plan))
+                 replacement options]
+             (assoc-in plan [primary i] replacement))))))))
 
 (defn explore-dual-plan
   [state]
