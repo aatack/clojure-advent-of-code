@@ -27,6 +27,11 @@
                            tunnels)
                          valves))}))
 
+(defn plan-duration [state plan]
+  (apply + -1 (map (fn [[start end]]
+                  (inc (graph-distance (state :graph) start end)))
+                (partition 2 1 (cons "AA" plan)))))
+
 (defn evaluate-plan
   "Determine the amount of pressure relieved by a given plan.
    
@@ -57,7 +62,7 @@
   (let [valves (set (keys (state :pressures)))]
     (fn [plan]
       (let [options (apply disj valves plan)]
-        (if (> (count plan) 7) ; TODO: only stop when time runs out
+        (if (> (plan-duration state plan) duration)
           []
           (concat
            ;; Append a new step from the available options
@@ -78,12 +83,12 @@
 
 (defn day-16a [input]
   (let [state (parse-state input)]
-    (beam-search
-     []
-     (explore-plan state)
-     #(evaluate-plan state %)
-     200
-     200)))
+    (first (beam-search
+            []
+            (explore-plan state)
+            #(evaluate-plan state %)
+            200
+            200))))
 
 (defn day-16b [input]
-  (->> input parse-state))
+  (-> input parse-state))
