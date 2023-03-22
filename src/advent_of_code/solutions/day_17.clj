@@ -1,12 +1,17 @@
 (ns advent-of-code.solutions.day-17
-  (:require [clojure.string :refer [split-lines]]))
+  (:require [advent-of-code.utils :refer [repeat-sequence]]))
 
-(def pieces
-  [#{[0 0] [1 0] [2 0] [3 0]}
-   #{[0 1] [1 1] [2 1] [1 2] [1 0]}
-   #{[0 0] [1 0] [2 0] [2 1] [2 2]}
-   #{[0 0] [0 1] [0 2] [0 3]}
-   #{[0 0] [1 0] [0 1] [1 1]}])
+(defn parse-jets [input]
+  (->> input
+       (map {\> [1 0] \< [-1 0]})
+       repeat-sequence))
+
+(defn parse-pieces []
+  (repeat-sequence [#{[0 0] [1 0] [2 0] [3 0]}
+      #{[0 1] [1 1] [2 1] [1 2] [1 0]}
+      #{[0 0] [1 0] [2 0] [2 1] [2 2]}
+      #{[0 0] [0 1] [0 2] [0 3]}
+      #{[0 0] [1 0] [0 1] [1 1]}]))
 
 (defn move
   "Move a piece by the specified step."
@@ -21,7 +26,7 @@
    coordinate is empty, or the coordinate otherwise."
   [piece terrain]
   (letfn [(wall [[x y]]
-            (or (<= y 0)
+            (or (< y 0)
                 (< x 0)
                 (>= x 7)))]
     (or (some wall piece)
@@ -35,8 +40,32 @@
 (defn initialise [piece terrain]
   (move piece [2 (+ 3 (height terrain))]))
 
+(defn step [pieces jets terrain]
+  (let [piece (first pieces)
+        jetted-piece (move piece (first jets))
+        moved-piece (if (collides? jetted-piece terrain)
+                      piece
+                      jetted-piece)
+        dropped-piece (move moved-piece [0 -1])]
+    (if (collides? dropped-piece terrain)
+      ;; Piece has settled
+      (let [new-terrain (apply conj terrain moved-piece)]
+        (lazy-seq (cons new-terrain
+                        (step (rest pieces)
+                              (rest jets)
+                              new-terrain))))
+      ;; Piece has dropped
+      (step (cons dropped-piece (rest pieces))
+            (rest jets)
+            terrain))))
+
 (defn day-17a [input]
-  (->> input))
+  (let [terrain #{}
+        pieces (parse-pieces)]
+    (step (cons (initialise (first pieces) terrain)
+                (rest pieces))
+        (parse-jets input)
+        terrain)))
 
 (defn day-17b [input]
   (->> input))

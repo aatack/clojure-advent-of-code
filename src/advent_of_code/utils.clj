@@ -81,3 +81,7 @@
        (apply +)))
 
 (count-ranges [[1 2] [5 10]])
+
+(defn repeat-sequence [sequence]
+  (lazy-seq (concat sequence
+                    (repeat-sequence sequence))))
