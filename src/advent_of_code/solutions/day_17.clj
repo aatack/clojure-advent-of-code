@@ -1,17 +1,26 @@
 (ns advent-of-code.solutions.day-17
   (:require [advent-of-code.utils :refer [repeat-sequence]]))
 
+(defn assign-indices
+  "Add an `:index` metadata tag to each of a sequence of items."
+  [items]
+  (map-indexed (fn [index item] (with-meta item {:index index}))
+               items))
+
 (defn parse-jets [input]
   (->> input
        (map {\> [1 0] \< [-1 0]})
+       assign-indices
        repeat-sequence))
 
 (defn parse-pieces []
-  (repeat-sequence [#{[0 0] [1 0] [2 0] [3 0]}
-      #{[0 1] [1 1] [2 1] [1 2] [1 0]}
-      #{[0 0] [1 0] [2 0] [2 1] [2 2]}
-      #{[0 0] [0 1] [0 2] [0 3]}
-      #{[0 0] [1 0] [0 1] [1 1]}]))
+  (-> [#{[0 0] [1 0] [2 0] [3 0]}
+       #{[0 1] [1 1] [2 1] [1 2] [1 0]}
+       #{[0 0] [1 0] [2 0] [2 1] [2 2]}
+       #{[0 0] [0 1] [0 2] [0 3]}
+       #{[0 0] [1 0] [0 1] [1 1]}]
+      assign-indices
+      repeat-sequence))
 
 (defn move
   "Move a piece by the specified step."
@@ -49,12 +58,20 @@
         dropped-piece (move moved-piece [0 -1])]
     (if (collides? dropped-piece terrain)
       ;; Piece has settled
-      (let [new-terrain (apply conj terrain moved-piece)
-            remaining-pieces (rest pieces)]
-        (lazy-seq (cons new-terrain
-                        (step (cons (initialise (first remaining-pieces) new-terrain)
-                                    (rest remaining-pieces))
-                              (rest jets)
+      (let [new-pieces (rest pieces)
+            new-terrain (apply conj terrain moved-piece)
+            new-jets (rest jets)
+
+            new-piece (first new-pieces)
+            new-jet (first new-jets)
+            
+            restart? (and (= 0 ((meta new-piece) :index))
+                          (= 0 ((meta new-jet) :index)))]
+        
+        (lazy-seq (cons (with-meta new-terrain {:restart? restart?})
+                        (step (cons (initialise (first new-pieces) new-terrain)
+                                    (rest new-pieces))
+                              new-jets
                               new-terrain))))
       ;; Piece has dropped
       (step (cons dropped-piece (rest pieces))
