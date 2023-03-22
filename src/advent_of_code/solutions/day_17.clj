@@ -95,6 +95,7 @@
 
 (defn find-repeats [terrain-sequence]
   (loop [seen {}
+         height-history {}
          sequence terrain-sequence]
     (let [terrain (first sequence)
           piece ((meta terrain) :piece)
@@ -102,10 +103,14 @@
 
       (if (seen [piece jet])
         [(seen [piece jet])
-         [((meta terrain) :index) (height terrain)]]
-        (recur (assoc seen [piece jet]
-                      [((meta terrain) :index) (height terrain)])
-               (rest sequence))))))
+         [((meta terrain) :index) (height terrain)]
+         height-history]
+        (let [index ((meta terrain) :index)
+              terrain-height (height terrain)]
+          (recur (assoc seen [piece jet]
+                        [index terrain-height])
+                 (assoc height-history index terrain-height)
+                 (rest sequence)))))))
 
 (defn day-17b [input]
   (let [terrain #{}
@@ -114,22 +119,24 @@
                           (rest pieces))
                     (parse-jets input)
                     terrain
-                    1)]
-    (let [[[first-index first-height]
-           [second-index second-height]]
-          (find-repeats steps)
+                    1)
 
-          index-delta (- second-index first-index)
-          height-delta (- second-height first-height)
+        [[first-index first-height]
+         [second-index second-height]
+         height-history]
+        (find-repeats steps)
 
-          total-steps 1000000000000
-          total-loops (quot (-' total-steps first-index) index-delta)
-          leftover-steps (-' total-steps
-                             first-index
-                             (*' total-loops index-delta))]
-      
-      (+' first-height
-          (-' (height-history (+' first-index leftover-steps))
-              first-height)
-          (*' (quot (-' total-steps first-index) index-delta)
-              height-delta)))))
+        index-delta (- second-index first-index)
+        height-delta (- second-height first-height)
+
+        total-steps 1000000000000
+        total-loops (quot (-' total-steps first-index) index-delta)
+        leftover-steps (-' total-steps
+                           first-index
+                           (*' total-loops index-delta))]
+    
+    (+' first-height
+        (-' (height-history (+' first-index leftover-steps))
+            first-height)
+        (*' (quot (-' total-steps first-index) index-delta)
+            height-delta))))
