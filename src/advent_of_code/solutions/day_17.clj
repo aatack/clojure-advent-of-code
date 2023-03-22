@@ -93,6 +93,20 @@
         (nth (dec 2022))
         height)))
 
+(defn find-repeats [terrain-sequence]
+  (loop [seen {}
+         sequence terrain-sequence]
+    (let [terrain (first sequence)
+          piece ((meta terrain) :piece)
+          jet ((meta terrain) :jet)]
+
+      (if (seen [piece jet])
+        [(seen [piece jet])
+         [((meta terrain) :index) (height terrain)]]
+        (recur (assoc seen [piece jet]
+                      [((meta terrain) :index) (height terrain)])
+               (rest sequence))))))
+
 (defn day-17b [input]
   (let [terrain #{}
         pieces (parse-pieces)
@@ -101,12 +115,16 @@
                     (parse-jets input)
                     terrain
                     1)]
-    (loop [seen {}
-           remaining steps]
-      (let [info (meta (first remaining))
-            piece (info :piece)
-            jet (info :jet)]
-        (if (seen [piece jet])
-          [(seen [piece jet]) [piece jet]]
-          (recur (assoc seen [piece jet] [piece jet])
-                 (rest remaining)))))))
+    (let [[[first-index first-height]
+           [second-index second-height]]
+          (find-repeats steps)
+
+          index-delta (- second-index first-index)
+          height-delta (- second-height first-height)
+
+          total-steps 1000000000000]
+      
+      (+' first-height
+          ;; TODO: also account for the leftover steps
+          (*' (quot (-' total-steps first-index) index-delta)
+              height-delta)))))
