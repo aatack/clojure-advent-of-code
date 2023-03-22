@@ -122,9 +122,14 @@
           index-delta (- second-index first-index)
           height-delta (- second-height first-height)
 
-          total-steps 1000000000000]
+          total-steps 1000000000000
+          total-loops (quot (-' total-steps first-index) index-delta)
+          leftover-steps (-' total-steps
+                             first-index
+                             (*' total-loops index-delta))]
       
       (+' first-height
-          ;; TODO: also account for the leftover steps
+          (-' (height-history (+' first-index leftover-steps))
+              first-height)
           (*' (quot (-' total-steps first-index) index-delta)
               height-delta)))))
