@@ -35,7 +35,7 @@
 (defn height [terrain]
   (if (empty? terrain)
     0
-    (apply max (map second terrain))))
+    (inc (apply max (map second terrain)))))
 
 (defn initialise [piece terrain]
   (move piece [2 (+ 3 (height terrain))]))
@@ -49,9 +49,11 @@
         dropped-piece (move moved-piece [0 -1])]
     (if (collides? dropped-piece terrain)
       ;; Piece has settled
-      (let [new-terrain (apply conj terrain moved-piece)]
+      (let [new-terrain (apply conj terrain moved-piece)
+            remaining-pieces (rest pieces)]
         (lazy-seq (cons new-terrain
-                        (step (rest pieces)
+                        (step (cons (initialise (first remaining-pieces) new-terrain)
+                                    (rest remaining-pieces))
                               (rest jets)
                               new-terrain))))
       ;; Piece has dropped
@@ -61,11 +63,14 @@
 
 (defn day-17a [input]
   (let [terrain #{}
-        pieces (parse-pieces)]
-    (step (cons (initialise (first pieces) terrain)
-                (rest pieces))
-        (parse-jets input)
-        terrain)))
+        pieces (parse-pieces)
+        steps (step (cons (initialise (first pieces) terrain)
+                          (rest pieces))
+                    (parse-jets input)
+                    terrain)]
+    (-> steps
+        (nth (dec 2022))
+        height)))
 
 (defn day-17b [input]
   (->> input))
