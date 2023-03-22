@@ -49,7 +49,7 @@
 (defn initialise [piece terrain]
   (move piece [2 (+ 3 (height terrain))]))
 
-(defn step [pieces jets terrain]
+(defn step [pieces jets terrain index]
   (let [piece (first pieces)
         jetted-piece (move piece (first jets))
         moved-piece (if (collides? jetted-piece terrain)
@@ -63,20 +63,23 @@
             new-jets (rest jets)
 
             new-piece (first new-pieces)
-            new-jet (first new-jets)
-            
-            restart? (and (= 0 ((meta new-piece) :index))
-                          (= 0 ((meta new-jet) :index)))]
-        
-        (lazy-seq (cons (with-meta new-terrain {:restart? restart?})
-                        (step (cons (initialise (first new-pieces) new-terrain)
+            new-jet (first new-jets)]
+
+        (lazy-seq (cons (with-meta new-terrain
+                          {:index index
+                           :piece ((meta new-piece) :index)
+                           :jet ((meta new-jet) :index)})
+                        (step (cons (initialise (first new-pieces)
+                                                new-terrain)
                                     (rest new-pieces))
                               new-jets
-                              new-terrain))))
+                              new-terrain
+                              (inc index)))))
       ;; Piece has dropped
       (step (cons dropped-piece (rest pieces))
             (rest jets)
-            terrain))))
+            terrain
+            index))))
 
 (defn day-17a [input]
   (let [terrain #{}
@@ -84,10 +87,26 @@
         steps (step (cons (initialise (first pieces) terrain)
                           (rest pieces))
                     (parse-jets input)
-                    terrain)]
+                    terrain
+                    1)]
     (-> steps
         (nth (dec 2022))
         height)))
 
 (defn day-17b [input]
-  (->> input))
+  (let [terrain #{}
+        pieces (parse-pieces)
+        steps (step (cons (initialise (first pieces) terrain)
+                          (rest pieces))
+                    (parse-jets input)
+                    terrain
+                    1)]
+    (loop [seen {}
+           remaining steps]
+      (let [info (meta (first remaining))
+            piece (info :piece)
+            jet (info :jet)]
+        (if (seen [piece jet])
+          [(seen [piece jet]) [piece jet]]
+          (recur (assoc seen [piece jet] [piece jet])
+                 (rest remaining)))))))
