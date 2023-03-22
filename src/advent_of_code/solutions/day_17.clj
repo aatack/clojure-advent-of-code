@@ -27,6 +27,14 @@
     (or (some wall piece)
         (some terrain piece))))
 
+(defn height [terrain]
+  (if (empty? terrain)
+    0
+    (apply max (map second terrain))))
+
+(defn initialise [piece terrain]
+  (move piece [2 (+ 3 (height terrain))]))
+
 (defn day-17a [input]
   (->> input))
 
