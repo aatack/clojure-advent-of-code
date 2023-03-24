@@ -94,7 +94,30 @@
         (take 10)
          (map meta))))
 
-(defn find-repeats [terrain-sequence]
+(defn find-repeats
+  "Find repeating cycles within a sequence.
+   
+   This will return five values:
+   
+   - The index (1-indexed) of the first terrain in the repeated
+     sequence
+   - The index of the first terrain in the next iteration of the
+     repeated sequence
+   - A map from index to height for each of the terrain instances
+     seen, up to and including the latter index
+   
+   To find a repeating sequence, every time a new terrain is
+   yielded, the current piece and jet index are inspected.  If
+   the same combination has appeared before, the number of
+   terrain instances that have passed since the last one is
+   checked.  If this value remains constant for a certain number
+   of repeats of the sequence (2), the index of the first and
+   second terrain instances in that repeated sequence is returned.
+
+   It is necessary to check for multiple repeats, and to ensure
+   they have the same period, because the initial state of the
+   flat floor can cause some sequences to be aperiodic."
+  [terrain-sequence]
   (loop [seen {}
          height-history {}
          sequence terrain-sequence]
