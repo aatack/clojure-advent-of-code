@@ -89,10 +89,9 @@
                     (parse-jets input)
                     terrain
                     1)]
-    (->> steps
-         (drop (dec (+ 15 (* 7 35))))
-         (take 10)
-         (map meta))))
+    (-> steps
+        (nth (dec 2022))
+        height)))
 
 (defn diff [sequence]
   (->> sequence
@@ -159,34 +158,20 @@
                     terrain
                     1)
 
-        ; [[first-index first-height]
-        ;  [second-index second-height]
-        ;  height-history]
-        ; (find-repeats steps)
+        [first-index second-index history] (find-repeats steps)
 
-        ; index-delta (- second-index first-index)
-        ; height-delta (- second-height first-height)
+        index-delta (- second-index first-index)
+        height-delta (- (history second-index)
+                        (history first-index))
 
-        ; total-steps 1736
-        ; total-loops (quot (-' total-steps first-index) index-delta)
-        ; leftover-steps (-' total-steps
-        ;                    first-index
-        ;                    (*' total-loops index-delta))
-        ]
-
-    (find-repeats steps)
-    #_(let [indices (reduce (fn [history terrain]
-                              (update history [((meta terrain) :piece) ((meta terrain) :jet)]
-                                      #(conj (or % []) ((meta terrain) :index))))
-                            {} (take 4000 steps))]
-        (map identity (filter
-                       #_#(= (first %) 25)
-                       #_#(> (count %) 2)
-                       #(and (> (count %) 2) (apply not= (diffs %)))
-                       (vals indices))))
-    ; [first-index first-height leftover-steps total-loops index-delta]
-    #_(+' first-height
-          (-' (height-history (+' first-index leftover-steps))
-              first-height)
-          (*' (quot (-' total-steps first-index) index-delta)
-              height-delta))))
+        total-steps 2022
+        total-loops (quot (-' total-steps first-index) index-delta)
+        leftover-steps (-' total-steps
+                           first-index
+                           (*' total-loops index-delta))]
+    
+    (+' (history first-index)
+        (-' (history (+' first-index leftover-steps))
+            (history first-index))
+        (*' (quot (-' total-steps first-index) index-delta)
+            height-delta))))
