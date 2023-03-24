@@ -34,14 +34,21 @@
                    dimensions))
             droplets)))
 
-(defn in-bounds [droplets]
+(defn in-bounds? [droplets]
   (fn [droplet]
     (every? identity (map (fn [[lower upper] value]
                       (< lower value upper))
                     ((meta droplets) :bounds) droplet))))
 
+(defn propagate-droplet [droplets]
+  (let [-in-bounds? (in-bounds? droplets)]
+    (fn [droplet]
+      (filter #(and (-in-bounds? %)
+                    (not (droplets %)))
+              (exposed-faces droplets droplet)))))
+
 (defn day-18b [input]
   ;; TODO: just beam search it, or flood fill the entire volume from
   ;;       the outside and then count unique pairings
   (let [droplets (parse-droplets input)]
-    ((in-bounds droplets) [2 2 8])))
+    ((propagate-droplet droplets) [0 0 0])))
