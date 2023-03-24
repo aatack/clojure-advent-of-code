@@ -164,7 +164,7 @@
         height-delta (- (history second-index)
                         (history first-index))
 
-        total-steps 2022
+        total-steps 1000000000000
         total-loops (quot (-' total-steps first-index) index-delta)
         leftover-steps (-' total-steps
                            first-index
