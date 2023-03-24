@@ -90,9 +90,14 @@
                     terrain
                     1)]
     (->> steps
-        (drop (dec (+ 15 (* 7 35))))
-        (take 10)
+         (drop (dec (+ 15 (* 7 35))))
+         (take 10)
          (map meta))))
+
+(defn diff [sequence]
+  (->> sequence
+       (partition 2 1)
+       (map (fn [[left right]] (- right left)))))
 
 (defn find-repeats
   "Find repeating cycles within a sequence.
@@ -118,28 +123,32 @@
    they have the same period, because the initial state of the
    flat floor can cause some sequences to be aperiodic."
   [terrain-sequence]
-  (loop [seen {}
-         height-history {}
+  (loop [indices {}
+         history {}
          sequence terrain-sequence]
     (let [terrain (first sequence)
+
           piece ((meta terrain) :piece)
-          jet ((meta terrain) :jet)]
+          jet ((meta terrain) :jet)
+          index ((meta terrain) :index)
 
-      (if (seen [piece jet])
-        [(seen [piece jet])
-         [((meta terrain) :index) (height terrain)]
-         height-history]
-        (let [index ((meta terrain) :index)
-              terrain-height (height terrain)]
-          (recur (assoc seen [piece jet]
-                        [index terrain-height])
-                 (assoc height-history index terrain-height)
-                 (rest sequence)))))))
+          key [piece jet]
 
-(defn diffs [sequence]
-  (->> sequence
-       (partition 2 1)
-       (map (fn [[left right]] (- right left)))))
+          updated-indices (update indices
+                                  key
+                                  #(conj (or % []) index))
+          updated-history (assoc history index (height terrain))
+
+          these-indices (updated-indices key)]
+
+      (if (and (> (count these-indices) 2)
+               (apply = (diff these-indices)))
+        [(first these-indices)
+         (second these-indices)
+         history]
+        (recur updated-indices
+               updated-history
+               (rest sequence))))))
 
 (defn day-17b [input]
   (let [terrain #{}
@@ -164,17 +173,20 @@
         ;                    first-index
         ;                    (*' total-loops index-delta))
         ]
-    
-    (let [indices (reduce (fn [history terrain]
-              (update history [((meta terrain) :piece) ((meta terrain) :jet)]
-                      #(conj (or % []) ((meta terrain) :index))))
-            {} (take 4000 steps))]
-      (map diffs (filter #_#(= (first %) 25)
-                         #(> (count %) 2)
-                         (vals indices))))
+
+    (find-repeats steps)
+    #_(let [indices (reduce (fn [history terrain]
+                              (update history [((meta terrain) :piece) ((meta terrain) :jet)]
+                                      #(conj (or % []) ((meta terrain) :index))))
+                            {} (take 4000 steps))]
+        (map identity (filter
+                       #_#(= (first %) 25)
+                       #_#(> (count %) 2)
+                       #(and (> (count %) 2) (apply not= (diffs %)))
+                       (vals indices))))
     ; [first-index first-height leftover-steps total-loops index-delta]
     #_(+' first-height
-        (-' (height-history (+' first-index leftover-steps))
-            first-height)
-        (*' (quot (-' total-steps first-index) index-delta)
-            height-delta))))
+          (-' (height-history (+' first-index leftover-steps))
+              first-height)
+          (*' (quot (-' total-steps first-index) index-delta)
+              height-delta))))
