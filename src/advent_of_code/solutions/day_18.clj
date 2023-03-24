@@ -28,4 +28,6 @@
        droplets)))
 
 (defn day-18b [input]
-  (->> input))
+  (let [droplets (parse-droplets input)]
+    (* 2 (apply + (map #(count (project-along-dimensions droplets %))
+                       [[0 1] [0 2] [1 2]])))))
