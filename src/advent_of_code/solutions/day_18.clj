@@ -8,14 +8,17 @@
        (map #(apply vector %))
        set))
 
-(defn neighbours [coordinate]
+(defn neighbours [droplet]
   (for [index [0 1 2]
         direction [inc dec]]
-    (update coordinate index direction)))
+    (update droplet index direction)))
+
+(defn exposed-faces [droplets droplet]
+  (count (filter (complement droplets) (neighbours droplet))))
 
 (defn day-18a [input]
-  (->> input
-       parse-droplets))
+  (let [droplets (parse-droplets input)]
+    (apply + (map #(exposed-faces droplets %) droplets))))
 
 (defn day-18b [input]
   (->> input))
