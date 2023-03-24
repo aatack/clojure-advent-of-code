@@ -37,8 +37,8 @@
 (defn in-bounds? [droplets]
   (fn [droplet]
     (every? identity (map (fn [[lower upper] value]
-                      (< lower value upper))
-                    ((meta droplets) :bounds) droplet))))
+                            (< lower value upper))
+                          ((meta droplets) :bounds) droplet))))
 
 (defn propagate-droplet [droplets]
   (let [-in-bounds? (in-bounds? droplets)]
@@ -47,8 +47,24 @@
                     (not (droplets %)))
               (exposed-faces droplets droplet)))))
 
+(defn accumulate-iterations [function initial]
+  (loop [queue [initial]
+         seen #{initial}]
+    (if (empty? queue)
+      seen
+      (let [new (apply disj
+                       (set (function (first queue)))
+                       (concat queue seen))]
+        (recur (concat (rest queue) new)
+               (apply conj seen new))))))
+
 (defn day-18b [input]
   ;; TODO: just beam search it, or flood fill the entire volume from
   ;;       the outside and then count unique pairings
-  (let [droplets (parse-droplets input)]
-    ((propagate-droplet droplets) [0 0 0])))
+  (let [droplets (parse-droplets input)
+        airs (accumulate-iterations (propagate-droplet droplets)
+                                    [0 0 0])]
+    (count (for [droplet droplets
+                 air (exposed-faces droplets droplet)
+                 :when (airs air)]
+             droplet))))
