@@ -59,8 +59,6 @@
                (apply conj seen new))))))
 
 (defn day-18b [input]
-  ;; TODO: just beam search it, or flood fill the entire volume from
-  ;;       the outside and then count unique pairings
   (let [droplets (parse-droplets input)
         airs (accumulate-iterations (propagate-droplet droplets)
                                     [0 0 0])]
