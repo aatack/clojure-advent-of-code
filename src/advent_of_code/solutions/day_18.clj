@@ -20,5 +20,12 @@
   (let [droplets (parse-droplets input)]
     (apply + (map #(exposed-faces droplets %) droplets))))
 
+(defn project-along-dimensions [droplets dimensions]
+  (set (map (fn [droplet]
+         (map (fn [dimension]
+                (nth droplet dimension))
+              dimensions))
+       droplets)))
+
 (defn day-18b [input]
   (->> input))
