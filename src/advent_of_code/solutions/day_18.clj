@@ -2,11 +2,18 @@
   (:require [clojure.string :refer [split-lines split]]))
 
 (defn parse-droplets [input]
-  (->> input
-       split-lines
-       (map #(map read-string (split % #",")))
-       (map #(apply vector %))
-       set))
+  (let [droplets (->> input
+                      split-lines
+                      (map #(map read-string (split % #",")))
+                      (map #(apply vector %))
+                      set)]
+    (with-meta droplets
+      {:bounds (map (fn [dimension]
+                      (let [coordinates
+                            (map #(nth % dimension) droplets)]
+                        [(- (apply min coordinates) 2)
+                         (+ (apply max coordinates) 2)]))
+                    [0 1 2])})))
 
 (defn neighbours [droplet]
   (for [index [0 1 2]
@@ -22,13 +29,19 @@
 
 (defn project-along-dimensions [droplets dimensions]
   (set (map (fn [droplet]
-         (map (fn [dimension]
-                (nth droplet dimension))
-              dimensions))
-       droplets)))
+              (map (fn [dimension]
+                     (nth droplet dimension))
+                   dimensions))
+            droplets)))
+
+(defn in-bounds [droplets]
+  (fn [droplet]
+    (every? identity (map (fn [[lower upper] value]
+                      (< lower value upper))
+                    ((meta droplets) :bounds) droplet))))
 
 (defn day-18b [input]
-  ;; TODO: just beam search it...
+  ;; TODO: just beam search it, or flood fill the entire volume from
+  ;;       the outside and then count unique pairings
   (let [droplets (parse-droplets input)]
-    (* 2 (apply + (map #(count (project-along-dimensions droplets %))
-                       [[0 1] [0 2] [1 2]])))))
+    ((in-bounds droplets) [2 2 8])))
