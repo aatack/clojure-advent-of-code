@@ -8,6 +8,11 @@
        (map #(apply vector %))
        set))
 
+(defn neighbours [coordinate]
+  (for [index [0 1 2]
+        direction [inc dec]]
+    (update coordinate index direction)))
+
 (defn day-18a [input]
   (->> input
        parse-droplets))
