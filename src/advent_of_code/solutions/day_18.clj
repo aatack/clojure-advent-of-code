@@ -14,11 +14,11 @@
     (update droplet index direction)))
 
 (defn exposed-faces [droplets droplet]
-  (count (filter (complement droplets) (neighbours droplet))))
+  (filter (complement droplets) (neighbours droplet)))
 
 (defn day-18a [input]
   (let [droplets (parse-droplets input)]
-    (apply + (map #(exposed-faces droplets %) droplets))))
+    (apply + (map #(count (exposed-faces droplets %)) droplets))))
 
 (defn project-along-dimensions [droplets dimensions]
   (set (map (fn [droplet]
@@ -28,6 +28,7 @@
        droplets)))
 
 (defn day-18b [input]
+  ;; TODO: just beam search it...
   (let [droplets (parse-droplets input)]
     (* 2 (apply + (map #(count (project-along-dimensions droplets %))
                        [[0 1] [0 2] [1 2]])))))
