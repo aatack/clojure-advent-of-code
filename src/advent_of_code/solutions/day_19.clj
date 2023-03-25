@@ -76,14 +76,18 @@
          (update-in next-state [:robots robot] inc)
          next-state))]))
 
+(defn propagate [state]
+  (fn [plan]
+    (->> (iterate step [plan state])
+         (drop-while #(> (get-in % [1 :time]) 0))
+         first)))
+
 (defn day-19a [input]
-  (->> input
-       parse-blueprints
-       first
-       initial-state
-       (#(iterate step [[:ore] %]))
-       (drop 6)
-       first))
+  ((->> input
+        parse-blueprints
+        first
+        initial-state
+        propagate) [:clay :clay :clay :obsidian :clay :obsidian :geode :geode]))
 
 (defn day-19b [input]
   (->> input))
