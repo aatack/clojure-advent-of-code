@@ -76,18 +76,26 @@
          (update-in next-state [:robots robot] inc)
          next-state))]))
 
-(defn propagate [state]
-  (fn [plan]
-    (->> (iterate step [plan state])
-         (drop-while #(> (get-in % [1 :time]) 0))
-         first)))
+(defn propagate [plan state]
+  (->> (iterate step [plan state])
+       (drop-while #(> (get-in % [1 :time]) 0))
+       first))
+
+(defn optimal
+  "Find the optimal plan that can be derived from this one."
+  [plan state]
+  (let [[final-plan final-state] (propagate plan state)]
+    (if (not-empty final-plan)
+      (get-in final-state [:inventory :geode])
+      (apply max (for [material (keys empty-inventory)]
+        (optimal (conj plan material) state))))))
 
 (defn day-19a [input]
-  ((->> input
-        parse-blueprints
-        first
-        initial-state
-        propagate) [:clay :clay :clay :obsidian :clay :obsidian :geode :geode]))
+  (optimal []
+           (->> input
+                parse-blueprints
+                first
+                initial-state)))
 
 (defn day-19b [input]
   (->> input))
