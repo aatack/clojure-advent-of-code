@@ -1,7 +1,7 @@
 (ns advent-of-code.solutions.day-19
   (:require [clojure.string :refer [split-lines replace split]]))
 
-(def duration 2)
+(def duration 24)
 
 (def empty-inventory {:ore 0
                       :clay 0
