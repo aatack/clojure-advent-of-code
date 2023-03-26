@@ -1,7 +1,7 @@
 (ns advent-of-code.solutions.day-19
   (:require [clojure.string :refer [split-lines replace split]]))
 
-(def duration 24)
+(def duration 2)
 
 (def empty-inventory {:ore 0
                       :clay 0
@@ -88,14 +88,12 @@
     (if (not-empty final-plan)
       (get-in final-state [:inventory :geode])
       (apply max (for [material (keys empty-inventory)]
-        (optimal (conj plan material) state))))))
+                   (optimal (conj plan material) state))))))
 
 (defn day-19a [input]
-  (optimal []
-           (->> input
-                parse-blueprints
-                first
-                initial-state)))
+  (let [blueprints (parse-blueprints input)]
+    (apply + (for [blueprint blueprints]
+               (* (blueprint :id) (optimal [] (initial-state blueprint)))))))
 
 (defn day-19b [input]
   (->> input))
