@@ -6,13 +6,14 @@
         limit (dec (count lines))]
     (->> lines
          (map-indexed (fn [index value]
-                        [index {:value (read-string value)
+                        [index {:distance (read-string value)
                                 :left (if (> index 0)
                                         (dec index)
                                         limit)
                                 :right (if (< index limit)
                                          (inc index)
-                                         0)}]))
+                                         0)
+                                :index index}]))
          (into {}))))
 
 (defn peek [file value distance]
@@ -24,9 +25,22 @@
         (recur (file (current-value direction))
                (dec remaining-distance))))))
 
+(defn move [file value]
+  (let [distance (value :distance)
+
+        destination (peek file value distance)
+        
+        old-left (value :left)
+        old-right (value :right)
+        
+        new-left (if (> distance 0) (destination :index) (destination :left))
+        new-right (if (< distance 0) (destination :index) (destination :right))]
+    
+    (-> file)))
+
 (defn day-20a [input]
   (let [file (parse-input input)]
-    (peek file (file 0) -37080)))
+    (move file (file 2))))
 
 (defn day-20b [input]
   (->> input))
