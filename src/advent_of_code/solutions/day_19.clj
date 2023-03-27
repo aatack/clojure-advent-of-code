@@ -87,12 +87,14 @@
   (let [[final-plan final-state] (propagate plan state)]
     (if (not-empty final-plan)
       (get-in final-state [:inventory :geode])
-      (apply max (for [material (keys empty-inventory)]
-                   (optimal (conj plan material) state))))))
+      (apply max (map #(optimal (conj plan %) state) (keys empty-inventory))))))
 
 (defn day-19a [input]
   (let [blueprints (parse-blueprints input)]
-    (apply + (for [blueprint blueprints]
+    (optimal [:clay :clay :clay :obsidian]
+             (initial-state (first blueprints)))
+    
+    #_(apply + (for [blueprint blueprints]
                (* (blueprint :id) (optimal [] (initial-state blueprint)))))))
 
 (defn day-19b [input]
