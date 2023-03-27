@@ -1,5 +1,6 @@
 (ns advent-of-code.solutions.day-19
-  (:require [clojure.string :refer [split-lines replace split]]))
+  (:require [advent-of-code.utils :refer [beam-search]]
+            [clojure.string :refer [replace split split-lines]]))
 
 (def duration 24)
 
@@ -81,23 +82,44 @@
        (drop-while #(> (get-in % [1 :time]) 0))
        first))
 
-(defn optimal
-  "Find the optimal plan that can be derived from this one."
-  [plan state]
-  (let [[final-plan final-state] (propagate plan state)]
-    (if (not-empty final-plan)
-      (get-in final-state [:inventory :geode])
-      (apply max ((if (<= (count plan) 4) pmap map)
-                  #(optimal (conj plan %) state)
-                  (keys empty-inventory))))))
+(defn evaluate [state]
+  (fn [plan]
+    (let [[_ final-state] (propagate plan state)]
+      (+ (* 1 (get-in final-state [:inventory :ore]))
+         (* 20 (get-in final-state [:inventory :clay]))
+         (* 200 (get-in final-state [:inventory :obsidian]))
+         (* 2000 (get-in final-state [:inventory :geode]))
+
+         (* 0 (apply + (vals (final-state :inventory))))
+         (* 0 (apply + (vals (final-state :robots))))))))
+
+(defn explore [state]
+  (fn [plan]
+    (let [[final-plan _] (propagate plan state)]
+      (if (empty? final-plan)
+        (concat (map #(conj plan %) (keys empty-inventory))
+                #_(for [x (range (dec (count plan)))
+                      y (range x (count plan))
+                      :let [left (nth plan x)
+                            right (nth plan y)]]
+                  (-> plan
+                      (assoc x right)
+                      (assoc y left)))
+                #_(for [index (range (count plan))]
+                  (into (subvec plan 0 index) (subvec plan (inc index)))))
+        []))))
 
 (defn day-19a [input]
-  (let [blueprints (parse-blueprints input)]
-    (optimal [:clay :clay]
-             (initial-state (first blueprints)))
-    
-    #_(apply + (for [blueprint blueprints]
-               (* (blueprint :id) (optimal [] (initial-state blueprint)))))))
+  (let [blueprints (parse-blueprints input)
+        state (initial-state (nth blueprints 0))]
+    (optimal state)
+    #_(-> (beam-search []
+                     (explore state)
+                     (evaluate state)
+                     1500
+                     15000)
+        second
+        (propagate state))))
 
 (defn day-19b [input]
   (->> input))
