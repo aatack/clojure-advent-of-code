@@ -98,28 +98,45 @@
     (let [[final-plan _] (propagate plan state)]
       (if (empty? final-plan)
         (concat (map #(conj plan %) (keys empty-inventory))
-                #_(for [x (range (dec (count plan)))
+                (for [x (range (dec (count plan)))
                       y (range x (count plan))
                       :let [left (nth plan x)
                             right (nth plan y)]]
                   (-> plan
                       (assoc x right)
                       (assoc y left)))
-                #_(for [index (range (count plan))]
+                (for [index (range (count plan))]
                   (into (subvec plan 0 index) (subvec plan (inc index)))))
         []))))
 
+(defn optimal
+  "Find the optimal plan that can be derived from this one."
+  [state]
+  (loop [best 0
+         queue '([])]
+    (if (empty? queue)
+      best
+      (let [plan (first queue)
+            [final-plan final-state] (propagate plan state)
+            score (get-in final-state [:inventory :geode])]
+        (recur (max best score)
+               (reduce conj
+                       (rest queue)
+                       (if (empty? final-plan)
+                         (map #(conj plan %) [:ore :clay :obsidian :geode])
+                         [])))))))
+
 (defn day-19a [input]
   (let [blueprints (parse-blueprints input)
-        state (initial-state (nth blueprints 0))]
+        state (initial-state (nth blueprints 1))]
     (optimal state)
     #_(-> (beam-search []
-                     (explore state)
-                     (evaluate state)
-                     1500
-                     15000)
-        second
-        (propagate state))))
+                       (explore state)
+                       (evaluate state)
+                       1500
+                       15000)
+          second
+          (propagate state))))
 
 (defn day-19b [input]
   (->> input))
