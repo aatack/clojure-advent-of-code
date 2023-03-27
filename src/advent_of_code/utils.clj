@@ -26,6 +26,7 @@
          attempts 0
          seen-nodes (set queued-nodes)]
     (if (or (> attempts limit) (empty? queued-nodes))
+      ;; TODO: introduce a selection function for the results
       ; (apply max-key first seen-nodes)
       seen-nodes
       (let [[_ node] (first queued-nodes)
