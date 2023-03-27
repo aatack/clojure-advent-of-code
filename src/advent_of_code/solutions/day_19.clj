@@ -85,13 +85,15 @@
 (defn evaluate [state]
   (fn [plan]
     (let [[_ final-state] (propagate plan state)]
-      (+ (* 1 (get-in final-state [:inventory :ore]))
-         (* 20 (get-in final-state [:inventory :clay]))
-         (* 200 (get-in final-state [:inventory :obsidian]))
-         (* 2000 (get-in final-state [:inventory :geode]))
+      (+ (* 0.1 (get-in final-state [:inventory :ore]))
+         (* 2 (get-in final-state [:inventory :clay]))
+         (* 20 (get-in final-state [:inventory :obsidian]))
+         (* 200 (get-in final-state [:inventory :geode]))
 
-         (* 0 (apply + (vals (final-state :inventory))))
-         (* 0 (apply + (vals (final-state :robots))))))))
+         (* 1 (get-in final-state [:robots :ore]))
+         (* 20 (get-in final-state [:robots :clay]))
+         (* 200 (get-in final-state [:robots :obsidian]))
+         (* 2000 (get-in final-state [:robots :geode]))))))
 
 (defn explore [state]
   (fn [plan]
@@ -133,7 +135,7 @@
                      (explore state)
                      (evaluate state)
                      500
-                     1000)
+                     5000)
         second
         (propagate state))))
 
