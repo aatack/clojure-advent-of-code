@@ -1,12 +1,12 @@
 (ns advent-of-code.solutions.day-20
   (:require [clojure.string :refer [split-lines]]))
 
-(defn parse-file [input]
+(defn parse-file [factor input]
   (let [lines (split-lines input)
         limit (dec (count lines))]
     (->> lines
          (map-indexed (fn [index value]
-                        [index {:distance (read-string value)
+                        [index {:distance (*' factor (read-string value))
                                 :left (if (> index 0)
                                         (dec index)
                                         limit)
@@ -34,7 +34,7 @@
                     (assoc-in [old-left :right] old-right)
                     (assoc-in [old-right :left] old-left))
 
-        distance (value :distance)
+        distance (mod (value :distance) (* (dec (count file)) (if (> (value :distance) 0) 1 -1)))
         index (value :index)
 
         destination (peek removed value distance)
@@ -64,10 +64,14 @@
 
 (defn day-20a [input]
   (let [file (->> input
-                  parse-file
+                  (parse-file 1)
                   mix)
         root (first (filter #(= (% :distance) 0) (vals file)))]
     (apply + (map #((peek file root %) :distance) [1000 2000 3000]))))
 
 (defn day-20b [input]
-  (->> input))
+  (let [file (->> input
+                  (parse-file 811589153)
+                  mix)
+        #_#_root (first (filter #(= (% :distance) 0) (vals file)))]
+    file))
