@@ -87,11 +87,13 @@
   (let [[final-plan final-state] (propagate plan state)]
     (if (not-empty final-plan)
       (get-in final-state [:inventory :geode])
-      (apply max (map #(optimal (conj plan %) state) (keys empty-inventory))))))
+      (apply max ((if (<= (count plan) 4) pmap map)
+                  #(optimal (conj plan %) state)
+                  (keys empty-inventory))))))
 
 (defn day-19a [input]
   (let [blueprints (parse-blueprints input)]
-    (optimal [:clay :clay :clay :obsidian]
+    (optimal [:clay :clay]
              (initial-state (first blueprints)))
     
     #_(apply + (for [blueprint blueprints]
