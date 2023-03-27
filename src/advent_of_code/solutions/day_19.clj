@@ -129,14 +129,13 @@
 (defn day-19a [input]
   (let [blueprints (parse-blueprints input)
         state (initial-state (nth blueprints 1))]
-    (optimal state)
-    #_(-> (beam-search []
-                       (explore state)
-                       (evaluate state)
-                       1500
-                       15000)
-          second
-          (propagate state))))
+    (-> (beam-search []
+                     (explore state)
+                     (evaluate state)
+                     500
+                     1000)
+        second
+        (propagate state))))
 
 (defn day-19b [input]
   (->> input))
