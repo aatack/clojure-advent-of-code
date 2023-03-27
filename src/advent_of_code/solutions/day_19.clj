@@ -122,8 +122,8 @@
              (let [result (beam-search [] ; TODO: invesitgate setting an initial state
                                        (explore state)
                                        (evaluate state)
-                                       500
-                                       2000)
+                                       1000
+                                       6000)
                    best (apply max-key (score state) (map second result))]
                (* (blueprint :id) ((score state) best))))))
 
