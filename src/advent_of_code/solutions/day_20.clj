@@ -1,6 +1,8 @@
 (ns advent-of-code.solutions.day-20
   (:require [clojure.string :refer [split-lines]]))
 
+(def encryption-key 811589153)
+
 (defn parse-file [factor input]
   (let [lines (split-lines input)
         limit (dec (count lines))]
@@ -71,7 +73,9 @@
 
 (defn day-20b [input]
   (let [file (->> input
-                  (parse-file 811589153)
-                  mix)
-        #_#_root (first (filter #(= (% :distance) 0) (vals file)))]
-    file))
+                  (parse-file encryption-key)
+                  (iterate mix)
+                  (drop 10)
+                  first)
+        root (first (filter #(= (% :distance) 0) (vals file)))]
+    (apply +' (map #((peek file root %) :distance) [1000 2000 3000]))))
