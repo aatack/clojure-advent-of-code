@@ -26,7 +26,8 @@
          attempts 0
          seen-nodes (set queued-nodes)]
     (if (or (> attempts limit) (empty? queued-nodes))
-      (apply max-key first seen-nodes)
+      ; (apply max-key first seen-nodes)
+      seen-nodes
       (let [[_ node] (first queued-nodes)
             nodes (rest queued-nodes)
             explored (apply disj (set (map #(vector (evaluate %) %)

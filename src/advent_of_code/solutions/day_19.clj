@@ -85,15 +85,20 @@
 (defn evaluate [state]
   (fn [plan]
     (let [[_ final-state] (propagate plan state)]
-      (+ (* 0.1 (get-in final-state [:inventory :ore]))
-         (* 2 (get-in final-state [:inventory :clay]))
-         (* 20 (get-in final-state [:inventory :obsidian]))
-         (* 200 (get-in final-state [:inventory :geode]))
+      (+ (* 0.01 (get-in final-state [:inventory :ore]))
+         (* 0.2 (get-in final-state [:inventory :clay]))
+         (* 2 (get-in final-state [:inventory :obsidian]))
+         (* 20 (get-in final-state [:inventory :geode]))
 
          (* 1 (get-in final-state [:robots :ore]))
          (* 20 (get-in final-state [:robots :clay]))
          (* 200 (get-in final-state [:robots :obsidian]))
          (* 2000 (get-in final-state [:robots :geode]))))))
+
+(defn score [state]
+  (fn [plan]
+    (let [[_ final-state] (propagate plan state)]
+      (get-in final-state [:inventory :geode]))))
 
 (defn explore [state]
   (fn [plan]
@@ -131,13 +136,14 @@
 (defn day-19a [input]
   (let [blueprints (parse-blueprints input)
         state (initial-state (nth blueprints 1))]
-    (-> (beam-search []
+    (let [result (beam-search []
                      (explore state)
                      (evaluate state)
-                     500
-                     5000)
-        second
-        (propagate state))))
+                     1000
+                     1000)
+          best (apply max-key (score state) (map second result))
+          ]
+        ((score state) best))))
 
 (defn day-19b [input]
   (->> input))
