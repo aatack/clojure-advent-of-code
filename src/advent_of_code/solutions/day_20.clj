@@ -1,7 +1,7 @@
 (ns advent-of-code.solutions.day-20
   (:require [clojure.string :refer [split-lines]]))
 
-(defn parse-input [input]
+(defn parse-file [input]
   (let [lines (split-lines input)
         limit (dec (count lines))]
     (->> lines
@@ -48,9 +48,21 @@
         (assoc-in [index :left] new-left)
         (assoc-in [index :right] new-right))))
 
+(defn mix [file]
+  (let [limit (count file)]
+    (loop [current-index 0
+         current-file file]
+    (if (>= current-index limit)
+      current-file
+      (recur (inc current-index)
+             (move current-file (current-file current-index)))))))
+
 (defn day-20a [input]
-  (let [file (parse-input input)]
-    (move file (file 2))))
+  (let [file (->> input
+                  parse-file
+                  mix)
+        root (first (filter #(= (% :distance) 0) (vals file)))]
+    (apply + (map #((peek file root %) :distance) [1000 2000 3000]))))
 
 (defn day-20b [input]
   (->> input))
