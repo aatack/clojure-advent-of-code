@@ -2,7 +2,7 @@
   (:require [advent-of-code.utils :refer [beam-search]]
             [clojure.string :refer [replace split split-lines]]))
 
-(def duration 24)
+(def duration 32) ; TODO: allow this to be changed per-part
 
 (def empty-inventory {:ore 0
                       :clay 0
@@ -128,4 +128,12 @@
                (* (blueprint :id) ((score state) best))))))
 
 (defn day-19b [input]
-  (->> input))
+  (apply * (for [blueprint (take 3 (parse-blueprints input))
+                 :let [state (initial-state blueprint)]]
+             (let [result (beam-search [] ; TODO: invesitgate setting an initial state
+                                       (explore state)
+                                       (evaluate state)
+                                       1000
+                                       12000)
+                   best (apply max-key (score state) (map second result))]
+               ((score state) best)))))
