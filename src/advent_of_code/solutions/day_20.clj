@@ -30,32 +30,34 @@
         index (value :index)
 
         destination (peek file value distance)
-        
+
         old-left (value :left)
         old-right (value :right)
-        
+
         new-left (if (> distance 0) (destination :index) (destination :left))
         new-right (if (< distance 0) (destination :index) (destination :right))]
-    
-    (-> file
-        ;; Detach the value from its old location
-        (assoc-in [old-left :right] old-right)
-        (assoc-in [old-right :left] old-left)
-        ;; Attach the value to its new location
-        (assoc-in [new-left :right] index)
-        (assoc-in [new-right :left] index)
-        ;; Update the pointers within the value itself
-        (assoc-in [index :left] new-left)
-        (assoc-in [index :right] new-right))))
+
+    (if (= distance 0)
+      file
+      (-> file
+          ;; Detach the value from its old location
+          (assoc-in [old-left :right] old-right)
+          (assoc-in [old-right :left] old-left)
+          ;; Attach the value to its new location
+          (assoc-in [new-left :right] index)
+          (assoc-in [new-right :left] index)
+          ;; Update the pointers within the value itself
+          (assoc-in [index :left] new-left)
+          (assoc-in [index :right] new-right)))))
 
 (defn mix [file]
   (let [limit (count file)]
     (loop [current-index 0
-         current-file file]
-    (if (>= current-index limit)
-      current-file
-      (recur (inc current-index)
-             (move current-file (current-file current-index)))))))
+           current-file file]
+      (if (>= current-index limit)
+        current-file
+        (recur (inc current-index)
+               (move current-file (current-file current-index)))))))
 
 (defn day-20a [input]
   (let [file (->> input
