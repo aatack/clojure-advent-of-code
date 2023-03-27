@@ -26,29 +26,32 @@
                (dec remaining-distance))))))
 
 (defn move [file value]
-  (let [distance (value :distance)
+  (let [old-left (value :left)
+        old-right (value :right)
+
+        removed (-> file
+                    ;; Detach the value from its old location
+                    (assoc-in [old-left :right] old-right)
+                    (assoc-in [old-right :left] old-left))
+
+        distance (value :distance)
         index (value :index)
 
-        destination (peek file value distance)
-
-        old-left (value :left)
-        old-right (value :right)
+        destination (peek removed value distance)
 
         new-left (if (> distance 0) (destination :index) (destination :left))
         new-right (if (< distance 0) (destination :index) (destination :right))]
 
     (if (= distance 0)
       file
-      (-> file
-          ;; Detach the value from its old location
-          (assoc-in [old-left :right] old-right)
-          (assoc-in [old-right :left] old-left)
+      (-> removed
           ;; Attach the value to its new location
           (assoc-in [new-left :right] index)
           (assoc-in [new-right :left] index)
           ;; Update the pointers within the value itself
-          (assoc-in [index :left] new-left)
-          (assoc-in [index :right] new-right)))))
+          (assoc index (-> value
+                           (assoc :left new-left)
+                           (assoc :right new-right)))))))
 
 (defn mix [file]
   (let [limit (count file)]
