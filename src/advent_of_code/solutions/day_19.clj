@@ -116,34 +116,16 @@
                   (into (subvec plan 0 index) (subvec plan (inc index)))))
         []))))
 
-(defn optimal
-  "Find the optimal plan that can be derived from this one."
-  [state]
-  (loop [best 0
-         queue '([])]
-    (if (empty? queue)
-      best
-      (let [plan (first queue)
-            [final-plan final-state] (propagate plan state)
-            score (get-in final-state [:inventory :geode])]
-        (recur (max best score)
-               (reduce conj
-                       (rest queue)
-                       (if (empty? final-plan)
-                         (map #(conj plan %) [:ore :clay :obsidian :geode])
-                         [])))))))
-
 (defn day-19a [input]
-  (let [blueprints (parse-blueprints input)
-        state (initial-state (nth blueprints 1))]
-    (let [result (beam-search []
-                     (explore state)
-                     (evaluate state)
-                     1000
-                     1000)
-          best (apply max-key (score state) (map second result))
-          ]
-        ((score state) best))))
+  (apply + (for [blueprint (parse-blueprints input)
+                 :let [state (initial-state blueprint)]]
+             (let [result (beam-search [] ; TODO: invesitgate setting an initial state
+                                       (explore state)
+                                       (evaluate state)
+                                       500
+                                       2000)
+                   best (apply max-key (score state) (map second result))]
+               (* (blueprint :id) ((score state) best))))))
 
 (defn day-19b [input]
   (->> input))
