@@ -1,12 +1,12 @@
 (ns advent-of-code.solutions.day-21
-  (:require [clojure.string :refer [split split-lines]]))
+  (:require [clojure.string :refer [split split-lines]]
+            [clojure.test :refer [function?]]))
 
 (defn wrap-operator [operator]
   (fn [left right]
     (when (and left right)
       (try (operator left right)
-       (catch Exception _ (operator (double left) (double right)))))
-  ))
+           (catch Exception _ (operator (double left) (double right)))))))
 
 (defn parse-monkey [equality input]
   (let [[monkey operation] (split input #": ")
@@ -16,11 +16,11 @@
               (let [[left operator right] expression]
                 (fn [context]
                   (try ((wrap-operator (if (and equality (= monkey "root"))
-                          -'
-                          ({"+" +'
-                            "-" -'
-                            "*" *'
-                            "/" /} operator)))
+                                         -'
+                                         ({"+" +'
+                                           "-" -'
+                                           "*" *'
+                                           "/" /} operator)))
                         (context left)
                         (context right))
                        (catch Exception _)))))]))
@@ -33,7 +33,7 @@
 
 (defn resolve-monkeys [monkey-context]
   (loop [context monkey-context]
-    (let [unevaluated (filter (complement (comp #(or (integer? %) (double? %)) second))
+    (let [unevaluated (filter (comp function? second)
                               context)
           results (for [[monkey function] unevaluated
                         :let [result (function context)]
@@ -51,7 +51,19 @@
     (let [augmented-context (assoc context "humn" value)]
       [value ((resolve-monkeys augmented-context) "root")])))
 
+(defn bisect
+  ([function left right tolerance left-value right-value]
+   (if (< (abs (-' left right)) tolerance)
+     [left right]
+     (let [midpoint (bigint (/ (+' left right) 2))
+           midpoint-value (function midpoint)]
+       (if (= (> midpoint-value 0) (> left-value 0))
+         (recur function midpoint right tolerance midpoint-value right-value)
+         (recur function left midpoint tolerance left-value midpoint-value)))))
+
+  ([function left right tolerance]
+   (bisect function left right tolerance (function left) (function right))))
+
 (defn day-21b [input]
-  (let [context (parse-monkeys true input)
-        tries [301]]
-    (into {} (filter second (map (attempt context) tries)))))
+  (let [context (parse-monkeys true input)]
+    (bisect (attempt context) 0 #_168502451381566 #_16850245138156 500 10)))
