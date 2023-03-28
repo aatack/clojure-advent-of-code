@@ -40,18 +40,25 @@
         (recur (if move?
                  (update current 1 dec)
                  (first remaining))
+               
                (if move?
                  remaining
                  (rest remaining))
+               
                (if move?
                  (let [moved (apply vector (map + position heading))
                        wrapped (if (maze moved) moved (wrap maze position heading))
                        walled (if (= (maze wrapped) :wall) position wrapped)]
                    walled)
                  position)
+               
                (if turn?
-                 heading
+                 (let [[dx dy] heading]
+                   (case (second current)
+                     :left [dy (* -1 dx)]
+                     :right [(* -1 dy) dx]))
                  heading)))
+      
       [position heading])))
 
 (defn day-22a [input]
