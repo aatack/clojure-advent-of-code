@@ -11,6 +11,7 @@
 (defn parse-instructions [input]
   (->> input
        (partition-by #{\L \R})
+       ;; NOTE: this will not work if two turns are received in a row
        (map (fn [instruction]
               (cond
                 (= (first instruction) \L) [:turn :left]
@@ -62,8 +63,17 @@
       [position heading])))
 
 (defn day-22a [input]
-  (let [[maze instructions] (parse-input input)]
-    (propagate maze instructions)))
+  (let [[maze instructions] (parse-input input)
+        ;; We have inverted `x` and `y` in our coordinate system, so invert them again
+        ;; here
+        [[column row] heading] (propagate maze instructions)
+        facing ({[1 0] 0
+                        [0 1] 1
+                        [-1 0] 2
+                        [0 -1] 3} heading)]
+    (+ (* 1000 row)
+       (* 4 column)
+       facing)))
 
 (defn day-22b [input]
   (->> input))
