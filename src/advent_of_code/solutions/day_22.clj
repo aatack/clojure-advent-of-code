@@ -45,8 +45,9 @@
                  (rest remaining))
                (if move?
                  (let [moved (apply vector (map + position heading))
-                       wrapped (if (maze moved) moved (wrap maze position heading))]
-                   wrapped)
+                       wrapped (if (maze moved) moved (wrap maze position heading))
+                       walled (if (= (maze wrapped) :wall) position wrapped)]
+                   walled)
                  position)
                (if turn?
                  heading
