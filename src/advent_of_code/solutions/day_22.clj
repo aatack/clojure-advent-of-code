@@ -35,14 +35,21 @@
          position (apply min-key first (filter (comp #(= % 1) second) (keys maze)))
          heading [1 0]]
     (if current
-      (recur (first remaining)
-             (rest remaining)
-             (if (= (first current) :move)
-               position
-               position)
-             (if (= (first current) :turn)
-               heading
-               heading))
+      (let [move? (and (= (first current) :move) (> (second current) 0))
+            turn? (= (first current) :turn)]
+        (recur (if move?
+                 (update current 1 dec)
+                 (first remaining))
+               (if move?
+                 remaining
+                 (rest remaining))
+               (if move?
+                 (let [moved (apply vector (map + position heading))]
+                   moved)
+                 position)
+               (if turn?
+                 heading
+                 heading)))
       [position heading])))
 
 (defn day-22a [input]
