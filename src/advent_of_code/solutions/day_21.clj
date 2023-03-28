@@ -22,12 +22,20 @@
        (map parse-monkey)
        (into {})))
 
+(defn resolve-monkeys [monkey-context]
+  (loop [context monkey-context]
+    (let [unevaluated (filter (complement (comp integer? second))
+                              context)
+          results (for [[monkey function] unevaluated
+                        :let [result (function context)]
+                        :when result]
+                    [monkey result])]
+      (if (empty? unevaluated)
+        context
+        (recur (into context results))))))
+
 (defn day-21a [input]
-  (loop [context (parse-monkeys input)]
-    (let [unevaluated (set (map first
-                                (filter (complement (comp integer? second))
-                                        context)))]
-      unevaluated)))
+  ((resolve-monkeys (parse-monkeys input)) "root"))
 
 (defn day-21b [input]
   (->> input))
