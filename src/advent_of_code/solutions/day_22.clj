@@ -21,9 +21,17 @@
   (let [[maze _ [instructions]] (->> input split-lines (partition-by empty?))]
     [(parse-maze maze) (parse-instructions instructions)]))
 
+(defn wrap [maze coordinate direction]
+  (let [step (apply vector (map #(* -1 %) direction))]
+    (loop [current-coordinate coordinate]
+      (let [next-coordinate (apply vector (map + current-coordinate step))]
+        (if (maze next-coordinate)
+          (recur next-coordinate)
+          current-coordinate)))))
+
 (defn day-22a [input]
   (let [[maze instructions] (parse-input input)]
-    [maze instructions]))
+    (wrap maze [9 1] [1 0])))
 
 (defn day-22b [input]
   (->> input))
