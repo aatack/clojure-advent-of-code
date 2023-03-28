@@ -23,8 +23,11 @@
        (into {})))
 
 (defn day-21a [input]
-  (->> input
-       parse-monkeys))
+  (loop [context (parse-monkeys input)]
+    (let [unevaluated (set (map first
+                                (filter (complement (comp integer? second))
+                                        context)))]
+      unevaluated)))
 
 (defn day-21b [input]
   (->> input))
