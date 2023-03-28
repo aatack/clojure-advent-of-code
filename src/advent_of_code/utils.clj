@@ -34,7 +34,7 @@
             explored (apply disj (set (map #(vector (evaluate %) %)
                                            (explore node))) seen-nodes)
             next-queued-nodes (take space (reverse (sort-by first
-                                             (concat nodes explored))))]
+                                                            (concat nodes explored))))]
         (recur next-queued-nodes
                (inc attempts)
                (apply conj seen-nodes next-queued-nodes))))))
@@ -88,5 +88,9 @@
   (lazy-seq (concat sequence
                     (repeat-sequence sequence))))
 
-(defn enumerate [sequence]
-  (map-indexed vector sequence))
+(defn enumerate
+  ([sequence]
+   (enumerate sequence 0))
+  
+  ([sequence start]
+   (map list (iterate inc start) sequence)))

@@ -3,8 +3,8 @@
             [clojure.string :refer [split-lines]]))
 
 (defn parse-maze [input]
-  (into {} (for [[y row] (enumerate input)
-                 [x cell] (enumerate row)
+  (into {} (for [[y row] (enumerate input 1)
+                 [x cell] (enumerate row 1)
                  :when (not= cell \space)]
              [[x y] (if (= cell \.) :open :wall)])))
 
@@ -22,9 +22,8 @@
     [(parse-maze maze) (parse-instructions instructions)]))
 
 (defn day-22a [input]
-  (parse-input input))
+  (let [[maze instructions] (parse-input input)]
+    [maze instructions]))
 
 (defn day-22b [input]
   (->> input))
-
-(partition-by #{\L \R} "ABCLDHG")
