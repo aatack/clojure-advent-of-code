@@ -29,9 +29,25 @@
           (recur next-coordinate)
           current-coordinate)))))
 
+(defn propagate [maze instructions]
+  (loop [current (first instructions)
+         remaining (rest instructions)
+         position (apply min-key first (filter (comp #(= % 1) second) (keys maze)))
+         heading [1 0]]
+    (if current
+      (recur (first remaining)
+             (rest remaining)
+             (if (= (first current) :move)
+               position
+               position)
+             (if (= (first current) :turn)
+               heading
+               heading))
+      [position heading])))
+
 (defn day-22a [input]
   (let [[maze instructions] (parse-input input)]
-    (wrap maze [9 1] [1 0])))
+    (propagate maze instructions)))
 
 (defn day-22b [input]
   (->> input))
