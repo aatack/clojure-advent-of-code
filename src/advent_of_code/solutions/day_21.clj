@@ -1,6 +1,5 @@
 (ns advent-of-code.solutions.day-21
-  (:require [clojure.string :refer [split split-lines]]
-            [clojure.test :refer [function?]]))
+  (:require [clojure.string :refer [split split-lines]]))
 
 (defn wrap-operator [operator]
   (fn [left right]
@@ -33,7 +32,7 @@
 
 (defn resolve-monkeys [monkey-context]
   (loop [context monkey-context]
-    (let [unevaluated (filter (comp function? second)
+    (let [unevaluated (filter (complement (comp #(or (integer? %) (double? %) (rational? %)) second))
                               context)
           results (for [[monkey function] unevaluated
                         :let [result (function context)]
@@ -49,7 +48,7 @@
 (defn attempt [context]
   (fn [value]
     (let [augmented-context (assoc context "humn" value)]
-      [value ((resolve-monkeys augmented-context) "root")])))
+      ((resolve-monkeys augmented-context) "root"))))
 
 (defn bisect
   ([function left right tolerance left-value right-value]
@@ -65,5 +64,9 @@
    (bisect function left right tolerance (function left) (function right))))
 
 (defn day-21b [input]
-  (let [context (parse-monkeys true input)]
-    (bisect (attempt context) 0 #_168502451381566 #_16850245138156 500 10)))
+  (let [context (parse-monkeys true input)
+        [lower upper] (bisect (attempt context) 0 168502451381566 10)]
+    (first (for [value (range lower upper)
+                 :let [result ((attempt context) value)]
+                 :when (= result 0)]
+             value))))
