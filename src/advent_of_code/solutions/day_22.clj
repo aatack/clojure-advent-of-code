@@ -1,8 +1,12 @@
 (ns advent-of-code.solutions.day-22
-  (:require [clojure.string :refer [split-lines]]))
+  (:require [advent-of-code.utils :refer [enumerate]]
+            [clojure.string :refer [split-lines]]))
 
 (defn parse-maze [input]
-  "")
+  (into {} (for [[y row] (enumerate input)
+                 [x cell] (enumerate row)
+                 :when (not= cell \space)]
+             [[x y] (if (= cell \.) :open :wall)])))
 
 (defn parse-instructions [input]
   (->> input

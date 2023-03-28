@@ -87,3 +87,6 @@
 (defn repeat-sequence [sequence]
   (lazy-seq (concat sequence
                     (repeat-sequence sequence))))
+
+(defn enumerate [sequence]
+  (map-indexed vector sequence))
