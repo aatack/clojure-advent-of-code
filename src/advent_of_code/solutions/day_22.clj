@@ -44,8 +44,9 @@
                  remaining
                  (rest remaining))
                (if move?
-                 (let [moved (apply vector (map + position heading))]
-                   moved)
+                 (let [moved (apply vector (map + position heading))
+                       wrapped (if (maze moved) moved (wrap maze position heading))]
+                   wrapped)
                  position)
                (if turn?
                  heading
