@@ -2,6 +2,8 @@
   (:require [advent-of-code.utils :refer [enumerate]]
             [clojure.string :refer [split-lines]]))
 
+(def side-length 6)
+
 (defn parse-maze [input]
   (into {} (for [[y row] (enumerate input 1)
                  [x cell] (enumerate row 1)
@@ -75,5 +77,42 @@
        (* 4 column)
        facing)))
 
+(def right [1 0])
+(def left [-1 0])
+(def up [0 -1])
+(def down [0 1])
+
+
+(defn sector 
+  "Find the sector, relative to `side-length`, within which a position vector resides."
+  [coordinate]
+  (apply vector (map #(quot (dec %) side-length) coordinate)))
+
+(defn rotate 
+  "Rotate a position vector from one heading to another."
+  [position from to]
+  (loop [[x y] position
+         [dx dy] from]
+    (if (= [dx dy] to)
+      [x y]
+      (recur [y (* -1 x)]
+             [dy (* -1 dx)]))))
+
+(defn add 
+  "Add two position vectors together."
+  [left-position right-position]
+  (apply vector (map + left-position right-position)))
+
+(defn scale 
+  "Scale a position vectory by a constant."
+  [position constant]
+  (apply vector (map #(+ % constant) position)))
+
+(defn focus 
+  "Move the given position vector into a `side-length` sized square around the origin."
+  [position]
+  (apply vector (map #(inc (mod (dec %) side-length)) position)))
+
 (defn day-22b [input]
-  (->> input))
+  (let [[maze instructions] (parse-input input)]
+    (group-by sector (keys maze))))
