@@ -110,7 +110,7 @@
 (defn scale
   "Scale a position vectory by a constant."
   [position constant]
-  (apply vector (map #(+ % constant) position)))
+  (apply vector (map #(* % constant) position)))
 
 (defn focus
   "Move the given position vector into a `side-length` sized square around the origin."
@@ -164,9 +164,9 @@
                                                corner)])]
                                :when (cube far-face)]
                            [face direction far-face]))]
-        
+
         (if (empty? missing)
-          cube
+          (assoc cube :maze maze)
 
           ;; Work out which connections can be inferred from the current information
           (recur (reduce (fn [cube' [from direction to]]
@@ -174,6 +174,62 @@
                          cube
                          connections)))))))
 
+(defn move-once [cube face position heading]
+  (let [moved (add position heading)]
+    (case (get-in cube [face :map moved])
+      :open [face moved heading]
+      :wall [face position heading])))
+
+(defn propagate [cube instructions]
+  (let [initial-position (apply min-key first
+                                (filter (comp #(= % 1) second) (keys (cube :maze))))]
+    (loop [current-instruction (first instructions)
+           remaining-instructions (rest instructions)
+           current-face (sector initial-position)
+           current-position (focus initial-position)
+           current-heading right]
+
+      (if current-instruction
+        (let [move? (and (= (first current-instruction) :move)
+                         (> (second current-instruction) 0))
+              turn? (= (first current-instruction) :turn)]
+          (recur (if move?
+                   (update current-instruction 1 dec)
+                   (first remaining-instructions))
+
+                 (if move?
+                   remaining-instructions
+                   (rest remaining-instructions))
+
+                 (if move?
+                   (let [moved (apply vector (map + position heading))
+                         wrapped (if (maze moved) moved (wrap maze position heading))
+                         walled (if (= (maze wrapped) :wall) position wrapped)]
+                     walled)
+                   position)
+
+                 (if turn?
+                   (let [[dx dy] heading]
+                     (case (second current)
+                       :left [dy (* -1 dx)]
+                       :right [(* -1 dy) dx]))
+                   heading)))
+
+        [position heading]))))
+
 (defn day-22b [input]
-  (let [[maze instructions] (parse-input input)]
-    (parse-cube maze)))
+  (let [[maze instructions] (parse-input input)
+        cube (parse-cube maze)]
+    (orient cube [4 2] [2 0] [3 2])
+    #_(propagate cube instructions)))
+
+(defn flip [position]
+  (add (scale position -1) [(inc side-length) (inc side-length)]))
+
+(defn orient [cube position from-face to-face]
+  (-> position
+      (rotate (find-direction cube from-face to-face)
+              (find-direction cube to-face from-face))
+      flip
+      focus
+      (add (scale (find-direction cube to-face from-face) side-length))))
