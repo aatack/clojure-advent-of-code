@@ -82,6 +82,8 @@
 (def up [0 -1])
 (def down [0 1])
 
+(def directions [left right up down])
+
 (defn sector
   "Find the sector, relative to `side-length`, within which a position vector resides."
   [coordinate]
@@ -114,16 +116,39 @@
 
 (defn parse-cube [maze]
   (let [sectors (group-by sector (keys maze))]
-    (into {} (map (fn [[sector' positions]]
-                    [sector' {:map (into {} (map (fn [position]
-                                                   [(focus position) (maze position)])
-                                                 positions))
-                              ;; Maps each direction to the connected sector
-                              left nil
-                              right nil
-                              up nil
-                              down nil}])
-                  sectors))))
+    (loop [cube (into
+                 {}
+                 (map (fn [[sector' positions]]
+                        [sector'
+                         {:map (into {}
+                                     (map (fn [position]
+                                            [(focus position) (maze position)])
+                                          positions))
+                          ;; Maps each direction to the connected sector
+                          left nil
+                          right nil
+                          up nil
+                          down nil}])
+                      sectors))]
+
+      (let [missing (for [sector' (keys cube)
+                          direction directions
+                          :when (nil? (get-in cube [sector' direction]))]
+                      [sector' direction])
+            connections (for [sector' (keys cube)
+                              direction directions
+                              :let [other-sector (add sector' direction)]
+                              :when (cube other-sector)]
+                          [sector' direction other-sector])]
+
+        (if (empty? missing)
+          cube
+
+          ;; Work out which connections can be inferred from the current information
+          (reduce (fn [cube' [from direction to]]
+                    (assoc-in cube' [from direction] to))
+                  cube
+                  connections))))))
 
 (defn day-22b [input]
   (let [[maze instructions] (parse-input input)]
