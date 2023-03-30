@@ -92,13 +92,13 @@
 (defn rotate
   "Rotate a position vector from one heading to another."
   ([position from to]
-  (loop [[x y] position
-         [dx dy] from]
-    (if (= [dx dy] to)
-      [x y]
-      (recur [y (* -1 x)]
-             [dy (* -1 dx)]))))
-  
+   (loop [[x y] position
+          [dx dy] from]
+     (if (= [dx dy] to)
+       [x y]
+       (recur [y (* -1 x)]
+              [dy (* -1 dx)]))))
+
   ([position to]
    (rotate position up to)))
 
@@ -116,6 +116,11 @@
   "Move the given position vector into a `side-length` sized square around the origin."
   [position]
   (apply vector (map #(inc (mod (dec %) side-length)) position)))
+
+(defn find-direction [cube from-face to-face]
+  (first (for [direction directions
+               :when (= (get-in cube [from-face direction]) to-face)]
+           direction)))
 
 (defn parse-cube [maze]
   (let [sectors (group-by sector (keys maze))]
@@ -151,12 +156,15 @@
                                                 cube
                                                 [face (rotate direction corner)])]
                                :when near-face
-                               :let [far-face (get-in cube
-                                                      [near-face
-                                                       direction])]
+                               :let [far-face
+                                     (get-in cube
+                                             [near-face
+                                              (rotate
+                                               (find-direction cube near-face face)
+                                               corner)])]
                                :when (cube far-face)]
                            [face direction far-face]))]
-
+        
         (if (empty? missing)
           cube
 
