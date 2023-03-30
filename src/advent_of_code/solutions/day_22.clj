@@ -2,7 +2,7 @@
   (:require [advent-of-code.utils :refer [enumerate]]
             [clojure.string :refer [split-lines]]))
 
-(def side-length 6)
+(def side-length 4)
 
 (defn parse-maze [input]
   (into {} (for [[y row] (enumerate input 1)
@@ -99,6 +99,12 @@
       (recur [y (* -1 x)]
              [dy (* -1 dx)]))))
 
+(defn rotate-left [position]
+  (rotate position up left))
+
+(defn rotate-right [position]
+  (rotate position up right))
+
 (defn add
   "Add two position vectors together."
   [left-position right-position]
@@ -118,8 +124,8 @@
   (let [sectors (group-by sector (keys maze))]
     (loop [cube (into
                  {}
-                 (map (fn [[sector' positions]]
-                        [sector'
+                 (map (fn [[face positions]]
+                        [face
                          {:map (into {}
                                      (map (fn [position]
                                             [(focus position) (maze position)])
@@ -130,16 +136,16 @@
                           up nil
                           down nil}])
                       sectors))]
-
-      (let [missing (for [sector' (keys cube)
+      
+      (let [missing (for [face (keys cube)
                           direction directions
-                          :when (nil? (get-in cube [sector' direction]))]
-                      [sector' direction])
-            connections (for [sector' (keys cube)
+                          :when (nil? (get-in cube [face direction]))]
+                      [face direction])
+            connections (for [face (keys cube)
                               direction directions
-                              :let [other-sector (add sector' direction)]
+                              :let [other-sector (add face direction)]
                               :when (cube other-sector)]
-                          [sector' direction other-sector])]
+                          [face direction other-sector])]
 
         (if (empty? missing)
           cube
