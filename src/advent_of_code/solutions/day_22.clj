@@ -2,7 +2,7 @@
   (:require [advent-of-code.utils :refer [enumerate]]
             [clojure.string :refer [split-lines]]))
 
-(def side-length 4)
+(def side-length 50)
 
 (defn parse-maze [input]
   (into {} (for [[y row] (enumerate input 1)
@@ -136,25 +136,41 @@
                           up nil
                           down nil}])
                       sectors))]
-      
+
       (let [missing (for [face (keys cube)
                           direction directions
                           :when (nil? (get-in cube [face direction]))]
                       [face direction])
-            connections (for [face (keys cube)
-                              direction directions
-                              :let [other-sector (add face direction)]
-                              :when (cube other-sector)]
-                          [face direction other-sector])]
+            connections (concat
+                         (for [face (keys cube)
+                               direction directions
+                               :let [other-face (add face direction)]
+                               :when (cube other-face)]
+                           [face direction other-face])
+                         (for [face (keys cube)
+                               direction directions
+                               corner [left right]
+                               :let [near-face-direction (rotate direction up corner)
+                                     near-face (get-in cube [face near-face-direction])]
+                               :when near-face
+                               :let [far-face (get-in cube
+                                                      [near-face
+                                                       (rotate near-face-direction
+                                                               up
+                                                               (if (= corner left)
+                                                                 left
+                                                                 right))])]
+                               :when (cube far-face)]
+                           [face direction far-face]))]
 
         (if (empty? missing)
           cube
 
           ;; Work out which connections can be inferred from the current information
-          (reduce (fn [cube' [from direction to]]
-                    (assoc-in cube' [from direction] to))
-                  cube
-                  connections))))))
+          (recur (reduce (fn [cube' [from direction to]]
+                           (assoc-in cube' [from direction] to))
+                         cube
+                         connections)))))))
 
 (defn day-22b [input]
   (let [[maze instructions] (parse-input input)]
