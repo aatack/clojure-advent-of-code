@@ -2,7 +2,7 @@
   (:require [advent-of-code.utils :refer [enumerate]]
             [clojure.string :refer [split-lines]]))
 
-(def side-length 50)
+(def side-length 4)
 
 (defn parse-maze [input]
   (into {} (for [[y row] (enumerate input 1)
@@ -147,15 +147,13 @@
                          (for [face (keys cube)
                                direction directions
                                corner [left right]
-                               :let [near-face-direction (rotate direction corner)
-                                     near-face (get-in cube [face near-face-direction])]
+                               :let [near-face (get-in
+                                                cube
+                                                [face (rotate direction corner)])]
                                :when near-face
                                :let [far-face (get-in cube
                                                       [near-face
-                                                       (rotate near-face-direction
-                                                               (if (= corner left)
-                                                                 left
-                                                                 right))])]
+                                                       direction])]
                                :when (cube far-face)]
                            [face direction far-face]))]
 
