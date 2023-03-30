@@ -91,19 +91,16 @@
 
 (defn rotate
   "Rotate a position vector from one heading to another."
-  [position from to]
+  ([position from to]
   (loop [[x y] position
          [dx dy] from]
     (if (= [dx dy] to)
       [x y]
       (recur [y (* -1 x)]
              [dy (* -1 dx)]))))
-
-(defn rotate-left [position]
-  (rotate position up left))
-
-(defn rotate-right [position]
-  (rotate position up right))
+  
+  ([position to]
+   (rotate position up to)))
 
 (defn add
   "Add two position vectors together."
@@ -150,13 +147,12 @@
                          (for [face (keys cube)
                                direction directions
                                corner [left right]
-                               :let [near-face-direction (rotate direction up corner)
+                               :let [near-face-direction (rotate direction corner)
                                      near-face (get-in cube [face near-face-direction])]
                                :when near-face
                                :let [far-face (get-in cube
                                                       [near-face
                                                        (rotate near-face-direction
-                                                               up
                                                                (if (= corner left)
                                                                  left
                                                                  right))])]
