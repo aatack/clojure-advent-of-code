@@ -43,25 +43,25 @@
         (recur (if move?
                  (update current 1 dec)
                  (first remaining))
-               
+
                (if move?
                  remaining
                  (rest remaining))
-               
+
                (if move?
                  (let [moved (apply vector (map + position heading))
                        wrapped (if (maze moved) moved (wrap maze position heading))
                        walled (if (= (maze wrapped) :wall) position wrapped)]
                    walled)
                  position)
-               
+
                (if turn?
                  (let [[dx dy] heading]
                    (case (second current)
                      :left [dy (* -1 dx)]
                      :right [(* -1 dy) dx]))
                  heading)))
-      
+
       [position heading])))
 
 (defn day-22a [input]
@@ -70,9 +70,9 @@
         ;; here
         [[column row] heading] (propagate maze instructions)
         facing ({[1 0] 0
-                        [0 1] 1
-                        [-1 0] 2
-                        [0 -1] 3} heading)]
+                 [0 1] 1
+                 [-1 0] 2
+                 [0 -1] 3} heading)]
     (+ (* 1000 row)
        (* 4 column)
        facing)))
@@ -82,13 +82,12 @@
 (def up [0 -1])
 (def down [0 1])
 
-
-(defn sector 
+(defn sector
   "Find the sector, relative to `side-length`, within which a position vector resides."
   [coordinate]
   (apply vector (map #(quot (dec %) side-length) coordinate)))
 
-(defn rotate 
+(defn rotate
   "Rotate a position vector from one heading to another."
   [position from to]
   (loop [[x y] position
@@ -98,21 +97,34 @@
       (recur [y (* -1 x)]
              [dy (* -1 dx)]))))
 
-(defn add 
+(defn add
   "Add two position vectors together."
   [left-position right-position]
   (apply vector (map + left-position right-position)))
 
-(defn scale 
+(defn scale
   "Scale a position vectory by a constant."
   [position constant]
   (apply vector (map #(+ % constant) position)))
 
-(defn focus 
+(defn focus
   "Move the given position vector into a `side-length` sized square around the origin."
   [position]
   (apply vector (map #(inc (mod (dec %) side-length)) position)))
 
+(defn parse-cube [maze]
+  (let [sectors (group-by sector (keys maze))]
+    (into {} (map (fn [[sector' positions]]
+                    [sector' {:map (into {} (map (fn [position]
+                                                   [(focus position) (maze position)])
+                                                 positions))
+                              ;; Maps each direction to the connected sector
+                              left nil
+                              right nil
+                              up nil
+                              down nil}])
+                  sectors))))
+
 (defn day-22b [input]
   (let [[maze instructions] (parse-input input)]
-    (group-by sector (keys maze))))
+    (parse-cube maze)))
