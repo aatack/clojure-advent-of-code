@@ -253,5 +253,10 @@
 
 (defn day-22b [input]
   (let [[maze instructions] (parse-input input)
-        cube (parse-cube maze)]
-    (propagate cube instructions)))
+        cube (parse-cube maze)
+        [[face-x face-y] [position-x position-y] heading] (propagate cube instructions)
+        column (inc (+ position-x (* face-x side-length)))
+        row (inc (+ position-y (* face-y side-length)))]
+    (+ (* 1000 row)
+       (* 4 column)
+       (scores heading))))
