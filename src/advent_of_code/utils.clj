@@ -94,3 +94,6 @@
   
   ([sequence start]
    (map list (iterate inc start) sequence)))
+
+(defn power [base exponent]
+  (apply * (repeat exponent base)))
