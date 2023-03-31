@@ -112,6 +112,18 @@
   [position constant]
   (apply vector (map #(* % constant) position)))
 
+(defn rotate-face
+  "Rotate a position in the face coordinate space."
+  [position from to]
+  (let [centre (/ (dec side-length) 2)
+        pivot [centre centre]]
+    (->> (-> position
+             (add (scale pivot -1))
+             (rotate from to)
+             (add pivot))
+         (map int)
+         (apply vector))))
+
 (defn focus
   "Move the given position vector into a `side-length` sized square around the origin."
   [position]
@@ -181,55 +193,51 @@
       :wall [face position heading])))
 
 #_(defn propagate [cube instructions]
-  (let [initial-position (apply min-key first
-                                (filter (comp #(= % 0) second) (keys (cube :maze))))]
-    (loop [current-instruction (first instructions)
-           remaining-instructions (rest instructions)
-           current-face (sector initial-position)
-           current-position (focus initial-position)
-           current-heading right]
+    (let [initial-position (apply min-key first
+                                  (filter (comp #(= % 0) second) (keys (cube :maze))))]
+      (loop [current-instruction (first instructions)
+             remaining-instructions (rest instructions)
+             current-face (sector initial-position)
+             current-position (focus initial-position)
+             current-heading right]
 
-      (if current-instruction
-        (let [move? (and (= (first current-instruction) :move)
-                         (> (second current-instruction) 0))
-              turn? (= (first current-instruction) :turn)]
-          (recur (if move?
-                   (update current-instruction 1 dec)
-                   (first remaining-instructions))
+        (if current-instruction
+          (let [move? (and (= (first current-instruction) :move)
+                           (> (second current-instruction) 0))
+                turn? (= (first current-instruction) :turn)]
+            (recur (if move?
+                     (update current-instruction 1 dec)
+                     (first remaining-instructions))
 
-                 (if move?
-                   remaining-instructions
-                   (rest remaining-instructions))
+                   (if move?
+                     remaining-instructions
+                     (rest remaining-instructions))
 
-                 (if move?
-                   (let [moved (apply vector (map + position heading))
-                         wrapped (if (maze moved) moved (wrap maze position heading))
-                         walled (if (= (maze wrapped) :wall) position wrapped)]
-                     walled)
-                   position)
+                   (if move?
+                     (let [moved (apply vector (map + position heading))
+                           wrapped (if (maze moved) moved (wrap maze position heading))
+                           walled (if (= (maze wrapped) :wall) position wrapped)]
+                       walled)
+                     position)
 
-                 (if turn?
-                   (let [[dx dy] heading]
-                     (case (second current)
-                       :left [dy (* -1 dx)]
-                       :right [(* -1 dy) dx]))
-                   heading)))
+                   (if turn?
+                     (let [[dx dy] heading]
+                       (case (second current)
+                         :left [dy (* -1 dx)]
+                         :right [(* -1 dy) dx]))
+                     heading)))
 
-        [position heading]))))
+          [position heading]))))
 
 (defn day-22b [input]
   (let [[maze instructions] (parse-input input)
         cube (parse-cube maze)]
-    (orient cube [-1 0] [2 0] [1 1])
+    (orient cube [1 1] [2 0] [1 1])
     #_(propagate cube instructions)))
-
-(defn flip [position]
-  (add (scale position -1) [(inc side-length) (inc side-length)]))
 
 (defn orient [cube position from-face to-face]
   (-> position
-      (rotate (find-direction cube from-face to-face)
-              (find-direction cube to-face from-face))
-      (scale -1)
+      (rotate-face (find-direction cube from-face to-face)
+                   (scale (find-direction cube to-face from-face) -1))
       focus
       (add (scale (find-direction cube to-face from-face) side-length))))
