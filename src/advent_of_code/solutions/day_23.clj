@@ -45,14 +45,15 @@
           (inc (- (apply max ys) (apply min ys))))
        (count state))))
 
-(defn update-state [[state priority]]
+(defn update-state [[state priority _]]
   (let [proposals (compute-proposals state priority)
         moves (for [[proposal positions] proposals
                     :when (= (count positions) 1)]
                 [(first positions) proposal])]
     [(-> (apply disj state (map first moves))
         (into (map second moves)))
-     (rest priority)]))
+     (rest priority)
+     (= (count moves) 0)]))
 
 (defn day-23a [input]
   (->> [(parse-positions input) (directions)]
@@ -62,4 +63,7 @@
        bounds))
 
 (defn day-23b [input]
-  (->> input))
+  (->> [(parse-positions input) (directions)]
+       (iterate update-state)
+       (take-while (fn [[_ _ static]] (not static)))
+       count))
