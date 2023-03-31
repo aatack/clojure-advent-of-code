@@ -5,8 +5,8 @@
 (def side-length 4)
 
 (defn parse-maze [input]
-  (into {} (for [[y row] (enumerate input 1)
-                 [x cell] (enumerate row 1)
+  (into {} (for [[y row] (enumerate input)
+                 [x cell] (enumerate row)
                  :when (not= cell \space)]
              [[x y] (if (= cell \.) :open :wall)])))
 
@@ -35,7 +35,7 @@
 (defn propagate [maze instructions]
   (loop [current (first instructions)
          remaining (rest instructions)
-         position (apply min-key first (filter (comp #(= % 1) second) (keys maze)))
+         position (apply min-key first (filter (comp #(= % 0) second) (keys maze)))
          heading [1 0]]
     (if current
       (let [move? (and (= (first current) :move) (> (second current) 0))
@@ -73,8 +73,8 @@
                  [0 1] 1
                  [-1 0] 2
                  [0 -1] 3} heading)]
-    (+ (* 1000 row)
-       (* 4 column)
+    (+ (* 1000 (inc row))
+       (* 4 (inc column))
        facing)))
 
 (def right [1 0])
@@ -87,7 +87,7 @@
 (defn sector
   "Find the sector, relative to `side-length`, within which a position vector resides."
   [coordinate]
-  (apply vector (map #(quot (dec %) side-length) coordinate)))
+  (apply vector (map #(quot % side-length) coordinate)))
 
 (defn rotate
   "Rotate a position vector from one heading to another."
@@ -115,7 +115,7 @@
 (defn focus
   "Move the given position vector into a `side-length` sized square around the origin."
   [position]
-  (apply vector (map #(inc (mod (dec %) side-length)) position)))
+  (apply vector (map #(mod % side-length) position)))
 
 (defn find-direction [cube from-face to-face]
   (first (for [direction directions
@@ -180,9 +180,9 @@
       :open [face moved heading]
       :wall [face position heading])))
 
-(defn propagate [cube instructions]
+#_(defn propagate [cube instructions]
   (let [initial-position (apply min-key first
-                                (filter (comp #(= % 1) second) (keys (cube :maze))))]
+                                (filter (comp #(= % 0) second) (keys (cube :maze))))]
     (loop [current-instruction (first instructions)
            remaining-instructions (rest instructions)
            current-face (sector initial-position)
@@ -220,7 +220,7 @@
 (defn day-22b [input]
   (let [[maze instructions] (parse-input input)
         cube (parse-cube maze)]
-    (orient cube [4 2] [2 0] [3 2])
+    (orient cube [-1 0] [2 0] [1 1])
     #_(propagate cube instructions)))
 
 (defn flip [position]
@@ -230,6 +230,6 @@
   (-> position
       (rotate (find-direction cube from-face to-face)
               (find-direction cube to-face from-face))
-      flip
+      (scale -1)
       focus
       (add (scale (find-direction cube to-face from-face) side-length))))
