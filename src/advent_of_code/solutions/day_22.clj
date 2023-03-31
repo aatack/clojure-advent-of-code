@@ -186,6 +186,13 @@
                          cube
                          connections)))))))
 
+(defn orient [cube position from-face to-face]
+  (-> position
+      (rotate-face (find-direction cube from-face to-face)
+                   (scale (find-direction cube to-face from-face) -1))
+      focus
+      (add (scale (find-direction cube to-face from-face) side-length))))
+
 (defn move-once [cube face position heading]
   (let [moved (add position heading)]
     (case (get-in cube [face :map moved])
@@ -234,10 +241,3 @@
         cube (parse-cube maze)]
     (orient cube [1 1] [2 0] [1 1])
     #_(propagate cube instructions)))
-
-(defn orient [cube position from-face to-face]
-  (-> position
-      (rotate-face (find-direction cube from-face to-face)
-                   (scale (find-direction cube to-face from-face) -1))
-      focus
-      (add (scale (find-direction cube to-face from-face) side-length))))
