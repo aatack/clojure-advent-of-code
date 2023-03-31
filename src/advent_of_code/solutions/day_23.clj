@@ -38,11 +38,16 @@
         moves (for [[proposal positions] proposals
                     :when (= (count positions) 1)]
                 [(first positions) proposal])]
-    (-> (apply disj state (map first moves))
-        (into (map second moves)))))
+    [(-> (apply disj state (map first moves))
+        (into (map second moves)))
+     (rest priority)]))
 
 (defn day-23a [input]
-  (update-state [(parse-positions input) (directions)]))
+  (->> [(parse-positions input) (directions)]
+       (iterate update-state)
+       (drop 2)
+       first
+       first))
 
 (defn day-23b [input]
   (->> input))
