@@ -39,9 +39,20 @@
       [(apply vector (map + position direction))
        direction])))
 
+(defn propagate-state [state]
+  (assoc state :blizzards
+         (reduce
+          (fn [stepped-state blizzard]
+            (let [[position direction] (propagate-blizzard state blizzard)]
+              (update stepped-state position #(conj (or % ()) direction))))
+          {}
+          (for [[position blizzards] (state :blizzards)
+                direction blizzards]
+            [position direction]))))
+
 (defn day-24a [input]
   (let [state (parse-blizzards input)]
-    (propagate-blizzard state [[2 6] [0 1]])))
+    (propagate-state (propagate-state state))))
 
 (defn day-24b [input]
   (->> input))
