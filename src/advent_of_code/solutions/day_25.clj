@@ -8,11 +8,26 @@
                        \2 2})
 
 (defn snafu->decimal [string]
-  (apply +' (map *'
-                 (map snafu-characters (reverse string))
-                 (map #(power 5 %) (range)))))
+  (apply + (map *
+                (map snafu-characters (reverse string))
+                (map #(power 5 %) (range)))))
 
-(snafu->decimal "1121-1110-1=0")
+(defn snafu-digits
+  "Work out how many digits a number will have when represented in SNAFU."
+  [number]
+  (loop [digits 0]
+    (if (>= (snafu->decimal (repeat digits \2)) number)
+      digits
+      (recur (inc digits)))))
+
+(defn decimal->snafu [number]
+  (loop [digits (apply vector (repeat (snafu-digits number) \0))
+         place 0]
+    (if (>= place (count digits))
+      (apply str digits)
+      (let [options (map #(assoc digits place %) (keys snafu-characters))]
+        (recur (apply min-key #(abs (- number (snafu->decimal %))) options)
+               (inc place))))))
 
 (defn day-25a [input]
   (->> input))
