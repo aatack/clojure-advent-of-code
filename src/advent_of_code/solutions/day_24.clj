@@ -62,18 +62,19 @@
 (defn explore [state]
   (let [propagated (propagate-state state)]
    (for [direction (cons [0 0] (vals directions))
-         :let [position (apply vector (map + (state :agent) direction))]
-         :when (and (in-bounds? state position)
-                    (not ((state :blizzards) position)))]
+         :let [position (apply vector (map + (propagated :agent) direction))]
+         :when (and (in-bounds? propagated position)
+                    (not ((propagated :blizzards) position)))]
      (assoc propagated :agent position))))
 
 (defn day-24a [input]
   (let [state (parse-state input)]
-    (-> state
+    (map :agent (-> state
         (breadth-first-search explore #(= (% :agent) (% :end)))
-        count
-        dec
-        dec)))
+        ; count
+        ; dec
+        ; dec
+        ))))
 
 (defn day-24b [input]
   (->> input))
