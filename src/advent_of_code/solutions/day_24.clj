@@ -1,5 +1,5 @@
 (ns advent-of-code.solutions.day-24
-  (:require [advent-of-code.utils :refer [enumerate]]
+  (:require [advent-of-code.utils :refer [breadth-first-search enumerate]]
             [clojure.string :refer [split-lines]]))
 
 (def directions {\> [1 0]
@@ -60,15 +60,20 @@
             [position direction]))))
 
 (defn explore [state]
-  (for [direction (cons [0 0] (vals directions))
-        :let [position (apply vector (map + (state :agent) direction))]
-        :when (and (in-bounds? state position)
-                   (not ((state :blizzards) position)))]
-    (assoc state :agent position)))
+  (let [propagated (propagate-state state)]
+   (for [direction (cons [0 0] (vals directions))
+         :let [position (apply vector (map + (state :agent) direction))]
+         :when (and (in-bounds? state position)
+                    (not ((state :blizzards) position)))]
+     (assoc propagated :agent position))))
 
 (defn day-24a [input]
   (let [state (parse-state input)]
-    (explore state)))
+    (-> state
+        (breadth-first-search explore #(= (% :agent) (% :end)))
+        count
+        dec
+        dec)))
 
 (defn day-24b [input]
   (->> input))
