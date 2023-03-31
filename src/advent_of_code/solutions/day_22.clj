@@ -4,6 +4,17 @@
 
 (def side-length 4)
 
+(def right [1 0])
+(def left [-1 0])
+(def up [0 -1])
+(def down [0 1])
+
+(def directions [left right up down])
+(def scores {[1 0] 0
+                 [0 1] 1
+                 [-1 0] 2
+                 [0 -1] 3})
+
 (defn parse-maze [input]
   (into {} (for [[y row] (enumerate input)
                  [x cell] (enumerate row)
@@ -65,24 +76,16 @@
       [position heading])))
 
 (defn day-22a [input]
+  ;; TODO: this needs to be fixed after the shift to 0-indexed coordinates (which, it
+  ;;       transpires, was actually unnecessary anyway)
   (let [[maze instructions] (parse-input input)
         ;; We have inverted `x` and `y` in our coordinate system, so invert them again
         ;; here
         [[column row] heading] (propagate maze instructions)
-        facing ({[1 0] 0
-                 [0 1] 1
-                 [-1 0] 2
-                 [0 -1] 3} heading)]
+        facing (scores heading)]
     (+ (* 1000 (inc row))
        (* 4 (inc column))
        facing)))
-
-(def right [1 0])
-(def left [-1 0])
-(def up [0 -1])
-(def down [0 1])
-
-(def directions [left right up down])
 
 (defn sector
   "Find the sector, relative to `side-length`, within which a position vector resides."
