@@ -200,7 +200,10 @@
       (let [target-face (get-in cube [face heading])
             target-position (orient cube moved face target-face)
             target-heading (scale (find-direction cube target-face face) -1)]
-        [target-face target-position target-heading]))))
+        
+        (if (= (get-in cube [target-face :map target-position]) :wall)
+          [face position heading]
+          [target-face target-position target-heading])))))
 
 #_(defn propagate [cube instructions]
     (let [initial-position (apply min-key first
@@ -243,5 +246,5 @@
   (let [[maze instructions] (parse-input input)
         cube (parse-cube maze)]
     
-    (move-once cube [2 0] [0 3] [-1 0])
+    (move-once cube [2 0] [3 3] [0 1])
     #_(propagate cube instructions)))
