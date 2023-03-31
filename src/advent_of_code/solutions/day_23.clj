@@ -19,22 +19,30 @@
   (for [step [-1 0 1]]
     (apply vector (map #(if (= % 0) step %) direction))))
 
-(defn proposal [state position priority]
+(defn compute-proposal [state position priority]
   (first (for [direction (take 4 priority)
                :when (every? #(not (state (add position %))) (diagonals direction))]
            (add position direction))))
 
-(defn proposals [state priority]
+(defn compute-proposals [state priority]
   (reduce (fn [results position]
-            (let [position-proposal (proposal state position priority)]
-              (if position-proposal
-                (update results position-proposal #(conj (or % ()) position))
+            (let [proposal (compute-proposal state position priority)]
+              (if proposal
+                (update results proposal #(conj (or % ()) position))
                 results)))
           {}
           state))
 
+(defn update-state [[state priority]]
+  (let [proposals (compute-proposals state priority)
+        moves (for [[proposal positions] proposals
+                    :when (= (count positions) 1)]
+                [(first positions) proposal])]
+    (-> (apply disj state (map first moves))
+        (into (map second moves)))))
+
 (defn day-23a [input]
-  (proposals (parse-positions input) (directions)))
+  (update-state [(parse-positions input) (directions)]))
 
 (defn day-23b [input]
   (->> input))
