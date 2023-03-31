@@ -33,8 +33,10 @@
 
 (defn in-bounds? [state [x y]]
   (let [bounds (state :bounds)]
-    (and (<= (second (bounds [-1 0])) x (second (bounds [1 0])))
-         (<= (second (bounds [0 -1])) y (second (bounds [0 1]))))))
+    (or (and (<= (second (bounds [-1 0])) x (second (bounds [1 0])))
+         (<= (second (bounds [0 -1])) y (second (bounds [0 1]))))
+        (= [x y] (state :end))
+        (= [x y] (state :start)))))
 
 (defn propagate-blizzard [state [position direction]]
   (let [inverse (apply vector (map #(* -1 %) direction))
@@ -57,9 +59,16 @@
                 direction blizzards]
             [position direction]))))
 
+(defn explore [state]
+  (for [direction (cons [0 0] (vals directions))
+        :let [position (apply vector (map + (state :agent) direction))]
+        :when (and (in-bounds? state position)
+                   (not ((state :blizzards) position)))]
+    (assoc state :agent position)))
+
 (defn day-24a [input]
   (let [state (parse-state input)]
-    (in-bounds? state [6 6])))
+    (explore state)))
 
 (defn day-24b [input]
   (->> input))
