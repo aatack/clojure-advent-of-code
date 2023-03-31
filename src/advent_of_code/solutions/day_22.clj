@@ -190,14 +190,17 @@
   (-> position
       (rotate-face (find-direction cube from-face to-face)
                    (scale (find-direction cube to-face from-face) -1))
-      focus
       (add (scale (find-direction cube to-face from-face) side-length))))
 
 (defn move-once [cube face position heading]
   (let [moved (add position heading)]
     (case (get-in cube [face :map moved])
       :open [face moved heading]
-      :wall [face position heading])))
+      :wall [face position heading]
+      (let [target-face (get-in cube [face heading])
+            target-position (orient cube moved face target-face)
+            target-heading (scale (find-direction cube target-face face) -1)]
+        [target-face target-position target-heading]))))
 
 #_(defn propagate [cube instructions]
     (let [initial-position (apply min-key first
@@ -239,5 +242,6 @@
 (defn day-22b [input]
   (let [[maze instructions] (parse-input input)
         cube (parse-cube maze)]
-    (orient cube [1 1] [2 0] [1 1])
+    
+    (move-once cube [2 0] [3 1] [1 0])
     #_(propagate cube instructions)))
