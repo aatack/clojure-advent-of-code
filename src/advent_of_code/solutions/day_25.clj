@@ -1,5 +1,6 @@
 (ns advent-of-code.solutions.day-25
-  (:require [advent-of-code.utils :refer [power]]))
+  (:require [advent-of-code.utils :refer [power]]
+            [clojure.string :refer [split-lines]]))
 
 (def snafu-characters {\= -2
                        \- -1
@@ -30,7 +31,11 @@
                (inc place))))))
 
 (defn day-25a [input]
-  (->> input))
+  (->> input
+       split-lines
+       (map snafu->decimal)
+       (apply +)
+       decimal->snafu))
 
 (defn day-25b [input]
   (->> input))
