@@ -243,5 +243,5 @@
   (let [[maze instructions] (parse-input input)
         cube (parse-cube maze)]
     
-    (move-once cube [2 0] [3 1] [1 0])
+    (move-once cube [2 0] [0 3] [-1 0])
     #_(propagate cube instructions)))
