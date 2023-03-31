@@ -20,9 +20,14 @@
     (apply vector (map #(if (= % 0) step %) direction))))
 
 (defn compute-proposal [state position priority]
-  (first (for [direction (take 4 priority)
+  
+  (when (> (count (filter state (for [x [-1 0 1]
+                                      y [-1 0 1]]
+                                  [(+ x (first position)) (+ y (second position))])))
+           1)
+    (first (for [direction (take 4 priority)
                :when (every? #(not (state (add position %))) (diagonals direction))]
-           (add position direction))))
+           (add position direction)))))
 
 (defn compute-proposals [state priority]
   (reduce (fn [results position]
@@ -45,7 +50,7 @@
 (defn day-23a [input]
   (->> [(parse-positions input) (directions)]
        (iterate update-state)
-       (drop 2)
+       (drop 3)
        first
        first))
 
