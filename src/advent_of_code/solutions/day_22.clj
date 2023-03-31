@@ -2,7 +2,7 @@
   (:require [advent-of-code.utils :refer [enumerate]]
             [clojure.string :refer [split-lines]]))
 
-(def side-length 4)
+(def side-length 50)
 
 (def right [1 0])
 (def left [-1 0])
