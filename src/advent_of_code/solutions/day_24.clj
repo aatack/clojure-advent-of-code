@@ -7,7 +7,7 @@
                  \v [0 1]
                  \^ [0 -1]})
 
-(defn parse-blizzards [input]
+(defn parse-state [input]
   (let [lines (split-lines input)
         cells (for [[y row] (enumerate lines 1)
                     [x cell] (enumerate row 1)]
@@ -17,7 +17,9 @@
         width (count (first lines))]
     (reduce (fn [state [x y cell]]
                 (cond
-                  (and (= y 1) (= cell \.)) (assoc state :start [x y])
+                  (and (= y 1) (= cell \.)) (-> state
+                                                (assoc :start [x y])
+                                                (assoc :agent [x y]))
                   (and (= y height) (= cell \.)) (assoc state :end [x y])
                   (blizzard? cell) (update-in state [:blizzards [x y]]
                                               #(conj (or % ()) (directions cell)))
@@ -28,6 +30,11 @@
                         [0 1] [1 (dec height)]
                         [0 -1] [1 2]}}
               cells)))
+
+(defn in-bounds? [state [x y]]
+  (let [bounds (state :bounds)]
+    (and (<= (second (bounds [-1 0])) x (second (bounds [1 0])))
+         (<= (second (bounds [0 -1])) y (second (bounds [0 1]))))))
 
 (defn propagate-blizzard [state [position direction]]
   (let [inverse (apply vector (map #(* -1 %) direction))
@@ -51,8 +58,8 @@
             [position direction]))))
 
 (defn day-24a [input]
-  (let [state (parse-blizzards input)]
-    (propagate-state (propagate-state state))))
+  (let [state (parse-state input)]
+    (in-bounds? state [6 6])))
 
 (defn day-24b [input]
   (->> input))
