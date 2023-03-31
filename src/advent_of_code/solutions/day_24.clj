@@ -71,9 +71,6 @@
                      (not ((propagated :blizzards) position)))]
       (assoc propagated :agent position))))
 
-(defn evaluate [state]
-  (apply + (map #(abs (- %1 %2)) (state :agent) (state :end))))
-
 (defn day-24a [input]
   (let [state (parse-state input)]
     (-> state
@@ -82,4 +79,14 @@
         dec)))
 
 (defn day-24b [input]
-  (->> input))
+  (let [initial-state (parse-state input)
+        end-state (breadth-first-search initial-state
+                                        explore
+                                        #(= (% :agent) (% :end)))
+        start-state (breadth-first-search (first end-state)
+                                          explore
+                                          #(= (% :agent) (% :start)))
+        final-state (breadth-first-search (first start-state)
+                                          explore
+                                          #(= (% :agent) (% :end)))]
+    (apply + (map (comp dec count) [end-state start-state final-state]))))
