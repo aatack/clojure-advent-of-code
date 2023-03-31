@@ -48,24 +48,31 @@
       [(apply vector (map + position direction))
        direction])))
 
-(defn propagate-state [state]
-  (assoc state :blizzards
-         (reduce
-          (fn [stepped-state blizzard]
-            (let [[position direction] (propagate-blizzard state blizzard)]
-              (update stepped-state position #(conj (or % ()) direction))))
-          {}
-          (for [[position blizzards] (state :blizzards)
-                direction blizzards]
-            [position direction]))))
+(def propagate-state
+  (memoize
+   (fn [state]
+     (assoc state :blizzards
+            (reduce
+             (fn [stepped-state blizzard]
+               (let [[position direction] (propagate-blizzard state blizzard)]
+                 (update stepped-state position #(conj (or % ()) direction))))
+             {}
+             (for [[position blizzards] (state :blizzards)
+                   direction blizzards]
+               [position direction]))))))
 
 (defn explore [state]
-  (let [propagated (propagate-state state)]
+  ;; By removing the position of the agent, we are able to make use of the memoisation
+  ;; of the propagation function (since it's the only aspect that changes)
+  (let [propagated (propagate-state (dissoc state :agent))]
     (for [direction (cons [0 0] (vals directions))
-          :let [position (apply vector (map + (propagated :agent) direction))]
+          :let [position (apply vector (map + (state :agent) direction))]
           :when (and (in-bounds? propagated position)
                      (not ((propagated :blizzards) position)))]
       (assoc propagated :agent position))))
+
+(defn evaluate [state]
+  (apply + (map #(abs (- %1 %2)) (state :agent) (state :end))))
 
 (defn day-24a [input]
   (let [state (parse-state input)]
