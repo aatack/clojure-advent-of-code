@@ -200,51 +200,55 @@
       (let [target-face (get-in cube [face heading])
             target-position (orient cube moved face target-face)
             target-heading (scale (find-direction cube target-face face) -1)]
-        
+
         (if (= (get-in cube [target-face :map target-position]) :wall)
           [face position heading]
           [target-face target-position target-heading])))))
 
-#_(defn propagate [cube instructions]
-    (let [initial-position (apply min-key first
-                                  (filter (comp #(= % 0) second) (keys (cube :maze))))]
-      (loop [current-instruction (first instructions)
-             remaining-instructions (rest instructions)
-             current-face (sector initial-position)
-             current-position (focus initial-position)
-             current-heading right]
+(defn propagate [cube instructions]
+  (let [initial-position (apply min-key first
+                                (filter (comp #(= % 0) second) (keys (cube :maze))))]
+    (loop [current-instruction (first instructions)
+           remaining-instructions (rest instructions)
+           current-face (sector initial-position)
+           current-position (focus initial-position)
+           current-heading right]
 
-        (if current-instruction
-          (let [move? (and (= (first current-instruction) :move)
-                           (> (second current-instruction) 0))
-                turn? (= (first current-instruction) :turn)]
-            (recur (if move?
-                     (update current-instruction 1 dec)
-                     (first remaining-instructions))
+      (if current-instruction
+        (let [move? (and (= (first current-instruction) :move)
+                         (> (second current-instruction) 0))
+              turn? (= (first current-instruction) :turn)
 
-                   (if move?
-                     remaining-instructions
-                     (rest remaining-instructions))
+              [next-face next-position next-heading]
+              (if move?
+                (move-once cube
+                           current-face
+                           current-position
+                           current-heading)
+                [current-face
+                 current-position
+                 (if turn?
+                   (rotate current-heading
+                           (if (= (second current-instruction) :left)
+                             left
+                             right))
+                   current-heading)])]
 
-                   (if move?
-                     (let [moved (apply vector (map + position heading))
-                           wrapped (if (maze moved) moved (wrap maze position heading))
-                           walled (if (= (maze wrapped) :wall) position wrapped)]
-                       walled)
-                     position)
+          (recur (if move?
+                   (update current-instruction 1 dec)
+                   (first remaining-instructions))
 
-                   (if turn?
-                     (let [[dx dy] heading]
-                       (case (second current)
-                         :left [dy (* -1 dx)]
-                         :right [(* -1 dy) dx]))
-                     heading)))
+                 (if move?
+                   remaining-instructions
+                   (rest remaining-instructions))
 
-          [position heading]))))
+                 next-face
+                 next-position
+                 next-heading))
+
+        [current-face current-position current-heading]))))
 
 (defn day-22b [input]
   (let [[maze instructions] (parse-input input)
         cube (parse-cube maze)]
-    
-    (move-once cube [2 0] [3 3] [0 1])
-    #_(propagate cube instructions)))
+    (propagate cube instructions)))
