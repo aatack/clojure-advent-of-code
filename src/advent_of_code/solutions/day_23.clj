@@ -38,6 +38,13 @@
           {}
           state))
 
+(defn bounds [state]
+  (let [xs (map first state)
+        ys (map second state)]
+    (- (* (inc (- (apply max xs) (apply min xs)))
+          (inc (- (apply max ys) (apply min ys))))
+       (count state))))
+
 (defn update-state [[state priority]]
   (let [proposals (compute-proposals state priority)
         moves (for [[proposal positions] proposals
@@ -50,9 +57,9 @@
 (defn day-23a [input]
   (->> [(parse-positions input) (directions)]
        (iterate update-state)
-       (drop 3)
-       first
-       first))
+       (drop 10)
+       ffirst
+       bounds))
 
 (defn day-23b [input]
   (->> input))
