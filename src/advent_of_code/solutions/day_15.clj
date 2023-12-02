@@ -64,7 +64,7 @@
                    :let [exclusion-range
                          (sensors-exclusion-range sensors y)]
                    :when (> (count exclusion-range) 1)]
-               [y exclusion-range])]
-    (let [[y [[_ dec-x] [_ _]]] (first rows)
-          x (inc dec-x)]
-      (+ (* x 4000000) y))))
+               [y exclusion-range])
+        [y [[_ dec-x] [_ _]]] (first rows)
+        x (inc dec-x)]
+    (+ (* x 4000000) y)))
