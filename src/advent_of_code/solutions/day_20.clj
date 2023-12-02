@@ -18,7 +18,7 @@
                                 :index index}]))
          (into {}))))
 
-(defn peek [file value distance]
+(defn peek-file [file value distance]
   (let [direction (if (< distance 0) :left :right)]
     (loop [current-value value
            remaining-distance (abs distance)]
@@ -39,7 +39,7 @@
         distance (mod (value :distance) (* (dec (count file)) (if (> (value :distance) 0) 1 -1)))
         index (value :index)
 
-        destination (peek removed value distance)
+        destination (peek-file removed value distance)
 
         new-left (if (> distance 0) (destination :index) (destination :left))
         new-right (if (< distance 0) (destination :index) (destination :right))]
@@ -69,7 +69,7 @@
                   (parse-file 1)
                   mix)
         root (first (filter #(= (% :distance) 0) (vals file)))]
-    (apply + (map #((peek file root %) :distance) [1000 2000 3000]))))
+    (apply + (map #((peek-file file root %) :distance) [1000 2000 3000]))))
 
 (defn day-20b [input]
   (let [file (->> input
@@ -78,4 +78,4 @@
                   (drop 10)
                   first)
         root (first (filter #(= (% :distance) 0) (vals file)))]
-    (apply +' (map #((peek file root %) :distance) [1000 2000 3000]))))
+    (apply +' (map #((peek-file file root %) :distance) [1000 2000 3000]))))

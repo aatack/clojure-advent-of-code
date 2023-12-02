@@ -11,9 +11,9 @@
 
 (def directions [left right up down])
 (def scores {[1 0] 0
-                 [0 1] 1
-                 [-1 0] 2
-                 [0 -1] 3})
+             [0 1] 1
+             [-1 0] 2
+             [0 -1] 3})
 
 (defn parse-maze [input]
   (into {} (for [[y row] (enumerate input)
@@ -43,7 +43,7 @@
           (recur next-coordinate)
           current-coordinate)))))
 
-(defn propagate [maze instructions]
+(defn propagate-maze [maze instructions]
   (loop [current (first instructions)
          remaining (rest instructions)
          position (apply min-key first (filter (comp #(= % 0) second) (keys maze)))
@@ -81,7 +81,7 @@
   (let [[maze instructions] (parse-input input)
         ;; We have inverted `x` and `y` in our coordinate system, so invert them again
         ;; here
-        [[column row] heading] (propagate maze instructions)
+        [[column row] heading] (propagate-maze maze instructions)
         facing (scores heading)]
     (+ (* 1000 (inc row))
        (* 4 (inc column))
@@ -208,7 +208,7 @@
           [face position heading]
           [target-face target-position target-heading])))))
 
-(defn propagate [cube instructions]
+(defn propagate-cube [cube instructions]
   (let [initial-position (apply min-key first
                                 (filter (comp #(= % 0) second) (keys (cube :maze))))]
     (loop [current-instruction (first instructions)
@@ -254,7 +254,8 @@
 (defn day-22b [input]
   (let [[maze instructions] (parse-input input)
         cube (parse-cube maze)
-        [[face-x face-y] [position-x position-y] heading] (propagate cube instructions)
+        [[face-x face-y] [position-x position-y] heading] (propagate-cube
+                                                           cube instructions)
         column (inc (+ position-x (* face-x side-length)))
         row (inc (+ position-y (* face-y side-length)))]
     (+ (* 1000 row)
