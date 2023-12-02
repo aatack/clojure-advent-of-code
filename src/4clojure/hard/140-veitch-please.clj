@@ -52,7 +52,7 @@
                        (with-meta new-subset
                          {:parents [function-subset comparison]}))]
 
-      (if (not (empty? candidates))
+      (if (seq candidates)
 
         ;; We have new candidates so may be able to make further
         ;; reductions

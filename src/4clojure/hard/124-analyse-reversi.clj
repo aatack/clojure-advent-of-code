@@ -3,10 +3,10 @@
             (and (<= 0 x 3) (<= 0 y 3)))
 
           (piece-sequence [coordinate direction]
-                          (if (in-bounds? coordinate)
-                            (cons [coordinate (get-in board coordinate)]
-                                  (piece-sequence (map + coordinate direction) direction))
-                            []))
+            (if (in-bounds? coordinate)
+              (cons [coordinate (get-in board coordinate)]
+                    (piece-sequence (map + coordinate direction) direction))
+              []))
 
           (sequence-flips [sequence]
             (reduce (fn [flips [piece-coordinate piece]]
@@ -19,15 +19,15 @@
 
           (flipped [coordinate]
             (for [direction [[1 0] [-1 0] [0 1] [0 -1] [1 1] [1 -1] [-1 1] [-1 -1]]
-                  [piece-coordinate piece]
+                  [piece-coordinate _]
                   (sequence-flips (piece-sequence coordinate direction))]
               piece-coordinate))]
 
-    (apply hash-map (apply concat (filter #(not (empty? (second %)))
-                                            (for [x (range 0 4)
-                                                  y (range 0 4)
-                                                  :when (= (get-in board [x y]) 'e)]
-                                              [[x y] (set (flipped [x y]))]))))))
+    (apply hash-map (apply concat (filter #(seq (second %))
+                                          (for [x (range 0 4)
+                                                y (range 0 4)
+                                                :when (= (get-in board [x y]) 'e)]
+                                            [[x y] (set (flipped [x y]))]))))))
 
 (= {[1 3] #{[1 2]}
     [0 2] #{[1 2]}

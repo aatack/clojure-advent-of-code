@@ -4,6 +4,8 @@
 ;;       escaping to be done to make it work OOTB
 
 (= 3
-   (let [[__] [+ (range 3)]] (apply __))
+   (let [[__] [+ (range 3)]]
+     #_{:clj-kondo/ignore [:invalid-arity]}
+     (apply __))
    (let [[[__] b] [[+ 1] 2]] (__ b))
    (let [[__] [inc 2]] (__)))

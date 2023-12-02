@@ -1,6 +1,6 @@
 (defn __ [sets]
   (= (->> sets (apply concat) set count)
-        (apply + (map count sets))))
+     (apply + (map count sets))))
 
 (= (__ #{#{\U} #{\s} #{\e \R \E} #{\P \L} #{\.}})
    true)
@@ -29,7 +29,8 @@
          #{'[:x :y :z] [:x :y] [:z] [] {}}})
    false)
 
-(= (__ #{#{(= "true") false}
+(= (__ #{#{#_{:clj-kondo/ignore [:single-operand-comparison]}
+           (= "true") false}
          #{:yes :no}
          #{(class 1) 0}
          #{(symbol "true") 'false}
@@ -45,6 +46,7 @@
 
 (= (__ #{#{(#(-> *)) + (quote mapcat) #_nil}
          #{'+ '* mapcat (comment mapcat)}
-         #{(do) set contains? nil?}
+         #{#_{:clj-kondo/ignore [:redundant-do]}
+           (do) set contains? nil?}
          #{#_empty?}})
    false)

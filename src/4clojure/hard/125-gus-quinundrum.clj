@@ -1,6 +1,7 @@
 (def __ (fn [] (let [program '(fn [] (let [program ':r]
                                        (clojure.string/replace-first
                                         (str program) #":r" (str program))))]
+                 #_{:clj-kondo/ignore [:unresolved-namespace]}
                  (clojure.string/replace-first (str program) #":r" (str program)))))
 
 (= (str '(fn [] (let [program '(fn [] (let [program ':r]
@@ -10,4 +11,5 @@
    ((fn [] (let [program '(fn [] (let [program ':r]
                                    (clojure.string/replace-first
                                     (str program) #":r" (str program))))]
+             #_{:clj-kondo/ignore [:unresolved-namespace]}
              (clojure.string/replace-first (str program) #":r" (str program))))))
