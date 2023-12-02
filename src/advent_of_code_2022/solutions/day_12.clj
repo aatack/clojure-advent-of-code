@@ -1,4 +1,4 @@
-(ns advent-of-code.solutions.day-12
+(ns advent-of-code-2022.solutions.day-12
   (:require [clojure.string :refer [split-lines]]
             [advent-of-code.utils :refer [breadth-first-search]]))
 
@@ -28,24 +28,23 @@
 
 (defn find-coordinates [height-map value]
   (first (for [row (range (count height-map))
-        column (range (count (first height-map)))
-        :let [coordinate [row column]]
-        :when (= (height height-map coordinate) value)
-        ]
-    coordinate)))
+               column (range (count (first height-map)))
+               :let [coordinate [row column]]
+               :when (= (height height-map coordinate) value)]
+           coordinate)))
 
 (defn shortest-path [height-map start end]
   (let [path (breadth-first-search
-   start
-   (fn [[x y]]
-     (let [maximum-height (inc (height height-map [x y]))]
-       (filter #(<= (height height-map %) maximum-height)
-               [[(inc x) y]
-                [(dec x) y]
-                [x (inc y)]
-                [x (dec y)]])))
-   #(= % end))]
-      (when path (dec (count path)))))
+              start
+              (fn [[x y]]
+                (let [maximum-height (inc (height height-map [x y]))]
+                  (filter #(<= (height height-map %) maximum-height)
+                          [[(inc x) y]
+                           [(dec x) y]
+                           [x (inc y)]
+                           [x (dec y)]])))
+              #(= % end))]
+    (when path (dec (count path)))))
 
 (defn day-12a [input]
   (let [height-map (parse-height-map input)

@@ -1,4 +1,4 @@
-(ns advent-of-code.solutions.day-24
+(ns advent-of-code-2022.solutions.day-24
   (:require [advent-of-code.utils :refer [breadth-first-search enumerate]]
             [clojure.string :refer [split-lines]]))
 

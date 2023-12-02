@@ -1,4 +1,4 @@
-(ns advent-of-code.solutions.day-15
+(ns advent-of-code-2022.solutions.day-15
   (:require [clojure.string :refer [split-lines replace split]]
             [advent-of-code.utils :refer [conj-range count-ranges]]))
 

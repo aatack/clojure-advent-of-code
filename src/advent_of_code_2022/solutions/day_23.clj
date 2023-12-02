@@ -1,4 +1,4 @@
-(ns advent-of-code.solutions.day-23
+(ns advent-of-code-2022.solutions.day-23
   (:require [advent-of-code.solutions.day-22 :refer [add]]
             [advent-of-code.utils :refer [enumerate repeat-sequence]]
             [clojure.string :refer [split-lines]]))
@@ -20,14 +20,14 @@
     (apply vector (map #(if (= % 0) step %) direction))))
 
 (defn compute-proposal [state position priority]
-  
+
   (when (> (count (filter state (for [x [-1 0 1]
                                       y [-1 0 1]]
                                   [(+ x (first position)) (+ y (second position))])))
            1)
     (first (for [direction (take 4 priority)
-               :when (every? #(not (state (add position %))) (diagonals direction))]
-           (add position direction)))))
+                 :when (every? #(not (state (add position %))) (diagonals direction))]
+             (add position direction)))))
 
 (defn compute-proposals [state priority]
   (reduce (fn [results position]
@@ -51,7 +51,7 @@
                     :when (= (count positions) 1)]
                 [(first positions) proposal])]
     [(-> (apply disj state (map first moves))
-        (into (map second moves)))
+         (into (map second moves)))
      (rest priority)
      (= (count moves) 0)]))
 

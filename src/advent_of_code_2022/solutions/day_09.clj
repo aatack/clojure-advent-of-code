@@ -1,4 +1,4 @@
-(ns advent-of-code.solutions.day-09
+(ns advent-of-code-2022.solutions.day-09
   (:require [clojure.string :refer [split-lines split]]))
 
 (defn head-positions [input]

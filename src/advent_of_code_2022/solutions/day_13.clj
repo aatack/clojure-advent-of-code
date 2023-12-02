@@ -1,5 +1,5 @@
-(ns advent-of-code.solutions.day-13)(ns advent-of-code.solutions.day-13
-  (:require [clojure.string :refer [split-lines]]))
+(ns advent-of-code-2022.solutions.day-13) (ns advent-of-code-2022.solutions.day-13
+                                            (:require [clojure.string :refer [split-lines]]))
 
 (defn parse-pairs [input]
   (->> input
@@ -15,13 +15,13 @@
 
     (and (integer? left) (integer? right))
     (< left right)
-    
+
     (integer? left)
     (compare-lists [left] right)
-    
+
     (integer? right)
     (compare-lists left [right])
-    
+
     :else
     (let [comparison (reduce
                       (fn [_ [inner-left inner-right]]

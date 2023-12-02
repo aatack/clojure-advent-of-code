@@ -1,4 +1,4 @@
-(ns advent-of-code.solutions.day-19
+(ns advent-of-code-2022.solutions.day-19
   (:require [advent-of-code.utils :refer [beam-search]]
             [clojure.string :refer [replace split split-lines]]))
 

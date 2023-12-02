@@ -1,4 +1,4 @@
-(ns advent-of-code.solutions.day-18
+(ns advent-of-code-2022.solutions.day-18
   (:require [clojure.string :refer [split-lines split]]))
 
 (defn parse-droplets [input]

@@ -1,4 +1,4 @@
-(ns advent-of-code.solutions.day-02 
+(ns advent-of-code-2022.solutions.day-02
   (:require [clojure.set :refer [map-invert]]
             [clojure.string :refer [split-lines]]))
 
@@ -22,8 +22,8 @@
                        \Y :paper
                        \Z :scissors} (nth % 2))
                      ({\A :rock
-                      \B :paper
-                      \C :scissors} (nth % 0))))
+                       \B :paper
+                       \C :scissors} (nth % 0))))
        (apply +)))
 
 (defn day-02b [input]

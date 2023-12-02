@@ -1,4 +1,4 @@
-(ns advent-of-code.solutions.day-21
+(ns advent-of-code-2022.solutions.day-21
   (:require [clojure.string :refer [split split-lines]]))
 
 (defn wrap-operator [operator]

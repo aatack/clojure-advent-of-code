@@ -1,4 +1,4 @@
-(ns advent-of-code.solutions.day-11
+(ns advent-of-code-2022.solutions.day-11
   (:require [clojure.string :refer [split-lines split]]))
 
 ;; TODO: come up with a nicer polymorphic solution for this

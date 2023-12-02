@@ -1,4 +1,4 @@
-(ns advent-of-code.solutions.day-16
+(ns advent-of-code-2022.solutions.day-16
   (:require [advent-of-code.utils :refer [graph-distance beam-search]]
             [clojure.string :refer [replace split split-lines]]))
 
@@ -120,7 +120,7 @@
                        right (nth secondary-plan j)]]
              {primary (assoc primary-plan i right)
               secondary (assoc secondary-plan j left)})
-           
+
            ;; Swap any two visits in the current plan
            (for [i (range (count primary-plan))
                  j (range (inc i) (count primary-plan))
@@ -129,7 +129,7 @@
              (assoc plan primary (-> primary-plan
                                      (assoc i right)
                                      (assoc j left))))
-           
+
            ;; Swap an item from the primary plan with an option
            (for [i (range (count primary-plan))
                  replacement options]

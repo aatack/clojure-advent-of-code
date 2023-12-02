@@ -1,4 +1,4 @@
-(ns advent-of-code.solutions.day-07
+(ns advent-of-code-2022.solutions.day-07
   (:require [clojure.string :refer [split-lines split]]))
 
 (defn update-files
@@ -24,13 +24,13 @@
                       folder]))
             "ls" [files path])
       "dir" [(assoc-in files
-                      (conj path (second segments))
-                      {})
+                       (conj path (second segments))
+                       {})
              path]
       ;; Otherwise this is a file
       [(assoc-in files
-                (conj path (second segments))
-                (read-string (first segments)))
+                 (conj path (second segments))
+                 (read-string (first segments)))
        path])))
 
 (defn build-files [terminal-lines]

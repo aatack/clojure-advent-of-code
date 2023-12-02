@@ -1,4 +1,4 @@
-(ns advent-of-code.solutions.day-25
+(ns advent-of-code-2022.solutions.day-25
   (:require [advent-of-code.utils :refer [power]]
             [clojure.string :refer [split-lines]]))
 

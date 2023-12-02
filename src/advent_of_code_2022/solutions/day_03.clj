@@ -1,4 +1,4 @@
-(ns advent-of-code.solutions.day-03 
+(ns advent-of-code-2022.solutions.day-03
   (:require [clojure.string :refer [split-lines upper-case]]
             [clojure.set :refer [intersection]]))
 
@@ -16,10 +16,10 @@
     (+ 1 (- (int item) (int \a)))))
 
 (defn badge [group]
-     (->> group
-          (map set)
-          (apply intersection)
-          first))
+  (->> group
+       (map set)
+       (apply intersection)
+       first))
 
 (defn day-03a [input]
   (->> input

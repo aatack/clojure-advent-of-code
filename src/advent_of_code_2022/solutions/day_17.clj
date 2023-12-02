@@ -1,4 +1,4 @@
-(ns advent-of-code.solutions.day-17
+(ns advent-of-code-2022.solutions.day-17
   (:require [advent-of-code.utils :refer [repeat-sequence]]))
 
 (defn assign-indices
@@ -169,7 +169,7 @@
         leftover-steps (-' total-steps
                            first-index
                            (*' total-loops index-delta))]
-    
+
     (+' (history first-index)
         (-' (history (+' first-index leftover-steps))
             (history first-index))

@@ -1,4 +1,4 @@
-(ns advent-of-code.solutions.day-10
+(ns advent-of-code-2022.solutions.day-10
   (:require [clojure.string :refer [split-lines split]]))
 
 (defn signal-strength [input]
@@ -27,9 +27,9 @@
 (defn day-10b [input]
   (let [signal (signal-strength input)]
     (->> (map (fn [index]
-           (if (<= 0 (- (mod index 40) (signal index)) 2)
-             "#"
-             "."))
-         (sort (keys signal)))
+                (if (<= 0 (- (mod index 40) (signal index)) 2)
+                  "#"
+                  "."))
+              (sort (keys signal)))
          (partition 40)
          (map #(apply str %)))))

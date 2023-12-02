@@ -1,4 +1,4 @@
-(ns advent-of-code.solutions.day-08
+(ns advent-of-code-2022.solutions.day-08
   (:require [clojure.string :refer [split-lines]]
             [advent-of-code.utils :refer [transpose]]))
 
@@ -10,10 +10,9 @@
        (map #(map str %))
        (map #(map read-string %))
        (map #(apply vector %))
-       (apply vector)
-       ))
+       (apply vector)))
 
-(defn visible-from-front 
+(defn visible-from-front
   "Get the coordinates of trees in a row visible from the front."
   [trees]
   (first (reduce (fn [[coordinates tallest] [coordinate height]]
@@ -59,11 +58,11 @@
 (defn scenic-score [forest coordinate]
   (let [height (get-in forest coordinate)]
     (apply * (map (fn [step]
-           (view-distance forest
-                          height
-                          step
-                          (map + coordinate step)))
-         [[0 1] [0 -1] [1 0] [-1 0]]))))
+                    (view-distance forest
+                                   height
+                                   step
+                                   (map + coordinate step)))
+                  [[0 1] [0 -1] [1 0] [-1 0]]))))
 
 (defn day-08b [input]
   (let [forest (->> input parse-forest)]

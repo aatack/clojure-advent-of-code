@@ -1,4 +1,4 @@
-(ns advent-of-code.solutions.day-20
+(ns advent-of-code-2022.solutions.day-20
   (:require [clojure.string :refer [split-lines]]))
 
 (def encryption-key 811589153)

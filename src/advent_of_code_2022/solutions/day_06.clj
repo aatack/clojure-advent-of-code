@@ -1,4 +1,4 @@
-(ns advent-of-code.solutions.day-06)
+(ns advent-of-code-2022.solutions.day-06)
 
 (defn start-of-message-marker [distinct-characters buffer]
   (->> buffer

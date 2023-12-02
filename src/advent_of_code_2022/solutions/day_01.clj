@@ -1,4 +1,4 @@
-(ns advent-of-code.solutions.day-01 
+(ns advent-of-code-2022.solutions.day-01
   (:require [clojure.string :refer [split-lines]]))
 
 (defn calories [input]
