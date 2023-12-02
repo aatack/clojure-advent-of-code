@@ -1,8 +1,8 @@
-(ns advent-of-code.utils
+(ns advent-of-code-2022.utils
   (:require [clojure.string :as string]))
 
 (defn load-input [problem]
-  (slurp (str "src/advent_of_code/inputs/"
+  (slurp (str "src/advent_of_code_2022/inputs/"
               (string/replace (name problem) "-" "_")
               ".txt")))
 
@@ -91,7 +91,7 @@
 (defn enumerate
   ([sequence]
    (enumerate sequence 0))
-  
+
   ([sequence start]
    (map list (iterate inc start) sequence)))
 
