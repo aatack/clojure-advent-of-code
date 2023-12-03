@@ -25,7 +25,12 @@
             balls)))
 
 (defn day-02a [input]
-  (->> input))
+  (->> input
+       split-lines
+       (map parse-game)
+       (filter #(possible? % {:red 12 :green 13 :blue 14}))
+       (map :id)
+       (apply +)))
 
 (defn day-02b [input]
   (->> input))
