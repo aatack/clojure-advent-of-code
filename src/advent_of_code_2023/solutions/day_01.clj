@@ -14,7 +14,9 @@
        (apply +)))
 
 ;; This approach would probably break if you had three chained together, though that
-;; doesn't appear to happen anywhere in the inputs
+;; doesn't appear to happen anywhere in the inputs.  To fix this, you could instead go
+;; through each lookup and find the indices at which it appears in the input string.
+;; Then take the first and last of these, after sorting by index
 (def lookups [["oneight" [1 8]]
               ["twone" [2 1]]
               ["threeight" [3 8]]
