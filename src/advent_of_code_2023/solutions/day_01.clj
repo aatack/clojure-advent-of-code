@@ -13,24 +13,34 @@
        (map calibration-value)
        (apply +)))
 
-(def lookups {"1" 1
-              "2" 2
-              "3" 3
-              "4" 4
-              "5" 5
-              "6" 6
-              "7" 7
-              "8" 8
-              "9" 9
-              "one" 1
-              "two" 2
-              "three" 3
-              "four" 4
-              "five" 5
-              "six" 6
-              "seven" 7
-              "eight" 8
-              "nine" 9})
+;; This approach would probably break if you had three chained together, though that
+;; doesn't appear to happen anywhere in the inputs
+(def lookups [["oneight" [1 8]]
+              ["twone" [2 1]]
+              ["threeight" [3 8]]
+              ["fiveight" [5 8]]
+              ["sevenine" [7 9]]
+              ["eightwo" [8 2]]
+              ["eighthree" [8 3]]
+              ["nineight" [9 8]]
+              ["1" [1]]
+              ["2" [2]]
+              ["3" [3]]
+              ["4" [4]]
+              ["5" [5]]
+              ["6" [6]]
+              ["7" [7]]
+              ["8" [8]]
+              ["9" [9]]
+              ["one" [1]]
+              ["two" [2]]
+              ["three" [3]]
+              ["four" [4]]
+              ["five" [5]]
+              ["six" [6]]
+              ["seven" [7]]
+              ["eight" [8]]
+              ["nine" [9]]])
 
 (defn spelled-calibration-value [characters]
   (loop [lookups' lookups
@@ -44,7 +54,7 @@
                 matches? (and (>= (count characters') length)
                               (= (subs characters' 0 length) lookup))]
             (if matches?
-              (recur lookups (subs characters' length) (conj numbers value))
+              (recur lookups (subs characters' length) (concat numbers value))
               (recur (rest lookups') characters' numbers))))))
 
 (defn day-01b [input]
