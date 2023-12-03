@@ -35,7 +35,19 @@
               "nine" 9})
 
 (defn spelled-calibration-value [characters]
-  ,,,)
+  (loop [lookups' lookups
+         characters' characters
+         numbers []]
+    (cond (= characters' "") numbers
+          (empty? lookups') (recur lookups (subs characters' 1) numbers)
+          :else
+          (let [[lookup value] (first lookups')
+                length (count lookup)
+                matches? (and (>= (count characters') length)
+                              (= (subs characters' 0 length) lookup))]
+            (if matches?
+              (recur lookups (subs characters' length) (conj numbers value))
+              (recur (rest lookups') characters' numbers))))))
 
 (defn day-01b [input]
   (->> input))
