@@ -18,6 +18,12 @@
           {}
           (mapcat identity (:draws game))))
 
+(defn possible? [game balls]
+  (let [game-balls (balls-required game)]
+    (every? (fn [[colour amount]]
+              (<= (get game-balls colour 0) amount))
+            balls)))
+
 (defn day-02a [input]
   (->> input))
 
@@ -28,4 +34,4 @@
 
   (def game "Game 44: 6 green, 1 red; 3 red, 11 green, 2 blue; 2 green, 2 red, 3 blue; 1 red, 15 green, 2 blue")
 
-  (balls-required (parse-game game)))
+  (possible? (parse-game game) {:green 15 :red 3 :blue 3}))
