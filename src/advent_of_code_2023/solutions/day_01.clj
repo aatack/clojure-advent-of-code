@@ -13,8 +13,7 @@
        (map calibration-value)
        (apply +)))
 
-(def lookups {"0" 0
-              "1" 1
+(def lookups {"1" 1
               "2" 2
               "3" 3
               "4" 4
@@ -23,7 +22,6 @@
               "7" 7
               "8" 8
               "9" 9
-              "zero" 0
               "one" 1
               "two" 2
               "three" 3
