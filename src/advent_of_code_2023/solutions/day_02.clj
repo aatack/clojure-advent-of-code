@@ -4,13 +4,13 @@
 
 (defn parse-draw [draw]
   (->> (map #(filter seq (split % #" ")) (split draw #","))
-       (map (fn [[amount colour]] [colour (read-string amount)]))
+       (map (fn [[amount colour]] [(keyword colour) (read-string amount)]))
        (into {})))
 
 (defn parse-game [game]
   (let [[id draws] (split game #":")]
     {:id (-> id (split #" ") second read-string)
-     :draws (map parse-draw (split draws #";"))}))
+     :draws (into [] (map parse-draw (split draws #";")))}))
 
 (defn day-02a [input]
   (->> input))
