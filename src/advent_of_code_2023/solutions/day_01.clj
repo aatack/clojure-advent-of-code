@@ -38,7 +38,7 @@
   (loop [lookups' lookups
          characters' characters
          numbers []]
-    (cond (= characters' "") numbers
+    (cond (= characters' "") (read-string (str (first numbers) (last numbers)))
           (empty? lookups') (recur lookups (subs characters' 1) numbers)
           :else
           (let [[lookup value] (first lookups')
@@ -50,4 +50,7 @@
               (recur (rest lookups') characters' numbers))))))
 
 (defn day-01b [input]
-  (->> input))
+  (->> input
+       split-lines
+       (map spelled-calibration-value)
+       (apply +)))
