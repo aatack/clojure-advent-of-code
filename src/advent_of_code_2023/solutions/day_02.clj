@@ -32,11 +32,15 @@
        (map :id)
        (apply +)))
 
+(defn game-power [game]
+  (->> game
+       balls-required
+       vals
+       (apply *)))
+
 (defn day-02b [input]
-  (->> input))
-
-(comment
-
-  (def game "Game 44: 6 green, 1 red; 3 red, 11 green, 2 blue; 2 green, 2 red, 3 blue; 1 red, 15 green, 2 blue")
-
-  (possible? (parse-game game) {:green 15 :red 3 :blue 3}))
+  (->> input
+       split-lines
+       (map parse-game)
+       (map game-power)
+       (apply +)))
