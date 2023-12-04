@@ -12,19 +12,35 @@
      :symbols (into {} (filter (fn [[_ character]] (not (digit? character))) grid))}))
 
 (defn flag-part-digits [schematic]
-  (map (fn [[[column row] digit]]
-         [[column row]
-          [digit
-           (some (:symbols schematic)
-                 (for [x [(dec column) column (inc column)]
-                       y [(dec row) row (inc row)]]
-                   [x y]))]])
-       (:digits schematic)))
+  (into {} (map (fn [[[column row] digit]]
+                  [[column row]
+                   [digit
+                    (some (:symbols schematic)
+                          (for [x [(dec column) column (inc column)]
+                                y [(dec row) row (inc row)]]
+                            [x y]))]])
+                (:digits schematic))))
+
+(defn find-part-numbers [flagged-digits]
+  (->> flagged-digits
+       (map
+        (fn [[[column row] [digit part?]]]
+          (when (not (flagged-digits [(dec column) row]))
+            [[column row] [digit part?]])))
+       (filter identity)
+       (into {})
+       #_(map (fn [[[column row] _]]
+              (loop [index column
+                     digits []]
+                (if-let [digit (flagged-digits [row index])]
+                  (recur (inc index) (conj digits digit))
+                  digits))))))
 
 (defn day-03a [input]
   (->> input
        parse-schematic
-       flag-part-digits))
+       flag-part-digits
+       find-part-numbers))
 
 (defn day-03b [input]
   (->> input))
