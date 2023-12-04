@@ -47,5 +47,20 @@
        vals
        (apply +)))
 
+(defn find-numbers [schematic]
+  (->> (:digits schematic)
+       (map
+        (fn [[[column row] _]]
+          (when (not ((:digits schematic) [(dec column) row]))
+            (loop [index column
+                   digits []]
+              (if-let [digit ((:digits schematic) [index row])]
+                (recur (inc index) (conj digits digit))
+                [[column row] (read-string (apply str digits))])))))
+       (filter identity)
+       (into {})))
+
 (defn day-03b [input]
-  (->> input))
+  (->> input
+       parse-schematic
+       find-numbers))
