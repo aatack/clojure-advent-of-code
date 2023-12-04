@@ -12,6 +12,9 @@
      :drawn (->> drawn (split-string " ") (map read-string) (into #{}))
      :winning (->> winning (split-string " ") (map read-string) (into #{}))}))
 
+(defn winning-count [card]
+  (count (intersection (:winning card) (:drawn card))))
+
 (defn score [card]
   (let [winning (intersection (:winning card) (:drawn card))]
     (if (seq winning)
@@ -25,5 +28,11 @@
        (map score)
        (apply +)))
 
+(defn process [id quantities scores]
+  ,,,)
+
 (defn day-04b [input]
-  (->> input))
+  (let [cards (->> input split-lines (map parse-card))
+        scores (into {} (map #(vector (:id %) (winning-count %)) cards))
+        quantities (into {} (map #(vector (:id %) 1) cards))]
+    [scores quantities]))
