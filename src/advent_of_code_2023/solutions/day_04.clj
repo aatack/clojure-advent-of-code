@@ -12,7 +12,7 @@
      :drawn (->> drawn (split-string " ") (map read-string) (into #{}))
      :winning (->> winning (split-string " ") (map read-string) (into #{}))}))
 
-(defn points [card]
+(defn score [card]
   (let [winning (intersection (:winning card) (:drawn card))]
     (if (seq winning)
       (->> winning count dec (power 2))
@@ -21,7 +21,9 @@
 (defn day-04a [input]
   (->> input
        split-lines
-       (map parse-card)))
+       (map parse-card)
+       (map score)
+       (apply +)))
 
 (defn day-04b [input]
   (->> input))
