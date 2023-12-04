@@ -43,7 +43,9 @@
   (->> input
        parse-schematic
        flag-part-digits
-       find-part-numbers))
+       find-part-numbers
+       vals
+       (apply +)))
 
 (defn day-03b [input]
   (->> input))
