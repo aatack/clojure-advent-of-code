@@ -56,11 +56,18 @@
                    digits []]
               (if-let [digit ((:digits schematic) [index row])]
                 (recur (inc index) (conj digits digit))
-                [[column row] (read-string (apply str digits))])))))
+                [[column row] (count digits)])))))
        (filter identity)
        (into {})))
+
+(defn find-candidate-gears [schematic]
+  (map first (filter (fn [[_ character]] (= character \*)) (:symbols schematic))))
+
+(defn number-adjacent-to-gear? [[[number-x number-y] number-length] [gear-x gear-y]]
+  (and (<= (dec number-x) gear-x (+ number-x number-length))
+       (<= (dec number-y) gear-y (inc number-y))))
 
 (defn day-03b [input]
   (->> input
        parse-schematic
-       find-numbers))
+       find-candidate-gears))
