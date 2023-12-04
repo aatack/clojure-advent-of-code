@@ -29,12 +29,15 @@
             [[column row] [digit part?]])))
        (filter identity)
        (into {})
-       #_(map (fn [[[column row] _]]
+       (map (fn [[[column row] _]]
               (loop [index column
-                     digits []]
-                (if-let [digit (flagged-digits [row index])]
-                  (recur (inc index) (conj digits digit))
-                  digits))))))
+                     digits []
+                     part? false]
+                (if-let [[digit digit-part?] (flagged-digits [index row])]
+                  (recur (inc index) (conj digits digit) (or part? digit-part?))
+                  (when part? [[column row] (read-string (apply str digits))])))))
+       (filter identity)
+       (into {})))
 
 (defn day-03a [input]
   (->> input
