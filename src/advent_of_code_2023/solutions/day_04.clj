@@ -29,10 +29,20 @@
        (apply +)))
 
 (defn process [id quantities scores]
-  ,,,)
+  (let [new-quantities (zipmap (map #(+ id % 1) (range (scores id)))
+                               (repeat (quantities id)))]
+    (reduce (fn [current-quantities [new-id new-quantity]]
+              (update current-quantities new-id #(+ % new-quantity)))
+            quantities
+            new-quantities)))
 
 (defn day-04b [input]
   (let [cards (->> input split-lines (map parse-card))
         scores (into {} (map #(vector (:id %) (winning-count %)) cards))
         quantities (into {} (map #(vector (:id %) 1) cards))]
-    [scores quantities]))
+    (->>
+     (reduce (fn [current-quantities id] (process id current-quantities scores))
+             quantities
+             (sort (map :id cards)))
+     vals
+     (apply +))))
