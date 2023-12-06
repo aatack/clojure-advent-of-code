@@ -16,18 +16,17 @@
                  (split-string "\\:")
                  second
                  (split-string " ")
-                 (map read-string)
-                 )
+                 (map read-string))
      :mappings (->> chunks rest (map parse-mapping))}))
 
 (defn apply-mapping [mapping value]
   (if
-    (empty? mapping) value
-    (let [head (first mapping)
-          index (- value (:source head))]
-      (if (and (<= 0 index) (< index (:length head)))
-        (+ index (:destination head))
-        (recur (rest mapping) value)))))
+   (empty? mapping) value
+   (let [head (first mapping)
+         index (- value (:source head))]
+     (if (and (<= 0 index) (< index (:length head)))
+       (+ index (:destination head))
+       (recur (rest mapping) value)))))
 
 (defn apply-mappings [mappings value]
   (if (empty? mappings)
@@ -47,6 +46,21 @@
              [(max left-start right-start) (min left-end right-end)])
    :above (when (> left-end right-end)
             [(max left-start (inc right-end)) left-end])})
+
+(defn apply-interval-mapping [mapping intervals]
+  (loop [stages mapping
+         waiting intervals
+         complete []]
+    (if (empty? stages)
+      (concat waiting complete)
+      (let [[source shift] (first stages)
+            overlaps (map #(interval-overlaps % source) waiting)]
+        (println source shift)
+        (recur (rest stages)
+               (concat (->> overlaps (map :below) (remove nil?))
+                       (->> overlaps (map :above) (remove nil?)))
+               (concat complete (map (fn [interval] (map #(+ % shift) interval))
+                                     (->> overlaps (map :inside)))))))))
 
 (defn day-05b [input]
   (->> input))
