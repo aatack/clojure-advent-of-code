@@ -6,7 +6,7 @@
 
 (defn parse-mapping [lines]
   (->> lines rest (map #(str "[" % "]")) (map read-string)
-       (map #(zipmap [:source :destination :length] %))))
+       (map #(zipmap [:destination :source :length] %))))
 
 (defn parse-input [input]
   (let [chunks (parse-chunks input)]
@@ -29,9 +29,16 @@
         (+ index (:destination head))
         (recur (rest mapping) value)))))
 
+(defn apply-mappings [mappings value]
+  (if (empty? mappings)
+    value
+    (recur (rest mappings) (apply-mapping (first mappings) value))))
+
 (defn day-05a [input]
-  (->> input
-       parse-input))
+  (let [{:keys [seeds mappings]} (parse-input input)]
+    (->> seeds
+         (map #(apply-mappings mappings %))
+         (apply min))))
 
 (defn day-05b [input]
   (->> input))
