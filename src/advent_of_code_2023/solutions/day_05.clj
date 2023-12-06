@@ -55,21 +55,28 @@
       (concat waiting complete)
       (let [[source shift] (first stages)
             overlaps (map #(interval-overlaps % source) waiting)]
-        (println source shift)
         (recur (rest stages)
                (concat (->> overlaps (map :below) (remove nil?))
                        (->> overlaps (map :above) (remove nil?)))
                (concat complete (map (fn [interval] (map #(+ % shift) interval))
-                                     (->> overlaps (map :inside)))))))))
+                                     (->> overlaps (map :inside) (remove nil?)))))))))
 
 (defn convert-to-interval-mapping [mapping]
-  (map (fn [{:keys [source destination length]}]
-         [[source (dec (+ source length))] (- destination source)])
-       mapping))
+  (->> mapping
+       (map (fn [{:keys [source destination length]}]
+              [[source (dec (+ source length))] (- destination source)]))
+       (into {})))
+
+(defn apply-interval-mappings [mappings intervals]
+  (if (empty? mappings)
+    intervals
+    (recur (rest mappings) (apply-interval-mapping (first mappings) intervals))))
 
 (defn day-05b [input]
-  (let [{:keys [seeds mappings]} (parse-input input)]
-    (convert-to-interval-mapping (first mappings))
-    #_(->> seeds
-         (map #(apply-mappings mappings %))
+  (let [{:keys [seeds mappings]} (parse-input input)
+        interval-mappings (map convert-to-interval-mapping mappings)]
+    (->> seeds
+         (map (fn [seed] [[seed seed]]))
+         (map #(apply-interval-mappings interval-mappings %))
+         flatten
          (apply min))))
