@@ -62,5 +62,14 @@
                (concat complete (map (fn [interval] (map #(+ % shift) interval))
                                      (->> overlaps (map :inside)))))))))
 
+(defn convert-to-interval-mapping [mapping]
+  (map (fn [{:keys [source destination length]}]
+         [[source (dec (+ source length))] (- destination source)])
+       mapping))
+
 (defn day-05b [input]
-  (->> input))
+  (let [{:keys [seeds mappings]} (parse-input input)]
+    (convert-to-interval-mapping (first mappings))
+    #_(->> seeds
+         (map #(apply-mappings mappings %))
+         (apply min))))
