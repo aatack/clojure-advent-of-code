@@ -20,6 +20,15 @@
                  )
      :mappings (->> chunks rest (map parse-mapping))}))
 
+(defn apply-mapping [mapping value]
+  (if
+    (empty? mapping) value
+    (let [head (first mapping)
+          index (- value (:source head))]
+      (if (and (<= 0 index) (< index (:length head)))
+        (+ index (:destination head))
+        (recur (rest mapping) value)))))
+
 (defn day-05a [input]
   (->> input
        parse-input))
