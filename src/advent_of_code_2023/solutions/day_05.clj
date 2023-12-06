@@ -72,11 +72,15 @@
     intervals
     (recur (rest mappings) (apply-interval-mapping (first mappings) intervals))))
 
+(defn parse-seed-ranges [seeds]
+  (->> seeds
+       (partition 2 2)
+       (map (fn [[start length]] [[start (dec (+ start length))]]))))
+
 (defn day-05b [input]
   (let [{:keys [seeds mappings]} (parse-input input)
         interval-mappings (map convert-to-interval-mapping mappings)]
-    (->> seeds
-         (map (fn [seed] [[seed seed]]))
+    (->> (parse-seed-ranges seeds)
          (map #(apply-interval-mappings interval-mappings %))
          flatten
          (apply min))))
