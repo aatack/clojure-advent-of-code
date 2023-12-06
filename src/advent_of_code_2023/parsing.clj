@@ -12,3 +12,11 @@
         (for [[row line] (enumerate (split-lines characters))
               [column character] (enumerate line)]
           [[column row] character])))
+
+(defn parse-chunks
+  "Parse an input into nested vectors of strings, split at every blank line."
+  [input]
+  (->> input
+       split-lines
+       (partition-by #(= 0 (count %)))
+       (remove #(= % [""]))))
