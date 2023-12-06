@@ -40,5 +40,13 @@
          (map #(apply-mappings mappings %))
          (apply min))))
 
+(defn interval-overlaps [[left-start left-end] [right-start right-end]]
+  {:below (when (< left-start right-start)
+            [left-start (min left-end (dec right-start))])
+   :inside (when (not (or (< left-end right-start) (> left-start right-end)))
+             [(max left-start right-start) (min left-end right-end)])
+   :above (when (> left-end right-end)
+            [(max left-start (inc right-end)) left-end])})
+
 (defn day-05b [input]
   (->> input))
