@@ -42,13 +42,7 @@
    the scale - the distance between the maximum/minimum and each root - and rounding it
    down."
   [race-time race-distance]
-  (let [a 1
-        b (* -1 race-time)
-        c race-distance
-
-        denominator (* 2 a)
-        scale (/ (sqrt (- (* b b) (* 4 a c))) denominator)]
-    (int (* 2 scale))))
+  (int (sqrt (- (* race-time race-time) (* 4 race-distance)))))
 
 (defn day-06b [input]
   (->> input
