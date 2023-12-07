@@ -24,6 +24,11 @@
        (map count)
        (apply *)))
 
+(defn parse-race [input]
+  (let [[times distances] (split-lines input)]
+    [(->> times (split-string " ") rest (apply str) read-string)
+     (->> distances (split-string " ") rest (apply str) read-string)]))
+
 (defn required-charge-time
   "Find the charge time required to win the race.
    
@@ -33,18 +38,19 @@
      d > (r - c)c ==> c^2 - rc + d > 0
    
    Hence we can solve for `c` to find the two roots, which are the charge times between
-   which the race will be won."
+   which the race will be won.  We can take a shortcut to that value by simply doubling
+   the scale - the distance between the maximum/minimum and each root - and rounding it
+   down."
   [race-time race-distance]
   (let [a 1
         b (* -1 race-time)
         c race-distance
 
         denominator (* 2 a)
-        location (/ (* -1 b) denominator)
         scale (/ (sqrt (- (* b b) (* 4 a c))) denominator)]
     (int (* 2 scale))))
 
-(required-charge-time  48989083 390110311121360)
-
 (defn day-06b [input]
-  (->> input))
+  (->> input
+       parse-race
+       (apply required-charge-time)))
