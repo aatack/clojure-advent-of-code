@@ -43,13 +43,18 @@
                           (apply min)
                           inc)]
         (recur (assoc-in pipes [coordinate :distance] distance)
-               (rest coordinates))))))
+               (concat (rest coordinates)
+                       (->> candidates
+                            (filter #(not (get-in pipes [% :distance]))))))))))
 
 (defn day-10a [input]
   (let [pipes (parse-pipes input)
         animal (animal-coordinates pipes)]
-    (populate-distances (assoc-in pipes [animal :distance] 0)
-                        (connecting-coordinates pipes [animal (pipes animal)]))))
+    (->> (populate-distances (assoc-in pipes [animal :distance] 0)
+                             (connecting-coordinates pipes [animal (pipes animal)]))
+         vals
+         (map :distance)
+         (apply max))))
 
 (defn day-10b [input]
   (->> input))
