@@ -29,10 +29,27 @@
              (filter #((set (connecting-coordinates pipes [% (pipes %)])) [x y])
                      [[(dec x) y] [(inc x) y] [x (dec y)] [x (inc y)]]))))
 
+(defn populate-distances [initial-pipes initial-coordinates]
+  (loop [pipes initial-pipes
+         coordinates initial-coordinates]
+    (if (empty? coordinates)
+      pipes
+      (let [coordinate (first coordinates)
+            candidates (connecting-coordinates pipes
+                                               [coordinate (pipes coordinate)])
+            distance (->> candidates
+                          (map #(get-in pipes [% :distance]))
+                          (remove nil?)
+                          (apply min)
+                          inc)]
+        (recur (assoc-in pipes [coordinate :distance] distance)
+               (rest coordinates))))))
+
 (defn day-10a [input]
   (let [pipes (parse-pipes input)
         animal (animal-coordinates pipes)]
-    (assoc-in pipes [animal :distance] 0)))
+    (populate-distances (assoc-in pipes [animal :distance] 0)
+                        (connecting-coordinates pipes [animal (pipes animal)]))))
 
 (defn day-10b [input]
   (->> input))
