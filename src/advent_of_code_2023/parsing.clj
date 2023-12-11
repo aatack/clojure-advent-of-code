@@ -1,5 +1,6 @@
 (ns advent-of-code-2023.parsing
   (:require [advent-of-code-2022.utils :refer [enumerate]]
+            [advent-of-code-2023.utils :refer [split-string]]
             [clojure.string :refer [split-lines]]))
 
 (defn parse-grid
@@ -20,3 +21,10 @@
        split-lines
        (partition-by #(= 0 (count %)))
        (remove #(= % [""]))))
+
+(defn parse-numbers
+  "Given a string containing whitespace-separated numbers, parse them into a vector." 
+  [characters]
+  (->> characters
+       (split-string " ")
+       (map read-string)))
