@@ -15,7 +15,8 @@
   (->> input
        split-lines
        (map parse-numbers)
-       (map next-number)))
+       (map next-number)
+       (apply +)))
 
 (defn day-09b [input]
   (->> input))
