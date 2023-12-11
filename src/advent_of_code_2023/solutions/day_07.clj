@@ -9,9 +9,21 @@
        (map #(split-string " " %))
        (map (fn [[hand bid]] {:hand (map identity hand) :big (read-string bid)}))))
 
+(defn card-counts [hand]
+  (->> hand
+       (reduce (fn [counts card]
+                 (update counts card #(inc (or % 0))))
+               {})
+       vals
+       sort
+       reverse))
+
 (defn day-07a [input]
   (->> input
-       parse-hands))
+       parse-hands
+       first
+       :hand
+       card-counts))
 
 (defn day-07b [input]
   (->> input))
