@@ -1,6 +1,7 @@
 (ns advent-of-code-2023.solutions.day-08
   #_{:clj-kondo/ignore [:unused-referred-var :unused-namespace]}
   (:require [advent-of-code-2022.utils :refer [enumerate]]
+            [clojure.set :refer [intersection]]
             [clojure.string :refer [split-lines]]))
 
 (defn parse-instructions [characters]
@@ -59,9 +60,30 @@
               (inc step)
               (assoc visits identifier step))))))
 
+(defn lowest-common-multiple [& numbers]
+  (letfn [(factors [number]
+            (set (filter #(= 0 (rem number %)) (range 1 (inc number)))))
+
+          (greatest-common-denominator [sequence]
+            (apply max (reduce intersection
+                               (map factors sequence))))
+
+          (numerator' [number]
+            (if (integer? number)
+              number
+              (numerator number)))
+
+          (denominator' [number]
+            (if (integer? number)
+              1
+              (denominator number)))]
+
+    (/ (reduce *' (map numerator' numbers))
+       (greatest-common-denominator (map denominator' numbers)))))
+
 (defn day-08b [input]
   (let [{:keys [instructions nodes]} (parse-input input)
         starting-nodes (filter starting-node? (keys nodes))]
     (->> starting-nodes
          (map #(cycle-length % nodes (cycle (enumerate instructions))))
-         (apply *'))))
+         (apply lowest-common-multiple))))
