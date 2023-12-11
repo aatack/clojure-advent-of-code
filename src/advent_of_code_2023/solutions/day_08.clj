@@ -16,9 +16,17 @@
     {:instructions (parse-instructions (first lines))
      :nodes (into {} (map parse-node (drop 2 lines)))}))
 
+(defn steps-required [node nodes instructions steps]
+  (if (= node "ZZZ")
+    steps
+    (recur (get-in nodes [node (first instructions)])
+                    nodes
+                    (rest instructions)
+                    (inc steps))))
+
 (defn day-08a [input]
-  (->> input
-       parse-input))
+  (let [{:keys [instructions nodes]} (parse-input input)]
+    (steps-required "AAA" nodes instructions 0)))
 
 (defn day-08b [input]
   (->> input))
