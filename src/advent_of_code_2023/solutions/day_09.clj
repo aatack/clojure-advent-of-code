@@ -19,4 +19,9 @@
        (apply +)))
 
 (defn day-09b [input]
-  (->> input))
+  (->> input
+       split-lines
+       (map parse-numbers)
+       (map reverse)
+       (map next-number)
+       (apply +)))
