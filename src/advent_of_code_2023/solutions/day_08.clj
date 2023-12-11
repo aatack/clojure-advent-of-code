@@ -35,14 +35,6 @@
 (defn ending-node? [node]
   (= (last node) \Z))
 
-(defn ghost-steps-required [nodes mapping instructions steps]
-  (if (every? ending-node? nodes)
-    steps
-    (recur (doall (map #(get-in mapping [% (first instructions)]) nodes))
-           mapping
-           (rest instructions)
-           (inc steps))))
-
 (defn cycle-length
   "Determine the cycle length of a specific starting node.
    
