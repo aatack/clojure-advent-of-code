@@ -10,26 +10,29 @@
        (map (fn [[coordinate pipe]] [coordinate {:pipe pipe}]))
        (into {})))
 
-(defn starting-coordinates [pipes]
+(defn animal-coordinates [pipes]
   (->> pipes
        (filter #(= (-> % val :pipe) \S))
        first
        key))
 
-(defn connecting-coordinates [[[x y] {:keys [pipe]}]]
+(defn connecting-coordinates [pipes [[x y] {:keys [pipe]}]]
   (case pipe
+    nil []
     \| [[x (dec y)] [x (inc y)]]
     \- [[(dec x) y] [(inc x) y]]
     \L [[x (dec y)] [(inc x) y]]
     \J [[(dec x) y] [x (dec y)]]
     \7 [[(dec x) y] [x (inc y)]]
     \F [[(inc x) y] [x (inc y)]]
-    \S []))
+    \S (into []
+             (filter #((set (connecting-coordinates pipes [% (pipes %)])) [x y])
+                     [[(dec x) y] [(inc x) y] [x (dec y)] [x (inc y)]]))))
 
 (defn day-10a [input]
-  (->> input
-       parse-pipes
-       starting-coordinates))
+  (let [pipes (parse-pipes input)
+        animal (animal-coordinates pipes)]
+    (assoc-in pipes [animal :distance] 0)))
 
 (defn day-10b [input]
   (->> input))
