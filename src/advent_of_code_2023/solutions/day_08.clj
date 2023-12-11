@@ -20,9 +20,9 @@
   (if (= node "ZZZ")
     steps
     (recur (get-in nodes [node (first instructions)])
-                    nodes
-                    (rest instructions)
-                    (inc steps))))
+           nodes
+           (rest instructions)
+           (inc steps))))
 
 (defn day-08a [input]
   (let [{:keys [instructions nodes]} (parse-input input)]
@@ -34,5 +34,14 @@
 (defn ending-node? [node]
   (= (last node) \Z))
 
+(defn ghost-steps-required [nodes mapping instructions steps]
+  (if (every? ending-node? nodes)
+    steps
+    (recur (map #(get-in mapping [% (first instructions)]) nodes)
+           mapping
+           (rest instructions)
+           (inc steps))))
+
 (defn day-08b [input]
-  (->> input))
+  (let [{:keys [instructions nodes]} (parse-input input)]
+    (ghost-steps-required (filter starting-node? (keys nodes)) nodes instructions 0)))
