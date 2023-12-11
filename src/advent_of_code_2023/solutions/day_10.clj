@@ -54,6 +54,7 @@
                              (connecting-coordinates pipes [animal (pipes animal)]))
          vals
          (map :distance)
+         (remove nil?)
          (apply max))))
 
 (defn day-10b [input]
