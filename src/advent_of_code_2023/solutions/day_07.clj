@@ -40,24 +40,37 @@
                  \4 4
                  \3 3
                  \2 2
-                 \1 1})
+                 \0 0})
 
 (defn overall-score [hand]
   [(type-score (card-counts hand)) (into [] (map card-score hand))])
 
-(defn sort-hands [get-hand items]
-  (sort-by (comp overall-score get-hand) compare items))
+(defn sort-hands [score items]
+  (sort-by score compare items))
 
 (defn day-07a [input]
   (->> input
        parse-hands
-       (sort-hands :hand)
+       (sort-hands (comp overall-score :hand))
        enumerate
        (map (fn [[index {:keys [bid]}]]
               (* bid (inc index))))
        (apply +)))
 
-(defn day-07b [input]
-  (->> input))
+(defn joker-score [hand]
+  (let [joker-type-score
+        (->> (for [card (keys card-score)
+                   :when (not= card \J)
+                   :let [joker-hand (replace {\J card} hand)]]
+               (type-score (card-counts joker-hand)))
+             (apply max))]
+    [joker-type-score (into [] (map card-score (replace {\J \0} hand)))]))
 
-(sort-by :x compare [{:x 3} {:x 2} {:x 5}])
+(defn day-07b [input]
+  (->> input
+       parse-hands
+       (sort-hands (comp joker-score :hand))
+       enumerate
+       (map (fn [[index {:keys [bid]}]]
+              (* bid (inc index))))
+       (apply +)))
