@@ -4,8 +4,7 @@
 
 (defn parse-instructions [characters]
   (->> characters
-       (map {\L :left \R :right})
-       cycle))
+       (map {\L :left \R :right})))
 
 (defn parse-node [characters]
   [(subs characters 0 3) {:left (subs characters 7 10)
@@ -26,7 +25,7 @@
 
 (defn day-08a [input]
   (let [{:keys [instructions nodes]} (parse-input input)]
-    (steps-required "AAA" nodes instructions 0)))
+    (steps-required "AAA" nodes (cycle instructions) 0)))
 
 (defn starting-node? [node]
   (= (last node) \A))
@@ -34,14 +33,21 @@
 (defn ending-node? [node]
   (= (last node) \Z))
 
-(defn ghost-steps-required [nodes mapping instructions steps]
-  (if (every? ending-node? nodes)
+(defn ghost-steps-required [nodes mapping instructions reset steps]
+  (if (or (every? ending-node? nodes) (> steps 20000))
     steps
     (recur (map #(get-in mapping [% (first instructions)]) nodes)
            mapping
-           (rest instructions)
+           (if (= (count instructions) 1)
+             reset
+             (rest instructions))
+           reset
            (inc steps))))
 
 (defn day-08b [input]
   (let [{:keys [instructions nodes]} (parse-input input)]
-    (ghost-steps-required (filter starting-node? (keys nodes)) nodes instructions 0)))
+    (ghost-steps-required (filter starting-node? (keys nodes))
+                          nodes
+                          instructions
+                          instructions
+                          0)))
