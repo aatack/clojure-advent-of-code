@@ -60,32 +60,23 @@
               (inc step)
               (assoc visits identifier step))))))
 
-(defn lowest-common-multiple [& numbers]
-  (letfn [(factors [number]
-            (set (filter #(= 0 (rem number %)) (range 1 (inc number)))))
+(defn greatest-common-denominator
+  ([left right]
+   (if (= right 0)
+     left
+     (recur right (mod left right))))
+  ([left right & others]
+   (apply greatest-common-denominator (greatest-common-denominator left right) others)))
 
-          (greatest-common-denominator [sequence]
-            (apply max (reduce intersection
-                               (map factors sequence))))
-
-          (numerator' [number]
-            (if (integer? number)
-              number
-              (numerator number)))
-
-          (denominator' [number]
-            (if (integer? number)
-              1
-              (denominator number)))]
-
-    (/ (reduce *' (map numerator' numbers))
-       (greatest-common-denominator (map denominator' numbers)))))
+(defn lowest-common-multiple
+  ([left right]
+   (/ (* left right) (greatest-common-denominator left right)))
+  ([left right & others]
+   (apply lowest-common-multiple (lowest-common-multiple left right) others)))
 
 (defn day-08b [input]
   (let [{:keys [instructions nodes]} (parse-input input)
         starting-nodes (filter starting-node? (keys nodes))]
     (->> starting-nodes
          (map #(cycle-length % nodes (cycle (enumerate instructions))))
-         #_(apply lowest-common-multiple))))
-
-(* 71 47 43 61 79 67 277)
+         (apply lowest-common-multiple))))
