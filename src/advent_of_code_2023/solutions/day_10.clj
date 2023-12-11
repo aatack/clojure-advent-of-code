@@ -6,7 +6,6 @@
 (defn parse-pipes [input]
   (->> input
        parse-grid
-       (filter (fn [[_ pipe]] (not= pipe \.)))
        (map (fn [[coordinate pipe]] [coordinate {:pipe pipe}]))
        (into {})))
 
@@ -27,7 +26,8 @@
     \F [[(inc x) y] [x (inc y)]]
     \S (into []
              (filter #((set (connecting-coordinates pipes [% (pipes %)])) [x y])
-                     [[(dec x) y] [(inc x) y] [x (dec y)] [x (inc y)]]))))
+                     [[(dec x) y] [(inc x) y] [x (dec y)] [x (inc y)]]))
+    []))
 
 (defn populate-distances [initial-pipes initial-coordinates]
   (loop [pipes initial-pipes
@@ -57,5 +57,15 @@
          (remove nil?)
          (apply max))))
 
+(defn neighbours [[x y]]
+  [[(dec x) y] [(inc x) y] [x (dec y)] [x (inc y)]])
+
+(defn outside? [pipes coordinate]
+  (some nil? (map pipes (neighbours coordinate))))
+
 (defn day-10b [input]
-  (->> input))
+  (let [pipes (parse-pipes input)
+        animal (animal-coordinates pipes)]
+    (-> (populate-distances (assoc-in pipes [animal :distance] 0)
+                             (connecting-coordinates pipes [animal (pipes animal)]))
+         (outside? [1 1]))))
