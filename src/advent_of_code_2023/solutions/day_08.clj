@@ -28,5 +28,11 @@
   (let [{:keys [instructions nodes]} (parse-input input)]
     (steps-required "AAA" nodes instructions 0)))
 
+(defn starting-node? [node]
+  (= (last node) \A))
+
+(defn ending-node? [node]
+  (= (last node) \Z))
+
 (defn day-08b [input]
   (->> input))
