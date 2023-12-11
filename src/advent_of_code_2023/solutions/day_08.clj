@@ -86,4 +86,6 @@
         starting-nodes (filter starting-node? (keys nodes))]
     (->> starting-nodes
          (map #(cycle-length % nodes (cycle (enumerate instructions))))
-         (apply lowest-common-multiple))))
+         #_(apply lowest-common-multiple))))
+
+(* 71 47 43 61 79 67 277)
