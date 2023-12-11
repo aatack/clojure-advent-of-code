@@ -34,20 +34,20 @@
   (= (last node) \Z))
 
 (defn ghost-steps-required [nodes mapping instructions reset steps]
-  (if (or (every? ending-node? nodes) (> steps 20000))
+  (if (every? ending-node? nodes)
     steps
-    (recur (map #(get-in mapping [% (first instructions)]) nodes)
+    (recur (doall (map #(get-in mapping [% (first instructions)]) nodes))
            mapping
            (if (= (count instructions) 1)
-             reset
-             (rest instructions))
+             (doall reset)
+             (doall (rest instructions)))
            reset
            (inc steps))))
 
 (defn day-08b [input]
   (let [{:keys [instructions nodes]} (parse-input input)]
-    (ghost-steps-required (filter starting-node? (keys nodes))
+    (ghost-steps-required (doall (filter starting-node? (keys nodes)))
                           nodes
-                          instructions
-                          instructions
+                          (doall instructions)
+                          (doall instructions)
                           0)))
