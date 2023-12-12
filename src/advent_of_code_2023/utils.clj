@@ -8,3 +8,9 @@
 
 (defn split-string [pattern string]
   (filter not-empty (split string (re-pattern pattern))))
+
+(defn unique-pairs [items]
+  (into #{} (for [left items
+                  right items
+                  :when (not= left right)]
+              (set [left right]))))
