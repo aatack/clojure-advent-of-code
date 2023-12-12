@@ -63,9 +63,29 @@
 (defn outside? [pipes coordinate]
   (some nil? (map pipes (neighbours coordinate))))
 
+(defn propagate [node accept? children]
+  (loop [waiting #{node}
+         accepted #{}
+         rejected #{}
+         times 0]
+    (if (or (empty? waiting) (> times 100))
+      accepted
+      (let [node' (first waiting)
+            accept (accept? node')]
+        (recur (apply conj (rest waiting) (->> (if accept (children node') [])
+                                               (remove accepted)
+                                               (remove rejected)))
+               (if accept (conj accepted node') accepted)
+               (if accept rejected (conj rejected node'))
+               (inc times))))))
+
 (defn day-10b [input]
   (let [pipes (parse-pipes input)
-        animal (animal-coordinates pipes)]
-    (-> (populate-distances (assoc-in pipes [animal :distance] 0)
-                             (connecting-coordinates pipes [animal (pipes animal)]))
-         (outside? [1 1]))))
+        animal (animal-coordinates pipes)
+        distances (populate-distances (assoc-in pipes [animal :distance] 0)
+                                      (connecting-coordinates pipes
+                                                              [animal (pipes animal)]))]
+    (->> (propagate [0 0]
+               #(and (not (get-in distances [% :distance])) (distances %))
+               #(filter distances (neighbours %)))
+         count)))
