@@ -75,8 +75,8 @@
         (recur (apply conj (rest waiting) (->> (if accept (children node') [])
                                                (remove accepted)
                                                (remove rejected)))
-               (if accept (conj accepted node') accepted)
-               (if accept rejected (conj rejected node'))
+               (if accept (doall (conj accepted node')) accepted)
+               (if accept rejected (doall (conj rejected node')))
                (inc times))))))
 
 (defn partition-regions [pipes]
@@ -88,8 +88,9 @@
             region (propagate coordinate
                               #(and (not (get-in pipes [% :distance])) (pipes %))
                               #(filter pipes (neighbours %)))]
-        (recur (conj regions region)
-               (->> coordinates rest (remove region)))))))
+        (recur (doall (conj regions region))
+
+               (doall (->> coordinates rest (remove region))))))))
 
 (defn day-10b [input]
   (let [pipes (parse-pipes input)
@@ -98,4 +99,8 @@
                                       (connecting-coordinates pipes
                                                               [animal (pipes animal)]))]
     (->> distances
-         partition-regions)))
+         partition-regions
+         (remove (fn [region] (some #(outside? distances %) region)))
+         (mapcat identity)
+         (filter #(= (get-in distances [% :pipe]) \.))
+         count)))
