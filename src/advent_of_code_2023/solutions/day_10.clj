@@ -63,20 +63,17 @@
 (defn connecting-corners [pipes corners]
   (fn [[x y]]
     (filter corners
-            [(when (get-in pipes [[] :connects]) [(dec x) y])
-             (when true [(inc x) y])
-             (when true [x (dec y)])
-             (when true [x (inc y)])])))
-
-(defn outside? [pipes coordinate]
-  (some nil? (map pipes (neighbours coordinate))))
+            [(when (cells-have-gap? pipes [(dec x) (dec y)] [(dec x) y]) [(dec x) y])
+             (when (cells-have-gap? pipes [x (dec y)] [x y]) [(inc x) y])
+             (when (cells-have-gap? pipes [(dec x) (dec y)] [x (dec y)]) [x (dec y)])
+             (when (cells-have-gap? pipes [(dec x) y] [x y]) [x (inc y)])])))
 
 (defn propagate [node accept? children]
   (loop [waiting #{node}
          accepted #{}
          rejected #{}
          times 0]
-    (if (or (empty? waiting) (> times 100))
+    (if (empty? waiting)
       accepted
       (let [node' (first waiting)
             accept (accept? node')]
@@ -86,19 +83,6 @@
                (if accept (doall (conj accepted node')) accepted)
                (if accept rejected (doall (conj rejected node')))
                (inc times))))))
-
-(defn partition-regions [pipes]
-  (loop [regions []
-         coordinates (keys pipes)]
-    (if (empty? coordinates)
-      (remove empty? regions)
-      (let [coordinate (first coordinates)
-            region (propagate coordinate
-                              #(and (not (get-in pipes [% :distance])) (pipes %))
-                              #(filter pipes (neighbours %)))]
-        (recur (doall (conj regions region))
-
-               (doall (->> coordinates rest (remove region))))))))
 
 (defn cache-connections [input]
   (let [pipes (parse-pipes input)
@@ -117,17 +101,20 @@
                                [coordinate (distances coordinate)])))]))
          (into {}))))
 
+(defn has-corner? [corners [x y]]
+  (some corners [[x y] [(inc x) y] [x (inc y)] [(inc x) (inc y)]]))
+
 (defn day-10b [input]
   (let [pipes (cache-connections input)
         width (->> pipes keys (map first) (apply max) inc)
         height (->> pipes keys (map second) (apply max) inc)
         corners (into #{} (for [x (range (inc width))
                                 y (range (inc height))]
-                            [x y]))]
-    (cells-have-gap? pipes [1 0] [1 1]))
-  #_(->> distances
-         partition-regions
-         (remove (fn [region] (some #(outside? distances %) region)))
-         (mapcat identity)
-         (filter #(= (get-in distances [% :pipe]) \.))
-         count))
+                            [x y]))
+        outside-corners (propagate [0 0]
+                                   (constantly true)
+                                   (connecting-corners pipes corners))]
+    (->> pipes
+           (filter (fn [[coordinate {:keys [pipe]}]]
+                     (and (= pipe \.) (not (has-corner? outside-corners coordinate)))))
+           count)))
