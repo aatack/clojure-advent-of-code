@@ -4,7 +4,7 @@
             [advent-of-code-2023.utils :refer [unique-pairs]]
             [clojure.string :refer [split-lines]]))
 
-(defn parse-galaxies [input]
+(defn parse-galaxies [expansion-factor input]
   (let [galaxies (->> input parse-grid (filter #(= (val %) \#)) keys)
         xs (->> galaxies (map first) (into #{}))
         ys (->> galaxies (map second) (into #{}))
@@ -17,8 +17,8 @@
                         range
                         (remove ys))]
     (map (fn [[x y]]
-           [(+ x (->> empty-columns (filter #(< % x)) count))
-            (+ y (->> empty-rows (filter #(< % y)) count))])
+           [(+ x (* expansion-factor (->> empty-columns (filter #(< % x)) count)))
+            (+ y (* expansion-factor (->> empty-rows (filter #(< % y)) count)))])
          galaxies)))
 
 (defn distance [[left-x left-y] [right-x right-y]]
@@ -26,10 +26,14 @@
 
 (defn day-11a [input]
   (->> input
-       parse-galaxies
+       (parse-galaxies 1)
        unique-pairs
        (map #(apply distance %))
        (apply +)))
 
 (defn day-11b [input]
-  (->> input))
+  (->> input
+       (parse-galaxies 1000000)
+       unique-pairs
+       (map #(apply distance %))
+       (apply +)))
