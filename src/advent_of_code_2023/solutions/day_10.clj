@@ -57,8 +57,9 @@
          (remove nil?)
          (apply max))))
 
-(defn neighbours [[x y]]
-  [[(dec x) y] [(inc x) y] [x (dec y)] [x (inc y)]])
+(defn connecting-corners [pipes]
+  (fn [[x y]]
+    [[(dec x) y] [(inc x) y] [x (dec y)] [x (inc y)]]))
 
 (defn outside? [pipes coordinate]
   (some nil? (map pipes (neighbours coordinate))))
@@ -92,15 +93,31 @@
 
                (doall (->> coordinates rest (remove region))))))))
 
-(defn day-10b [input]
+(defn cache-connections [input]
   (let [pipes (parse-pipes input)
         animal (animal-coordinates pipes)
         distances (populate-distances (assoc-in pipes [animal :distance] 0)
                                       (connecting-coordinates pipes
                                                               [animal (pipes animal)]))]
     (->> distances
+         (map
+          (fn [[coordinate pipe]]
+            [coordinate
+             (assoc pipe
+                    :connecting
+                    (into #{} (connecting-coordinates
+                               distances
+                               [coordinate (distances coordinate)])))]))
+         (into {}))))
+
+(defn day-10b [input]
+  (let [pipes (cache-connections input)
+        width (->> pipes keys (map first) (apply max) inc)
+        height (->> pipes keys (map second) (apply max) inc)]
+    width)
+  #_(->> distances
          partition-regions
          (remove (fn [region] (some #(outside? distances %) region)))
          (mapcat identity)
          (filter #(= (get-in distances [% :pipe]) \.))
-         count)))
+         count))
