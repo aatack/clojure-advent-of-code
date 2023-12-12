@@ -41,8 +41,8 @@
 (defn day-12a [input]
   (->> input
        parse-records
-       (take 6)
-       (map #(possible-combinations (:history %) nil (:blocks %)))))
+       (map #(possible-combinations (:history %) nil (:blocks %)))
+       (apply +)))
 
 (defn day-12b [input]
   (->> input))
