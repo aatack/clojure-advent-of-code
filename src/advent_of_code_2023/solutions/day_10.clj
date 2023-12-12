@@ -57,9 +57,16 @@
          (remove nil?)
          (apply max))))
 
-(defn connecting-corners [pipes]
+(defn cells-have-gap? [pipes left right]
+  (-> pipes (get left) :connects (get right) not))
+
+(defn connecting-corners [pipes corners]
   (fn [[x y]]
-    [[(dec x) y] [(inc x) y] [x (dec y)] [x (inc y)]]))
+    (filter corners
+            [(when (get-in pipes [[] :connects]) [(dec x) y])
+             (when true [(inc x) y])
+             (when true [x (dec y)])
+             (when true [x (inc y)])])))
 
 (defn outside? [pipes coordinate]
   (some nil? (map pipes (neighbours coordinate))))
@@ -104,7 +111,7 @@
           (fn [[coordinate pipe]]
             [coordinate
              (assoc pipe
-                    :connecting
+                    :connects
                     (into #{} (connecting-coordinates
                                distances
                                [coordinate (distances coordinate)])))]))
@@ -113,8 +120,11 @@
 (defn day-10b [input]
   (let [pipes (cache-connections input)
         width (->> pipes keys (map first) (apply max) inc)
-        height (->> pipes keys (map second) (apply max) inc)]
-    width)
+        height (->> pipes keys (map second) (apply max) inc)
+        corners (into #{} (for [x (range (inc width))
+                                y (range (inc height))]
+                            [x y]))]
+    (cells-have-gap? pipes [1 0] [1 1]))
   #_(->> distances
          partition-regions
          (remove (fn [region] (some #(outside? distances %) region)))
