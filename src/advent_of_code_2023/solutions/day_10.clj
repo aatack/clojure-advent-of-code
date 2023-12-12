@@ -115,6 +115,6 @@
                                    (constantly true)
                                    (connecting-corners pipes corners))]
     (->> pipes
-           (filter (fn [[coordinate {:keys [pipe]}]]
-                     (and (= pipe \.) (not (has-corner? outside-corners coordinate)))))
+           (filter (fn [[coordinate {:keys [distance]}]]
+                     (and (nil? distance) (not (has-corner? outside-corners coordinate)))))
            count)))
