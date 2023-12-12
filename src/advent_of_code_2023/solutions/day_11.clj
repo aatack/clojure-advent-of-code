@@ -1,6 +1,7 @@
 (ns advent-of-code-2023.solutions.day-11
   #_{:clj-kondo/ignore [:unused-referred-var :unused-namespace]}
   (:require [advent-of-code-2023.parsing :refer [parse-grid]]
+            [advent-of-code-2023.utils :refer [unique-pairs]]
             [clojure.string :refer [split-lines]]))
 
 (defn parse-galaxies [input]
@@ -20,9 +21,15 @@
             (+ y (->> empty-rows (filter #(< % y)) count))])
          galaxies)))
 
+(defn distance [[left-x left-y] [right-x right-y]]
+  (+ (abs (- left-x right-x)) (abs (- left-y right-y))))
+
 (defn day-11a [input]
   (->> input
-       parse-galaxies))
+       parse-galaxies
+       unique-pairs
+       (map #(apply distance %))
+       (apply +)))
 
 (defn day-11b [input]
   (->> input))
