@@ -71,8 +71,7 @@
 (defn propagate [node accept? children]
   (loop [waiting #{node}
          accepted #{}
-         rejected #{}
-         times 0]
+         rejected #{}]
     (if (empty? waiting)
       accepted
       (let [node' (first waiting)
@@ -81,8 +80,7 @@
                                                (remove accepted)
                                                (remove rejected)))
                (if accept (doall (conj accepted node')) accepted)
-               (if accept rejected (doall (conj rejected node')))
-               (inc times))))))
+               (if accept rejected (doall (conj rejected node'))))))))
 
 (defn cache-connections [input]
   (let [pipes (parse-pipes input)
@@ -115,6 +113,6 @@
                                    (constantly true)
                                    (connecting-corners pipes corners))]
     (->> pipes
-           (filter (fn [[coordinate {:keys [distance]}]]
-                     (and (nil? distance) (not (has-corner? outside-corners coordinate)))))
-           count)))
+         (filter (fn [[coordinate {:keys [distance]}]]
+                   (and (nil? distance) (not (has-corner? outside-corners coordinate)))))
+         count)))
