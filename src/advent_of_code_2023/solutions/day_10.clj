@@ -79,13 +79,23 @@
                (if accept rejected (conj rejected node'))
                (inc times))))))
 
+(defn partition-regions [pipes]
+  (loop [regions []
+         coordinates (keys pipes)]
+    (if (empty? coordinates)
+      (remove empty? regions)
+      (let [coordinate (first coordinates)
+            region (propagate coordinate
+                              #(and (not (get-in pipes [% :distance])) (pipes %))
+                              #(filter pipes (neighbours %)))]
+        (recur (conj regions region)
+               (->> coordinates rest (remove region)))))))
+
 (defn day-10b [input]
   (let [pipes (parse-pipes input)
         animal (animal-coordinates pipes)
         distances (populate-distances (assoc-in pipes [animal :distance] 0)
                                       (connecting-coordinates pipes
                                                               [animal (pipes animal)]))]
-    (->> (propagate [0 0]
-               #(and (not (get-in distances [% :distance])) (distances %))
-               #(filter distances (neighbours %)))
-         count)))
+    (->> distances
+         partition-regions)))
