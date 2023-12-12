@@ -58,7 +58,9 @@
          (apply max))))
 
 (defn cells-have-gap? [pipes left right]
-  (-> pipes (get left) :connects (get right) not))
+  (not (and
+        (-> pipes (get left) :connects (get right))
+        (-> pipes (get right) :connects (get left)))))
 
 (defn connecting-corners [pipes corners]
   (fn [[x y]]
