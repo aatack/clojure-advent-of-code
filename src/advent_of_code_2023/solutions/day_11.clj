@@ -33,7 +33,7 @@
 
 (defn day-11b [input]
   (->> input
-       (parse-galaxies 1000000)
+       (parse-galaxies 999999)
        unique-pairs
        (map #(apply distance %))
        (apply +)))
