@@ -3,15 +3,21 @@
   (:require [advent-of-code-2023.utils :refer [split-string]]
             [clojure.string :refer [split-lines]]))
 
-(defn parse-record [record]
-  (let [[history blocks] (split-string " " record)]
-    {:history (map {\. :operational \# :damaged \? :unknown} history)
-     :blocks (read-string (str "[" blocks "]"))}))
+(defn expand-with-separator [times separator input]
+  (apply str (interpose separator (repeat times input))))
 
-(defn parse-records [input]
+(defn parse-record [expansions record]
+  (let [[history blocks] (split-string " " record)]
+    {:history (map {\. :operational \# :damaged \? :unknown}
+                   (expand-with-separator expansions "?" history))
+     :blocks (read-string (str "["
+                               (expand-with-separator expansions "," blocks)
+                               "]"))}))
+
+(defn parse-records [expansions input]
   (->> input
        split-lines
-       (map parse-record)))
+       (map #(parse-record expansions %))))
 
 (defn possible-combinations [history block blocks]
   (cond
@@ -40,9 +46,12 @@
 
 (defn day-12a [input]
   (->> input
-       parse-records
+       (parse-records 1)
        (map #(possible-combinations (:history %) nil (:blocks %)))
        (apply +)))
 
 (defn day-12b [input]
-  (->> input))
+  (->> input
+       (parse-records 1)
+       (map #(possible-combinations (:history %) nil (:blocks %)))
+       (apply +)))
