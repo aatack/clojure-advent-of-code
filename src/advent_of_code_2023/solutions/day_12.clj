@@ -19,30 +19,32 @@
        split-lines
        (map #(parse-record expansions %))))
 
-(defn possible-combinations [history block blocks]
-  (cond
-    (empty? history)
-    (if (and (empty? blocks) (or (nil? block) (= block :operational))) 1 0)
+(def possible-combinations
+  (memoize
+   (fn [history block blocks]
+     (cond
+       (empty? history)
+       (if (and (empty? blocks) (or (nil? block) (= block :operational))) 1 0)
 
-    (and (empty? blocks) (nil? block))
-    (if (every? #{:operational :unknown} history) 1 0)
+       (and (empty? blocks) (nil? block))
+       (if (every? #{:operational :unknown} history) 1 0)
 
-    (= (first history) :damaged)
-    (case block
-      nil (recur history (first blocks) (rest blocks))
-      :operational 0
-      1 (recur (rest history) :operational blocks)
-      (recur (rest history) (dec block) blocks))
+       (= (first history) :damaged)
+       (case block
+         nil (possible-combinations history (first blocks) (rest blocks))
+         :operational 0
+         1 (possible-combinations (rest history) :operational blocks)
+         (possible-combinations (rest history) (dec block) blocks))
 
-    (= (first history) :operational)
-    (case block
-      :operational (recur (rest history) nil blocks)
-      nil (recur (rest history) nil blocks)
-      0)
+       (= (first history) :operational)
+       (case block
+         :operational (possible-combinations (rest history) nil blocks)
+         nil (possible-combinations (rest history) nil blocks)
+         0)
 
-    :else
-    (+ (possible-combinations (cons :damaged (rest history)) block blocks)
-       (possible-combinations (cons :operational (rest history)) block blocks))))
+       :else
+       (+ (possible-combinations (cons :damaged (rest history)) block blocks)
+          (possible-combinations (cons :operational (rest history)) block blocks))))))
 
 (defn day-12a [input]
   (->> input
@@ -52,6 +54,6 @@
 
 (defn day-12b [input]
   (->> input
-       (parse-records 1)
+       (parse-records 5)
        (map #(possible-combinations (:history %) nil (:blocks %)))
        (apply +)))
