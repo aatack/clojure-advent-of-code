@@ -35,17 +35,35 @@
             row
             #(update-string % column {\# \., \. \#}))))
 
-(defn changed-reflection-score [lines]
-  (let [original (reflection-score lines)]
-    (->> lines
-         (into [])
-         changes
-         (map reflection-score)
-         (into #{})
-         (remove #{0 original})
-         first)))
+(defn reflection-rows [lines]
+  (for [rows (range 1 (count lines))
+        :when (every? identity (map = (reverse (take rows lines)) (drop rows lines)))]
+    rows))
+
+(defn reflection-columns [lines]
+  (->> lines transpose-lines reflection-rows))
+
+(defn reflections [lines]
+  (concat (map (fn [n] {:row n}) (reflection-rows lines))
+          (map (fn [n] {:column n}) (reflection-columns lines))))
+
+(defn changed-reflection [lines]
+  (let [original (into #{} (reflections lines))]
+    (let [changed-reflections (->> lines
+                                   (into [])
+                                   changes
+                                   (mapcat reflections)
+                                   (into #{})
+                                   (remove original))]
+      (assert (= (count changed-reflections) 1))
+      (first changed-reflections))))
+
+(defn score [{:keys [row column]}]
+  (+ (* 100 (or row 0)) (or column 0)))
 
 (defn day-13b [input]
   (->> input
        parse-chunks
-       (map changed-reflection-score)))
+       (map changed-reflection)
+       (map score)
+       (apply +)))
