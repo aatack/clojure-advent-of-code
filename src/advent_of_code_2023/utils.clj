@@ -14,3 +14,6 @@
                   right items
                   :when (not= left right)]
               (set [left right]))))
+
+(defn transpose-lines [lines]
+  (apply map str lines))
