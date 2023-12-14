@@ -23,7 +23,7 @@
        (remove #(= % [""]))))
 
 (defn parse-numbers
-  "Given a string containing whitespace-separated numbers, parse them into a vector." 
+  "Given a string containing whitespace-separated numbers, parse them into a vector."
   [characters]
   (->> characters
        (split-string " ")
