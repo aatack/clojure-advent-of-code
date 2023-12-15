@@ -1,5 +1,6 @@
 (ns advent-of-code-2023.utils
-  (:require [clojure.string :as string :refer [split]]))
+  (:require [advent-of-code-2022.utils :refer [enumerate]]
+            [clojure.string :as string :refer [split]]))
 
 (defn load-input [problem]
   (slurp (str "src/advent_of_code_2023/inputs/"
@@ -17,3 +18,16 @@
 
 (defn transpose-lines [lines]
   (apply map str lines))
+
+(defn find-cycle [sequence]
+  (reduce (fn [cache [index value]]
+            (if (cache value)
+              (reduced
+               {:first (cache value) :second index
+                :lookup (into {} (map (fn [[k v]] [v k]) cache))})
+              (assoc cache value index)))
+          {}
+          (enumerate sequence)))
+
+(defn lookup-cycle [index {:keys [first second lookup]}]
+  (or (lookup index) (lookup (+ first (mod (- index second) (- second first))))))

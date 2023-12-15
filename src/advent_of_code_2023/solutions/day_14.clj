@@ -2,6 +2,7 @@
   #_{:clj-kondo/ignore [:unused-referred-var :unused-namespace]}
   (:require [advent-of-code-2022.utils :refer [enumerate]]
             [advent-of-code-2023.parsing :refer [parse-grid]]
+            [advent-of-code-2023.utils :refer [find-cycle lookup-cycle]]
             [clojure.string :refer [split-lines]]))
 
 (defn parse-platform [input]
@@ -57,18 +58,10 @@
       (tip [0 1])
       (tip [1 0])))
 
-(defn find-cycle [sequence]
-  (reduce (fn [cache [index value]]
-            (if (cache value)
-              (reduced {:first (cache value) :second index
-                        :lookup (into {} (map (fn [[k v]] [v k]) cache))})
-              (assoc cache value index)))
-          {}
-          (enumerate sequence)))
-
 (defn day-14b [input]
-  (let [properties (->> input
-                        parse-platform
-                        (iterate perform-cycle)
-                        find-cycle)]
-    [(:first properties) (:second properties)]))
+  (->> input
+       parse-platform
+       (iterate perform-cycle)
+       find-cycle
+       (lookup-cycle 1000000000)
+       calculate-load))
