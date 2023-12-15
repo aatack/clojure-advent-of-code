@@ -36,10 +36,18 @@
           platform
           (sort-by #(* -1 (dot % direction)) (:rocks platform))))
 
+(defn calculate-load [platform]
+  (let [rows (->> platform :spaces (map second) (apply max) inc)]
+    (->> platform
+         :rocks
+         (map #(- rows (second %)))
+         (apply +))))
+
 (defn day-14a [input]
   (-> input
       parse-platform
-      (tip [0 -1])))
+      (tip [0 -1])
+      calculate-load))
 
 (defn day-14b [input]
   (->> input))
