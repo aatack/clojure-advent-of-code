@@ -49,5 +49,16 @@
       (tip [0 -1])
       calculate-load))
 
+(defn perform-cycle [platform]
+  (-> platform
+      (tip [0 -1])
+      (tip [-1 0])
+      (tip [0 1])
+      (tip [1 0])))
+
 (defn day-14b [input]
-  (->> input))
+  (->> input
+       parse-platform
+       (iterate perform-cycle)
+       (map calculate-load)
+       (take 100)))
