@@ -25,15 +25,21 @@
 
 (defn tip-rock [platform direction rock]
   (let [rocks (disj (:rocks platform) rock)
-        steps (take-while #(let [position (scale direction %)]
+        steps (take-while #(let [position (add rock (scale direction %))]
                              (and ((:spaces platform) position) (not (rocks position))))
                           (range))]
-    (update platform :rocks conj (add rock (scale direction (last steps))))))
+    (assoc platform :rocks (conj rocks (add rock (scale direction (last steps)))))))
+
+(defn tip [platform direction]
+  (reduce (fn [tipped-platform rock]
+            (tip-rock tipped-platform direction rock))
+          platform
+          (sort-by #(* -1 (dot % direction)) (:rocks platform))))
 
 (defn day-14a [input]
   (-> input
       parse-platform
-      (tip-rock [1 0] [0 0])))
+      (tip [0 -1])))
 
 (defn day-14b [input]
   (->> input))
