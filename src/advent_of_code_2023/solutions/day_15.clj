@@ -1,6 +1,7 @@
 (ns advent-of-code-2023.solutions.day-15
   #_{:clj-kondo/ignore [:unused-referred-var :unused-namespace]}
-  (:require [clojure.string :refer [split-lines]]))
+  (:require [advent-of-code-2023.utils :refer [split-string]]
+            [clojure.string :refer [split-lines]]))
 
 (defn string-hash [characters]
   (reduce (fn [value character]
@@ -10,7 +11,9 @@
 
 (defn day-15a [input]
   (->> input
-       string-hash))
+       (split-string ",")
+       (map string-hash)
+       (apply +)))
 
 (defn day-15b [input]
   (->> input))
