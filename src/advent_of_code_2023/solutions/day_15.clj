@@ -19,26 +19,28 @@
 (defn apply-instruction [boxes instruction]
   (if (includes? instruction "-")
     (let [code (subs instruction 0 (dec (count instruction)))]
-      (update boxes
-              (string-hash code)
-              #(into [] (remove (fn [[key]] (= key code)) (or % [])))))
+      (->> (update boxes
+                   (string-hash code)
+                   #(into [] (remove (fn [[key]] (= key code)) (or % []))))
+           (remove (fn [[_ lenses]] (empty? lenses)))
+           (into {})))
     (let [[code value] (split-string "=" instruction)]
       (update boxes
               (string-hash code)
-              #(let [modified (into []
-                                    (map (fn [[key focal]]
-                                           (if (= key code)
-                                             [code (read-string value)]
-                                             [key focal]))
-                                         (or % [])))]
-                 (if (= modified (or % []))
-                   (conj modified [code (read-string value)])
-                   modified))))))
+              #(if (some (fn [[key _]] (= key code)) (or % []))
+                 (into []
+                       (map (fn [[key focal]]
+                              (if (= key code)
+                                [code value]
+                                [key focal]))
+                            (or % [])))
+                 (conj (or % []) [code value]))))))
 
 (defn score [boxes]
   (->> boxes
        (mapcat (fn [[box lenses]] (for [[index [_ focal-length]] (enumerate lenses 1)]
-                                    [(inc box) index focal-length])))
+                                    [(inc box) index (read-string focal-length)])))
+       (into [])
        (map #(apply * %))
        (apply +)))
 
