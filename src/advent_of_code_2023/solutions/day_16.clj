@@ -41,17 +41,19 @@
         (recur (into #{} (apply conj (rest unexplored) new-nodes))
                (conj explored node))))))
 
-(defn energised [grid]
-  (->> [:right [-1 0]]
-       (explore (fn [[direction position]]
-                  (let [new-position (move direction position)]
-                    (map #(vector % new-position)
-                         (propagate (grid new-position) direction)))))
-       (map second)
-       (into #{})
-       count
+(defn energised
+  ([grid] (energised grid [:right [-1 0]]))
+  ([grid start]
+   (->> start
+        (explore (fn [[direction position]]
+                   (let [new-position (move direction position)]
+                     (map #(vector % new-position)
+                          (propagate (grid new-position) direction)))))
+        (map second)
+        (into #{})
+        count
        ;; Remove one because we start outside the board
-       dec))
+        dec)))
 
 (defn day-16a [input]
   (->> input
@@ -59,4 +61,14 @@
        energised))
 
 (defn day-16b [input]
-  (->> input))
+  (let [grid (->> input parse-grid)
+        columns (->> grid keys (map first) (into #{}))
+        rows (->> grid keys (map second) (into #{}))
+        starts (concat
+                (for [column columns
+                      [direction row] {:down -1, :up (inc (apply max rows))}]
+                  [direction [column row]])
+                (for [row rows
+                      [direction column] {:right -1, :left (inc (apply max columns))}]
+                  [direction [column row]]))]
+    (apply max (map #(energised grid %) starts))))
