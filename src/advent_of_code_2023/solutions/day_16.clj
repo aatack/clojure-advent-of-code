@@ -30,6 +30,17 @@
          [direction])
     nil []))
 
+(defn explore [children initial]
+  (loop [unexplored #{initial}
+         explored #{}]
+    (if (empty? unexplored)
+      explored
+      (let [node (first unexplored)
+            new-nodes (->> (children node) (remove explored) (remove unexplored))]
+        (println unexplored)
+        (recur (into #{} (apply conj (rest unexplored) new-nodes))
+               (conj explored node))))))
+
 (defn day-16a [input]
   (->> input))
 
