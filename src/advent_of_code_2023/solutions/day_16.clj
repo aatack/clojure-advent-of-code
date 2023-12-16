@@ -38,19 +38,20 @@
       explored
       (let [node (first unexplored)
             new-nodes (->> (children node) (remove explored) (remove unexplored))]
-        (println unexplored)
         (recur (into #{} (apply conj (rest unexplored) new-nodes))
                (conj explored node))))))
 
 (defn energised [grid]
-  (->> [:right [0 0]]
+  (->> [:right [-1 0]]
        (explore (fn [[direction position]]
                   (let [new-position (move direction position)]
                     (map #(vector % new-position)
                          (propagate (grid new-position) direction)))))
        (map second)
        (into #{})
-       count))
+       count
+       ;; Remove one because we start outside the board
+       dec))
 
 (defn day-16a [input]
   (->> input
