@@ -1,6 +1,7 @@
 (ns advent-of-code-2023.solutions.day-15
   #_{:clj-kondo/ignore [:unused-referred-var :unused-namespace]}
-  (:require [advent-of-code-2023.utils :refer [split-string]]
+  (:require [advent-of-code-2022.utils :refer [enumerate]]
+            [advent-of-code-2023.utils :refer [split-string]]
             [clojure.string :refer [includes? split-lines]]))
 
 (defn string-hash [characters]
@@ -34,5 +35,15 @@
                    (conj modified [code (read-string value)])
                    modified))))))
 
+(defn score [boxes]
+  (->> boxes
+       (mapcat (fn [[box lenses]] (for [[index [_ focal-length]] (enumerate lenses 1)]
+                                    [(inc box) index focal-length])))
+       (map #(apply * %))
+       (apply +)))
+
 (defn day-15b [input]
-  (->> input))
+  (->> input
+       (split-string ",")
+       (reduce apply-instruction {})
+       score))
