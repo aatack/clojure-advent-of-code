@@ -38,15 +38,15 @@
             #(update-string % column {\# \., \. \#}))))
 
 (defn changed-reflection [lines]
-  (let [original (into #{} (reflections lines))]
-    (let [changed-reflections (->> lines
-                                   (into [])
-                                   changes
-                                   (mapcat reflections)
-                                   (into #{})
-                                   (remove original))]
-      (assert (= (count changed-reflections) 1))
-      (first changed-reflections))))
+  (let [original (into #{} (reflections lines))
+        changed-reflections (->> lines
+                                 (into [])
+                                 changes
+                                 (mapcat reflections)
+                                 (into #{})
+                                 (remove original))]
+    (assert (= (count changed-reflections) 1))
+    (first changed-reflections)))
 
 (defn day-13b [input]
   (->> input
