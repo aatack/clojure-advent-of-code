@@ -1,6 +1,7 @@
 (ns advent-of-code-2023.solutions.day-16
   #_{:clj-kondo/ignore [:unused-referred-var :unused-namespace]}
-  (:require [clojure.string :refer [split-lines]]))
+  (:require [advent-of-code-2023.parsing :refer [parse-grid]]
+            [clojure.string :refer [split-lines]]))
 
 (defn move [direction [x y]]
   (case direction
@@ -41,8 +42,20 @@
         (recur (into #{} (apply conj (rest unexplored) new-nodes))
                (conj explored node))))))
 
+(defn energised [grid]
+  (->> [:right [0 0]]
+       (explore (fn [[direction position]]
+                  (let [new-position (move direction position)]
+                    (map #(vector % new-position)
+                         (propagate (grid new-position) direction)))))
+       (map second)
+       (into #{})
+       count))
+
 (defn day-16a [input]
-  (->> input))
+  (->> input
+       parse-grid
+       energised))
 
 (defn day-16b [input]
   (->> input))
