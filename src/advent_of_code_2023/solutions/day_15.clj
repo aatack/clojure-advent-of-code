@@ -40,7 +40,6 @@
   (->> boxes
        (mapcat (fn [[box lenses]] (for [[index [_ focal-length]] (enumerate lenses 1)]
                                     [(inc box) index (read-string focal-length)])))
-       (into [])
        (map #(apply * %))
        (apply +)))
 
