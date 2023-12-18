@@ -17,47 +17,54 @@
                    :loss 0})
 
 (defn explore-node [blocks]
-  (fn [node]
-    (remove nil? [(when (< (:times node) 3)
-                    (let [position (move-direction (:direction node) (:position node))
-                          loss (blocks position)]
-                      (when loss
-                        (-> node
-                            (assoc :position position)
-                            (update :times inc)
-                            (update :loss + loss)))))
-                  (let [direction (turn-direction :clockwise (:direction node))
-                        position (move-direction direction (:position node))
-                        loss (blocks position)]
-                    (when loss
-                      (-> node
-                          (assoc :direction direction)
-                          (assoc :position position)
-                          (assoc :times 0)
-                          (update :loss + (or (blocks position) 10000)))))
-                  (let [direction (turn-direction :clockwise (:direction node))
-                        position (move-direction direction (:position node))
-                        loss (blocks position)]
-                    (when loss
-                      (-> node
-                          (assoc :direction direction)
-                          (assoc :position position)
-                          (assoc :times 0)
-                          (update :loss + (or (blocks position) 10000)))))])))
+  (let [target [(->> blocks keys (map first) (apply max))
+                (->> blocks keys (map second) (apply max))]]
+    (fn [node]
+      (if (= (:position node) target)
+        []
+        (remove nil? [(when (< (:times node) 3)
+                        (let [position (move-direction (:direction node)
+                                                       (:position node))
+                              loss (blocks position)]
+                          (when loss
+                            (-> node
+                                (assoc :position position)
+                                (update :times inc)
+                                (update :loss + loss)))))
+                      (let [direction (turn-direction :clockwise (:direction node))
+                            position (move-direction direction (:position node))
+                            loss (blocks position)]
+                        (when loss
+                          (-> node
+                              (assoc :direction direction)
+                              (assoc :position position)
+                              (assoc :times 0)
+                              (update :loss + loss))))
+                      (let [direction (turn-direction :anticlockwise (:direction node))
+                            position (move-direction direction (:position node))
+                            loss (blocks position)]
+                        (when loss
+                          (-> node
+                              (assoc :direction direction)
+                              (assoc :position position)
+                              (assoc :times 0)
+                              (update :loss + loss))))])))))
 
 (defn evaluate-node [blocks]
   (let [column (->> blocks keys (map first) (apply max))
         row (->> blocks keys (map second) (apply max))]
-    (fn [{:keys [position]}]
-      (* -1 (+ (abs (- (first position) column)) (abs (- (second position) row)))))))
+    (fn [{:keys [position loss]}]
+      [(* -1 (+ (abs (- (first position) column)) (abs (- (second position) row))))
+       (* -1 loss)])))
 
 (defn day-17a [input]
   (let [blocks (parse-blocks input)
         explore (explore-node blocks)
         evaluate (evaluate-node blocks)]
-    (->> (beam-search initial-node explore evaluate 100 1000)
+    (->> (beam-search initial-node explore evaluate 100 3)
          (sort-by first)
-         last)))
+         reverse
+         first)))
 
 (defn day-17b [input]
   (->> input))
