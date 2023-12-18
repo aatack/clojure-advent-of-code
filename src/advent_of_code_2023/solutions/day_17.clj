@@ -10,7 +10,12 @@
        (map (fn [[key value]] [key (read-string (str value))]))
        (into {})))
 
-(defn explore [blocks]
+(def initial-node {:position [0 0]
+                   :direction :right
+                   :times 0
+                   :loss 0})
+
+(defn explore-node [blocks]
   (fn [node]
     (remove nil? [(when (< (:times node) 3)
                     (let [position (move-direction (:direction node) (:position node))]
@@ -33,22 +38,16 @@
                         (assoc :times 0)
                         (update :loss + (or (blocks position) 10000))))])))
 
+(defn evaluate-node [blocks]
+  (let [column (->> blocks keys (map first) (apply max))
+        row (->> blocks keys (map second) (apply max))]
+    (fn [{:keys [position]}]
+      (+ (abs (- (first position) column)) (abs (- (second position) row))))))
+
 (defn day-17a [input]
-  (let [explore-node (->> input
-                          parse-blocks
-                          explore)]
-    (-> {:position [0 0]
-                   :direction :right
-                   :times 0
-                   :loss 0}
-        explore-node
-        first
-        explore-node
-        first
-        explore-node
-        first
-        explore-node
-        first)))
+  (let [blocks (parse-blocks input)
+        evaluate (evaluate-node blocks)]
+    (-> initial-node evaluate)))
 
 (defn day-17b [input]
   (->> input))
