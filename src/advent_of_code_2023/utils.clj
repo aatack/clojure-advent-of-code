@@ -31,3 +31,23 @@
 
 (defn lookup-cycle [index {:keys [first second lookup]}]
   (or (lookup index) (lookup (+ first (mod (- index second) (- second first))))))
+
+(defn move-direction [direction [x y]]
+  (case direction
+    :left [(dec x) y]
+    :right [(inc x) y]
+    :up [x (dec y)]
+    :down [x (inc y)]))
+
+(defn turn-direction [turn direction]
+  (case turn
+    :clockwise (case direction
+                 :left :up
+                 :right :down
+                 :up :right
+                 :down :left)
+    :anticlockwise (case direction
+                     :left :down
+                     :right :up
+                     :up :left
+                     :down :right)))
