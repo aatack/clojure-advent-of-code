@@ -54,14 +54,15 @@
   (let [column (->> blocks keys (map first) (apply max))
         row (->> blocks keys (map second) (apply max))]
     (fn [{:keys [position loss]}]
-      [(* -1 (+ (abs (- (first position) column)) (abs (- (second position) row))))
-       (* -1 loss)])))
+      (let [distance (+ (abs (- (first position) column))
+                        (abs (- (second position) row)))]
+        (+ (* -1 distance) (* -0.1 loss))))))
 
 (defn day-17a [input]
   (let [blocks (parse-blocks input)
         explore (explore-node blocks)
         evaluate (evaluate-node blocks)]
-    (->> (beam-search initial-node explore evaluate 100 3)
+    (->> (beam-search initial-node explore evaluate 100 5000)
          (sort-by first)
          reverse
          first)))
