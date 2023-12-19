@@ -11,8 +11,6 @@
        (map (fn [[key value]] [key (read-string (str value))]))
        (into {})))
 
-#_(def inf 10000000)
-
 (def initial-node {:position [0 0]
                    :direction :right
                    :times 0
@@ -32,8 +30,7 @@
                             (-> node
                                 (assoc :position position)
                                 (update :times inc)
-                                (update :loss + loss)
-                                (with-meta {:source node})))))
+                                (update :loss + loss)))))
                       (let [direction (turn-direction :clockwise (:direction node))
                             position (move-direction direction (:position node))
                             loss (blocks position)]
@@ -42,8 +39,7 @@
                               (assoc :direction direction)
                               (assoc :position position)
                               (assoc :times 0)
-                              (update :loss + loss)
-                              (with-meta {:source node}))))
+                              (update :loss + loss))))
                       (let [direction (turn-direction :anticlockwise (:direction node))
                             position (move-direction direction (:position node))
                             loss (blocks position)]
@@ -52,16 +48,9 @@
                               (assoc :direction direction)
                               (assoc :position position)
                               (assoc :times 0)
-                              (update :loss + loss)
-                              (with-meta {:source node}))))])))))
+                              (update :loss + loss))))])))))
 
-#_(defn update-index [index node]
-    (update index (:position node)
-            (fn [current]
-              {:best (min (or (:best current) inf) (:loss node))
-               :substates})))
-
-(defn minimum-heat-loss [blocks explore]
+(defn minimum-heat-loss [explore]
   (loop [queue #{initial-node (assoc initial-node :direction :down)}
          index {}]
     (if (empty? queue)
@@ -77,24 +66,8 @@
                               (explore node)))
                (update index (dissoc node :loss) #(conj (or % []) node)))))))
 
-(defn evaluate-node [blocks]
-  (let [column (->> blocks keys (map first) (apply max))
-        row (->> blocks keys (map second) (apply max))]
-    (fn [{:keys [position loss]}]
-      (let [distance (+ (abs (- (first position) column))
-                        (abs (- (second position) row)))]
-        (+ (* -1 distance) (* -0.1 loss))))))
-
-(defn track [node]
-  (if node
-    (conj (track (-> node meta :source)) node)
-    []))
-
 (defn day-17a [input]
-  (let [blocks (parse-blocks input)
-        explore (explore-node blocks)
-        evaluate (evaluate-node blocks)]
-    (:loss (first (minimum-heat-loss blocks explore)))))
+  (:loss (first (minimum-heat-loss (explore-node (parse-blocks input))))))
 
 (defn explore-ultra-node [blocks]
   (let [target [(->> blocks keys (map first) (apply max))
@@ -133,10 +106,7 @@
                               (with-meta {:source node}))))])))))
 
 (defn day-17b [input]
-  (let [blocks (parse-blocks input)
-        explore (explore-ultra-node blocks)
-        evaluate (evaluate-node blocks)]
-    (->> (minimum-heat-loss blocks explore)
-         (filter #(>= (:times %) 3))
-         first
-         :loss)))
+  (->> (minimum-heat-loss (explore-ultra-node (parse-blocks input)))
+       (filter #(>= (:times %) 3))
+       first
+       :loss))
