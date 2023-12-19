@@ -50,6 +50,15 @@
                               (assoc :times 0)
                               (update :loss + loss))))])))))
 
+(defn minimum-heat-loss [blocks explore]
+  (loop [queue #{initial-node (assoc initial-node :direction :down)}
+         index {}]
+    (if (or (empty? queue) #_(> (count index) 100))
+      index
+      (let [node (first queue)]
+        (recur (apply conj (disj queue node) (remove #(index (dissoc % :loss)) (explore node)))
+               (assoc index (dissoc node :loss) node))))))
+
 (defn evaluate-node [blocks]
   (let [column (->> blocks keys (map first) (apply max))
         row (->> blocks keys (map second) (apply max))]
@@ -62,10 +71,7 @@
   (let [blocks (parse-blocks input)
         explore (explore-node blocks)
         evaluate (evaluate-node blocks)]
-    (->> (beam-search initial-node explore evaluate 100 5000)
-         (sort-by first)
-         reverse
-         first)))
+    (minimum-heat-loss blocks explore)))
 
 (defn day-17b [input]
   (->> input))
