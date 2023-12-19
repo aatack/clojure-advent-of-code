@@ -53,11 +53,17 @@
 (defn minimum-heat-loss [blocks explore]
   (loop [queue #{initial-node (assoc initial-node :direction :down)}
          index {}]
-    (if (or (empty? queue) #_(> (count index) 100))
-      (reverse (sort-by #(apply + (-> % :position)) (mapcat second index)))
+    (if (or (empty? queue) #_(> (count index) 3000))
+      (reverse (sort-by #(vector (apply + (-> % :position))
+                                 (* -1 (:loss %))) (mapcat second index)))
       (let [node (first queue)]
         (recur (apply conj (disj queue node)
-                      (remove #(index (dissoc % :loss)) (explore node)))
+                      (filter (fn [candidate]
+                                (let [existing (index (dissoc candidate :loss))]
+                                  (or (empty? existing)
+                                      (< (:loss candidate)
+                                         (apply min (map :loss existing))))))
+                              (explore node)))
                (update index (dissoc node :loss) #(conj (or % []) node)))))))
 
 (defn evaluate-node [blocks]
