@@ -105,7 +105,7 @@
         (remove nil? [(let [position (move-direction (:direction node)
                                                      (:position node))
                             loss (blocks position)]
-                        (when (and loss (< (:times node) (dec 3)))
+                        (when (and loss (< (:times node) (dec 10)))
                           (-> node
                               (assoc :position position)
                               (update :times inc)
@@ -114,7 +114,7 @@
                       (let [direction (turn-direction :clockwise (:direction node))
                             position (move-direction direction (:position node))
                             loss (blocks position)]
-                        (when (and loss (>= (:times node) 0))
+                        (when (and loss (>= (:times node) 3))
                           (-> node
                               (assoc :direction direction)
                               (assoc :position position)
@@ -124,7 +124,7 @@
                       (let [direction (turn-direction :anticlockwise (:direction node))
                             position (move-direction direction (:position node))
                             loss (blocks position)]
-                        (when (and loss (>= (:times node) 0))
+                        (when (and loss (>= (:times node) 3))
                           (-> node
                               (assoc :direction direction)
                               (assoc :position position)
