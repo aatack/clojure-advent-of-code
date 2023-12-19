@@ -65,8 +65,8 @@
   (loop [queue #{initial-node (assoc initial-node :direction :down)}
          index {}]
     (if (empty? queue)
-      (first (reverse (sort-by #(vector (apply + (-> % :position))
-                                        (* -1 (:loss %))) (mapcat second index))))
+      (reverse (sort-by #(vector (apply + (-> % :position))
+                                 (* -1 (:loss %))) (mapcat second index)))
       (let [node (first queue)]
         (recur (apply conj (disj queue node)
                       (filter (fn [candidate]
@@ -94,7 +94,7 @@
   (let [blocks (parse-blocks input)
         explore (explore-node blocks)
         evaluate (evaluate-node blocks)]
-    (:loss (minimum-heat-loss blocks explore))))
+    (:loss (first (minimum-heat-loss blocks explore)))))
 
 (defn explore-ultra-node [blocks]
   (let [target [(->> blocks keys (map first) (apply max))
@@ -136,4 +136,7 @@
   (let [blocks (parse-blocks input)
         explore (explore-ultra-node blocks)
         evaluate (evaluate-node blocks)]
-    (:loss (minimum-heat-loss blocks explore))))
+    (->> (minimum-heat-loss blocks explore)
+         (filter #(>= (:times %) 3))
+         first
+         :loss)))
