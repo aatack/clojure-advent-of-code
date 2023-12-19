@@ -56,10 +56,10 @@
                               (with-meta {:source node}))))])))))
 
 #_(defn update-index [index node]
-  (update index (:position node)
-          (fn [current]
-            {:best (min (or (:best current) inf) (:loss node))
-             :substates})))
+    (update index (:position node)
+            (fn [current]
+              {:best (min (or (:best current) inf) (:loss node))
+               :substates})))
 
 (defn minimum-heat-loss [blocks explore]
   (loop [queue #{initial-node (assoc initial-node :direction :down)}
@@ -96,5 +96,44 @@
         evaluate (evaluate-node blocks)]
     (:loss (minimum-heat-loss blocks explore))))
 
+(defn explore-ultra-node [blocks]
+  (let [target [(->> blocks keys (map first) (apply max))
+                (->> blocks keys (map second) (apply max))]]
+    (fn [node]
+      (if (= (:position node) target)
+        []
+        (remove nil? [(let [position (move-direction (:direction node)
+                                                     (:position node))
+                            loss (blocks position)]
+                        (when (and loss (< (:times node) (dec 3)))
+                          (-> node
+                              (assoc :position position)
+                              (update :times inc)
+                              (update :loss + loss)
+                              (with-meta {:source node}))))
+                      (let [direction (turn-direction :clockwise (:direction node))
+                            position (move-direction direction (:position node))
+                            loss (blocks position)]
+                        (when (and loss (>= (:times node) 0))
+                          (-> node
+                              (assoc :direction direction)
+                              (assoc :position position)
+                              (assoc :times 0)
+                              (update :loss + loss)
+                              (with-meta {:source node}))))
+                      (let [direction (turn-direction :anticlockwise (:direction node))
+                            position (move-direction direction (:position node))
+                            loss (blocks position)]
+                        (when (and loss (>= (:times node) 0))
+                          (-> node
+                              (assoc :direction direction)
+                              (assoc :position position)
+                              (assoc :times 0)
+                              (update :loss + loss)
+                              (with-meta {:source node}))))])))))
+
 (defn day-17b [input]
-  (->> input))
+  (let [blocks (parse-blocks input)
+        explore (explore-ultra-node blocks)
+        evaluate (evaluate-node blocks)]
+    (:loss (minimum-heat-loss blocks explore))))
