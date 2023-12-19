@@ -56,7 +56,7 @@
 (defn minimum-heat-loss [blocks explore]
   (loop [queue #{initial-node (assoc initial-node :direction :down)}
          index {}]
-    (if (or (empty? queue) #_(> (count index) 3000))
+    (if (empty? queue)
       (first (reverse (sort-by #(vector (apply + (-> % :position))
                                         (* -1 (:loss %))) (mapcat second index))))
       (let [node (first queue)]
@@ -86,7 +86,7 @@
   (let [blocks (parse-blocks input)
         explore (explore-node blocks)
         evaluate (evaluate-node blocks)]
-    (track (minimum-heat-loss blocks explore))))
+    (:loss (minimum-heat-loss blocks explore))))
 
 (defn day-17b [input]
   (->> input))
