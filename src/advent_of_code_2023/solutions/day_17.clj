@@ -11,6 +11,8 @@
        (map (fn [[key value]] [key (read-string (str value))]))
        (into {})))
 
+#_(def inf 10000000)
+
 (def initial-node {:position [0 0]
                    :direction :right
                    :times 0
@@ -52,6 +54,12 @@
                               (assoc :times 0)
                               (update :loss + loss)
                               (with-meta {:source node}))))])))))
+
+#_(defn update-index [index node]
+  (update index (:position node)
+          (fn [current]
+            {:best (min (or (:best current) inf) (:loss node))
+             :substates})))
 
 (defn minimum-heat-loss [blocks explore]
   (loop [queue #{initial-node (assoc initial-node :direction :down)}
