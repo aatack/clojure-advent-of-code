@@ -54,10 +54,11 @@
   (loop [queue #{initial-node (assoc initial-node :direction :down)}
          index {}]
     (if (or (empty? queue) #_(> (count index) 100))
-      index
+      (reverse (sort-by #(apply + (-> % :position)) (mapcat second index)))
       (let [node (first queue)]
-        (recur (apply conj (disj queue node) (remove #(index (dissoc % :loss)) (explore node)))
-               (assoc index (dissoc node :loss) node))))))
+        (recur (apply conj (disj queue node)
+                      (remove #(index (dissoc % :loss)) (explore node)))
+               (update index (dissoc node :loss) #(conj (or % []) node)))))))
 
 (defn evaluate-node [blocks]
   (let [column (->> blocks keys (map first) (apply max))
