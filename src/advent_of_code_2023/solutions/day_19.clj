@@ -15,7 +15,9 @@
      :result result}))
 
 (defn parse-workflow [workflow]
-  (let [[name instructions] (split-string "\\{" (subs workflow 0 (dec (count workflow))))]
+  (let [[name instructions] (split-string "\\{" (subs workflow
+                                                      0
+                                                      (dec (count workflow))))]
     [name (map parse-instruction (split-string "," instructions))]))
 
 (defn parse-part [part]
@@ -43,5 +45,29 @@
          (map score)
          (apply +))))
 
+#_(defn accepted-space [instructions workflow]
+    (if (empty? instructions)
+      {'x [1 4000]
+       'm [1 4000]
+       'a [1 4000]
+       's [1 4000]}
+      (let [{:keys [greater variable value result]} (first instructions)
+            spaces (accepted-space ())])))
+
+(def flatten-workflow
+  (memoize
+   (fn [workflows workflow]
+     (if (empty? workflow)
+       :reject
+       (let [{:keys [greater variable value result]} (first workflow)]
+         {:variable variable
+          :range (if greater [(inc value) 4000] [1 (dec value)])
+          :inside (case result
+                    "A" :accept
+                    "B" :reject
+                    (flatten-workflow workflows (workflows result)))
+          :outside (flatten-workflow workflows (rest workflow))})))))
+
 (defn day-19b [input]
-  (->> input))
+  (let [workflows (->> input parse-chunks first (map parse-workflow) (into {}))]
+    (flatten-workflow workflows (workflows "hdj"))))
