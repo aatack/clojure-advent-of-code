@@ -51,3 +51,7 @@
                      :right :up
                      :up :left
                      :down :right)))
+
+(defn map-vals [function mapping]
+  (into {} (map (fn [[key value]] [key (function value)])
+                mapping)))

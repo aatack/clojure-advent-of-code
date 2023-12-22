@@ -1,6 +1,6 @@
 (ns advent-of-code-2023.solutions.day-20
   #_{:clj-kondo/ignore [:unused-referred-var :unused-namespace]}
-  (:require [advent-of-code-2023.utils :refer [split-string]]
+  (:require [advent-of-code-2023.utils :refer [map-vals split-string]]
             [clojure.string :refer [split-lines]]))
 
 (defn parse-module [module]
@@ -89,12 +89,21 @@
                (assoc-in modules [destination :state] state)
                presses)))))
 
+(defn invert-modules [modules]
+  (->> modules
+       (map-vals :outputs)
+       (mapcat (fn [[key outputs]] (map #(vector % key) outputs)))
+       (group-by first)
+       (map-vals #(map second %))))
+
 (defn day-20b [input]
   (->> input
        parse-modules
-       (iterate press-button)
-       (map #(get-in % ["hr" :state]))
-       #_(drop 200)
-       (take 2000)
-       (partition-by identity)
-       (map #(vector (count %) (first %)))))
+       invert-modules
+      ;;  (iterate press-button)
+      ;;  (map #(get-in % ["hr" :state]))
+      ;;  #_(drop 200)
+      ;;  (take 2000)
+      ;;  (partition-by identity)
+      ;;  (map #(vector (count %) (first %)))
+       ))
