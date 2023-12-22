@@ -1,6 +1,7 @@
 (ns advent-of-code-2023.solutions.day-19
   #_{:clj-kondo/ignore [:unused-referred-var :unused-namespace]}
   (:require [advent-of-code-2023.parsing :refer [parse-chunks]]
+            [advent-of-code-2023.solutions.day-05 :refer [interval-overlaps]]
             [advent-of-code-2023.utils :refer [split-string]]
             [clojure.string :refer [includes? split-lines]]))
 
@@ -45,14 +46,21 @@
          (map score)
          (apply +))))
 
-#_(defn accepted-space [instructions workflow]
-    (if (empty? instructions)
-      {'x [1 4000]
-       'm [1 4000]
-       'a [1 4000]
-       's [1 4000]}
-      (let [{:keys [greater variable value result]} (first instructions)
-            spaces (accepted-space ())])))
+(defn limit-range [space variable range]
+  (let [overlap (:inside (interval-overlaps (space variable) range))]
+    (when overlap (assoc space variable overlap))))
+
+(def accepted-space
+  (fn [{:keys [variable range included excluded] :as instruction}]
+    (case instruction
+      :accept [{'x [1 4000] 'm [1 4000] 'a [1 4000] 's [1 4000]}]
+      :reject []
+      (let [{:keys [below inside above]} (interval-overlaps [1 4000] range)]
+        (remove nil?
+                (concat (map #(limit-range % variable inside)
+                             (accepted-space included))
+                        (map #(limit-range % variable (or below above))
+                             (accepted-space excluded))))))))
 
 (def flatten-workflow
   (memoize
@@ -62,12 +70,12 @@
        (let [{:keys [greater variable value result]} (first workflow)]
          {:variable variable
           :range (if greater [(inc value) 4000] [1 (dec value)])
-          :inside (case result
-                    "A" :accept
-                    "B" :reject
-                    (flatten-workflow workflows (workflows result)))
-          :outside (flatten-workflow workflows (rest workflow))})))))
+          :included (case result
+                      "A" :accept
+                      "B" :reject
+                      (flatten-workflow workflows (workflows result)))
+          :excluded (flatten-workflow workflows (rest workflow))})))))
 
 (defn day-19b [input]
   (let [workflows (->> input parse-chunks first (map parse-workflow) (into {}))]
-    (flatten-workflow workflows (workflows "hdj"))))
+    (accepted-space (flatten-workflow workflows (workflows "in")))))
