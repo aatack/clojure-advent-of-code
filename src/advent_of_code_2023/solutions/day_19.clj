@@ -76,6 +76,13 @@
                       (flatten-workflow workflows (workflows result)))
           :excluded (flatten-workflow workflows (rest workflow))})))))
 
+(defn possible-combinations [spaces]
+  (->> spaces
+       (map #(->> % vals (map (fn [[left right]] (- right (dec left)))) (apply *)))
+       (apply +)))
+
 (defn day-19b [input]
   (let [workflows (->> input parse-chunks first (map parse-workflow) (into {}))]
-    (accepted-space (flatten-workflow workflows (workflows "in")))))
+    (->> (flatten-workflow workflows (workflows "in"))
+         accepted-space
+         possible-combinations)))
