@@ -71,8 +71,8 @@
                (inc times))))))
 
 (defn day-20a [input]
-  (send-signals (->> input
-                     parse-modules) [["button" :low "broadcaster"]]))
+  (send-signals (->> input parse-modules)
+                (repeat 10 ["button" :low "broadcaster"])))
 
 (defn day-20b [input]
   (->> input))
