@@ -24,7 +24,7 @@
 
 (defn fire [source {:keys [state]} strength]
   (cond
-    (keyword? state) (if state
+    (keyword? state) (if (= strength :high)
                        [state nil]
                        [(not state) (if state :low :high)])
     (map? state) (let [new-state (assoc state source strength)]
@@ -37,28 +37,31 @@
   (loop [signals []
          sources initial-sources
          modules initial-modules
-         pulses {:low 0 :high 0}]
-    (if (empty? signals)
-      (if (empty? sources)
+         pulses {:low 0 :high 0}
+         times 0]
+    (if (or (empty? signals) (> times 100))
+      (if (or (empty? sources) (> times 100))
         pulses
         (recur [(first sources)]
                (rest sources)
                modules
-               pulses))
-      (let [[source input-strength] (first signals)
-            [state output-strength] (fire source (modules source) input-strength)]
-        (recur (apply conj (rest signals)
+               pulses
+               (inc times)))
+      (let [[source input-strength destination] (first signals)
+            [state output-strength] (fire source (modules destination) input-strength)]
+        (recur (apply conj (into [] (rest signals))
                       (if (nil? output-strength)
                         []
-                        (map (fn [child] [child output-strength])
-                             (get-in modules [source :children]))))
+                        (map (fn [child] [destination output-strength child])
+                             (get-in modules [destination :outputs]))))
                sources
-               (assoc-in modules [source :state] state)
-               (update pulses input-strength inc))))))
+               (assoc-in modules [destination :state] state)
+               (update pulses input-strength inc)
+               (inc times))))))
 
 (defn day-20a [input]
   (send-signals (->> input
-                     parse-modules) [["button" :low]]))
+                     parse-modules) [["button" :low "broadcaster"]]))
 
 (defn day-20b [input]
   (->> input))
