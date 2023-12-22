@@ -51,5 +51,15 @@
        ;; need to add an additional one block
        (->> instructions (map :distance) (apply +) (* 0.5) int inc))))
 
+(defn parse-colour [colour]
+  {:direction (case (last colour)
+                \0 :right
+                \1 :down
+                \2 :left
+                \3 :up)
+   :distance (read-string (apply str "0x" (butlast colour)))})
+
 (defn day-18b [input]
-  (->> input))
+  (let [instructions (->> input parse-instructions (map :colour) (map parse-colour))]
+    (+ (->> instructions build-vertices polygon-area)
+       (->> instructions (map :distance) (apply +) (* 0.5) int inc))))
