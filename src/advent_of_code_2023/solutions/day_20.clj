@@ -48,16 +48,14 @@
   (loop [signals []
          sources initial-sources
          modules initial-modules
-         pulses {:low 0 :high 0}
-         times 0]
-    (if (or (empty? signals) (> times 100))
-      (if (or (empty? sources) (> times 100))
-        pulses
+         pulses {:low 0 :high 0}]
+    (if (empty? signals)
+      (if (empty? sources)
+        (do (println modules) pulses)
         (recur [(first sources)]
                (rest sources)
                modules
-               pulses
-               (inc times)))
+               pulses))
       (let [[source input-strength destination] (first signals)
             [state output-strength] (fire source (modules destination) input-strength)]
         (recur (apply conj (into [] (rest signals))
@@ -67,12 +65,11 @@
                              (get-in modules [destination :outputs]))))
                sources
                (assoc-in modules [destination :state] state)
-               (update pulses input-strength inc)
-               (inc times))))))
+               (update pulses input-strength inc))))))
 
 (defn day-20a [input]
   (send-signals (->> input parse-modules)
-                (repeat 10 ["button" :low "broadcaster"])))
+                (repeat 1000 ["button" :low "broadcaster"])))
 
 (defn day-20b [input]
   (->> input))
