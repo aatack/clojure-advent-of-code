@@ -51,7 +51,7 @@
          pulses {:low 0 :high 0}]
     (if (empty? signals)
       (if (empty? sources)
-        (do (println modules) pulses)
+        pulses
         (recur [(first sources)]
                (rest sources)
                modules
@@ -69,9 +69,29 @@
 
 (defn day-20a [input]
   (->> (send-signals (->> input parse-modules)
-                (repeat 1000 ["button" :low "broadcaster"]))
+                     (repeat 1000 ["button" :low "broadcaster"]))
        vals
        (apply *)))
 
+(defn send-signals-until-rx [initial-modules]
+  (loop [signals []
+         modules initial-modules
+         presses 0]
+    (if (empty? signals)
+      (recur [["button" :low "broadcaster"]]
+             modules
+             (inc presses))
+      (let [[source input-strength destination] (first signals)
+            [state output-strength] (fire source (modules destination) input-strength)]
+        (if (and (= destination "rx") (= input-strength :low))
+          presses
+        (recur (apply conj (into [] (rest signals))
+                      (if (nil? output-strength)
+                        []
+                        (map (fn [child] [destination output-strength child])
+                             (get-in modules [destination :outputs]))))
+               (assoc-in modules [destination :state] state)
+               presses))))))
+
 (defn day-20b [input]
-  (->> input))
+  (->> (send-signals-until-rx (->> input parse-modules))))
