@@ -12,19 +12,30 @@
       :state (cond
                broadcaster? nil
                (= (first name) \%) false
-               :else (zipmap children (repeat :low)))}]))
+               :else {})}]))
+
+(defn populate-inputs [modules]
+  (into {}
+        (map (fn [[key value]]
+               [key (if (map? (:state value))
+                      (let [inputs (->> modules
+                                        (filter #((-> % second :outputs set) key))
+                                        (map first))]
+                        (assoc value :state (zipmap inputs (repeat :low))))
+                      value)])
+             modules)))
 
 (defn parse-modules [input]
-  (assoc (->> input
-              split-lines
-              (map parse-module)
-              (into {}))
-         "button"
-         {:state nil :outputs '("broadcaster")}))
+  (populate-inputs (assoc (->> input
+                               split-lines
+                               (map parse-module)
+                               (into {}))
+                          "button"
+                          {:state nil :outputs '("broadcaster")})))
 
 (defn fire [source {:keys [state]} strength]
   (cond
-    (keyword? state) (if (= strength :high)
+    (boolean? state) (if (= strength :high)
                        [state nil]
                        [(not state) (if state :low :high)])
     (map? state) (let [new-state (assoc state source strength)]
