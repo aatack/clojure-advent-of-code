@@ -68,8 +68,10 @@
                (update pulses input-strength inc))))))
 
 (defn day-20a [input]
-  (send-signals (->> input parse-modules)
-                (repeat 1000 ["button" :low "broadcaster"])))
+  (->> (send-signals (->> input parse-modules)
+                (repeat 1000 ["button" :low "broadcaster"]))
+       vals
+       (apply *)))
 
 (defn day-20b [input]
   (->> input))
