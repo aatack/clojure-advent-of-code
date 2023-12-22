@@ -76,9 +76,10 @@
 (defn press-button [initial-modules]
   (loop [signals [["button" :low "broadcaster"]]
          modules initial-modules
-         presses 0]
+         presses 0
+         receivers #{}]
     (if (empty? signals)
-      modules
+      (with-meta modules {:receivers receivers})
       (let [[source input-strength destination] (first signals)
             [state output-strength] (fire source (modules destination) input-strength)]
         (recur (apply conj (into [] (rest signals))
@@ -87,7 +88,8 @@
                         (map (fn [child] [destination output-strength child])
                              (get-in modules [destination :outputs]))))
                (assoc-in modules [destination :state] state)
-               presses)))))
+               presses
+               (if (= input-strength :low) (conj receivers destination) receivers))))))
 
 (defn invert-modules [modules]
   (->> modules
@@ -99,11 +101,14 @@
 (defn day-20b [input]
   (->> input
        parse-modules
-       invert-modules
-      ;;  (iterate press-button)
-      ;;  (map #(get-in % ["hr" :state]))
-      ;;  #_(drop 200)
-      ;;  (take 2000)
-      ;;  (partition-by identity)
-      ;;  (map #(vector (count %) (first %)))
-       ))
+       #_invert-modules
+       (iterate press-button)
+       rest
+       (take 10000)
+       (map meta)
+       (map :receivers)
+       (map #(% "rn"))
+       (partition-by identity)
+       (map #(vector (count %) (first %)))
+       (partition 2 2)
+       set))
