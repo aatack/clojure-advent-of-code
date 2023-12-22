@@ -42,6 +42,13 @@
 (defn day-18a [input]
   (let [instructions (->> input parse-instructions)]
     (+ (->> instructions build-vertices polygon-area)
+       ;; Adjust the area of the polygon for the fact that we're working with solid
+       ;; squares instead of points.  On straight lines, each step on the perimeter
+       ;; passes through an additional half a block that's not counted by the polygon
+       ;; approximation.  Internal and external corners count for 3/4 and 1/4 of a block
+       ;; each, and should cancel out; except that the number of external corners must
+       ;; be four greater than the number of internal corners (to make a loop), so we
+       ;; need to add an additional one block
        (->> instructions (map :distance) (apply +) (* 0.5) int inc))))
 
 (defn day-18b [input]
