@@ -73,25 +73,28 @@
        vals
        (apply *)))
 
-(defn send-signals-until-rx [initial-modules]
-  (loop [signals []
+(defn press-button [initial-modules]
+  (loop [signals [["button" :low "broadcaster"]]
          modules initial-modules
          presses 0]
     (if (empty? signals)
-      (recur [["button" :low "broadcaster"]]
-             modules
-             (inc presses))
+      modules
       (let [[source input-strength destination] (first signals)
             [state output-strength] (fire source (modules destination) input-strength)]
-        (if (and (= destination "rx") (= input-strength :low))
-          presses
         (recur (apply conj (into [] (rest signals))
                       (if (nil? output-strength)
                         []
                         (map (fn [child] [destination output-strength child])
                              (get-in modules [destination :outputs]))))
                (assoc-in modules [destination :state] state)
-               presses))))))
+               presses)))))
 
 (defn day-20b [input]
-  (->> (send-signals-until-rx (->> input parse-modules))))
+  (->> input
+       parse-modules
+       (iterate press-button)
+       (map #(get-in % ["hr" :state]))
+       #_(drop 200)
+       (take 2000)
+       (partition-by identity)
+       (map #(vector (count %) (first %)))))
