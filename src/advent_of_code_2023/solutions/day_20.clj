@@ -1,6 +1,6 @@
 (ns advent-of-code-2023.solutions.day-20
   #_{:clj-kondo/ignore [:unused-referred-var :unused-namespace]}
-  (:require [advent-of-code-2023.graphs :refer [build-graph]]
+  (:require [advent-of-code-2023.graphs :refer [all-inputs build-graph]]
             [advent-of-code-2023.utils :refer [map-vals split-string]]
             [clojure.string :refer [split-lines]]))
 
@@ -25,8 +25,8 @@
                           :broadcaster nil
                           :flip-flop false
                           :conjunction (->> (get-in graph [name :inputs])
-                                                 (map #(vector % :low))
-                                                 (into {})))))
+                                            (map #(vector % :low))
+                                            (into {})))))
             (->> (for [[input {:keys [outputs]}] modules
                        output outputs]
                    [input output])
@@ -99,9 +99,13 @@
        (map-vals #(map second %))))
 
 (defn day-20b [input]
-  (->> input
-       parse-modules
-       #_invert-modules
+  (let [graph (parse-modules input)]
+    (->> graph
+         (map #(vector (first %) (all-inputs graph (first %))))
+         (filter second)))
+  #_(->> input
+         parse-modules
+         #_invert-modules
       ;;  (iterate press-button)
       ;;  rest
       ;;  (take 10000)
@@ -112,4 +116,4 @@
       ;;  (map #(vector (count %) (first %)))
       ;;  (partition 2 2)
       ;;  set
-       ))
+         ))

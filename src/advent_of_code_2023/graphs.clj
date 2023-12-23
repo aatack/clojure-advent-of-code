@@ -9,3 +9,18 @@
                 (update-in [output :inputs] conj input)))
           {}
           input-output-pairs))
+
+(defn all-inputs [graph node]
+  (loop [unexplored (set (get-in graph [node :inputs]))
+         explored #{}]
+    (if (empty? unexplored)
+      explored
+      (let [current (first unexplored)]
+        (if (= current node)
+          nil ;; There is a circular dependency
+          (recur (apply conj
+                        (disj unexplored current)
+                        (->> (get-in graph [current :inputs])
+                             (remove unexplored)
+                             (remove explored)))
+                 (conj explored current)))))))
