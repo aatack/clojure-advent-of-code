@@ -116,16 +116,21 @@
   [input]
   (let [graph (parse-modules input)
         subgraph-nodes (disj (->> graph
-                                  (map #(vector (first %) (node-inputs graph (first %))))
+                                  (map #(vector (first %)
+                                                (node-inputs graph (first %))))
                                   (filter second)
                                   (map first)
                                   set)
-                             "button" "broadcaster")
-        history (doall (->> graph (iterate press-button) (take 10000)))]
+                             "button"
+                             "broadcaster"
+                             "rx"
+                             (-> (graph "rx") :inputs first))
+        history (doall (->> graph
+                            (iterate #(press-button % subgraph-nodes))
+                            (take 5000)))]
     (->> (for [node subgraph-nodes]
            [node (->> history
                       (map #(node-subgraph % node))
                       find-cycle
                       (#(select-keys % [:first :second])))])
-         (filter #(not-empty (second %)))
          (into {}))))
