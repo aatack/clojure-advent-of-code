@@ -11,28 +11,27 @@
     [(if broadcaster? name (subs name 1))
      {:outputs children
       :type (cond
-              broadcaster? nil
+              broadcaster? :broadcaster
               (= (first name) \%) :flip-flop
               :else :conjunction)}]))
 
-(defn populate-inputs [modules]
-  (into {}
-        (map (fn [[key value]]
-               [key (if (map? (:state value))
-                      (let [inputs (->> modules
-                                        (filter #((-> % second :outputs set) key))
-                                        (map first))]
-                        (assoc value :state (zipmap inputs (repeat :low))))
-                      value)])
-             modules)))
-
 (defn parse-modules [input]
-  (let [modules (->> input split-lines (map parse-module))]
-    (->> (for [[input {:keys [outputs]}] modules
-               output outputs]
-           [input output])
-         (cons ["button" "broadcaster"])
-         build-graph)))
+  (let [modules (->> input split-lines (map parse-module)
+                     (cons ["button" {:outputs ["broadcaster"] :type :broadcaster}]))]
+    (reduce (fn [graph [name {:keys [type]}]]
+              (assoc-in graph
+                        [name :state]
+                        (case type
+                          :broadcaster nil
+                          :flip-flop false
+                          :conjunction (->> (get-in graph [name :inputs])
+                                                 (map #(vector % :low))
+                                                 (into {})))))
+            (->> (for [[input {:keys [outputs]}] modules
+                       output outputs]
+                   [input output])
+                 build-graph)
+            modules)))
 
 (defn fire [source {:keys [state]} strength]
   (cond
