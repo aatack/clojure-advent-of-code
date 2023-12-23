@@ -7,7 +7,7 @@
 (defn parse-plot [input]
   (let [plot (parse-grid input)]
     {:unreachable (->> plot
-                       (filter #(= (second %) \.))
+                       (filter #(#{\. \S} (second %)))
                        keys
                        (into #{}))
      :reachable (->> plot
@@ -24,13 +24,14 @@
          (->> plot
               :reachable
               (mapcat north-east-south-west)
-              (filter (:unreachable plot)))))
+              (filter (:unreachable plot))
+              set)))
 
 (defn day-21a [input]
   (->> input
        parse-plot
        (iterate step)
-       (drop 2)
+       (drop 64)
        first
        :reachable
        count))
