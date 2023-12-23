@@ -1,6 +1,7 @@
 (ns advent-of-code-2023.solutions.day-20
   #_{:clj-kondo/ignore [:unused-referred-var :unused-namespace]}
-  (:require [advent-of-code-2023.utils :refer [map-vals split-string]]
+  (:require [advent-of-code-2023.graphs :refer [build-graph]]
+            [advent-of-code-2023.utils :refer [map-vals split-string]]
             [clojure.string :refer [split-lines]]))
 
 (defn parse-module [module]
@@ -9,10 +10,10 @@
         children (split-string ", " children)]
     [(if broadcaster? name (subs name 1))
      {:outputs children
-      :state (cond
-               broadcaster? nil
-               (= (first name) \%) false
-               :else {})}]))
+      :type (cond
+              broadcaster? nil
+              (= (first name) \%) :flip-flop
+              :else :conjunction)}]))
 
 (defn populate-inputs [modules]
   (into {}
@@ -26,12 +27,12 @@
              modules)))
 
 (defn parse-modules [input]
-  (populate-inputs (assoc (->> input
-                               split-lines
-                               (map parse-module)
-                               (into {}))
-                          "button"
-                          {:state nil :outputs '("broadcaster")})))
+  (let [modules (->> input split-lines (map parse-module))]
+    (->> (for [[input {:keys [outputs]}] modules
+               output outputs]
+           [input output])
+         (cons ["button" "broadcaster"])
+         build-graph)))
 
 (defn fire [source {:keys [state]} strength]
   (cond
@@ -102,13 +103,14 @@
   (->> input
        parse-modules
        #_invert-modules
-       (iterate press-button)
-       rest
-       (take 10000)
-       (map meta)
-       (map :receivers)
-       (map #(% "rn"))
-       (partition-by identity)
-       (map #(vector (count %) (first %)))
-       (partition 2 2)
-       set))
+      ;;  (iterate press-button)
+      ;;  rest
+      ;;  (take 10000)
+      ;;  (map meta)
+      ;;  (map :receivers)
+      ;;  (map #(% "rn"))
+      ;;  (partition-by identity)
+      ;;  (map #(vector (count %) (first %)))
+      ;;  (partition 2 2)
+      ;;  set
+       ))
