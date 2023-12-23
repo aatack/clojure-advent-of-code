@@ -10,7 +10,7 @@
           {}
           input-output-pairs))
 
-(defn all-inputs [graph node]
+(defn node-inputs [graph node]
   (loop [unexplored (set (get-in graph [node :inputs]))
          explored #{}]
     (if (empty? unexplored)
@@ -24,3 +24,7 @@
                              (remove unexplored)
                              (remove explored)))
                  (conj explored current)))))))
+
+(defn node-subgraph [graph node]
+  (let [nodes (into #{} (conj (node-inputs graph node) node))]
+    (into {} (filter #(nodes (first %)) graph))))

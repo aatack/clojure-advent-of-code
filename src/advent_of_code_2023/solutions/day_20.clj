@@ -1,7 +1,9 @@
 (ns advent-of-code-2023.solutions.day-20
   #_{:clj-kondo/ignore [:unused-referred-var :unused-namespace]}
-  (:require [advent-of-code-2023.graphs :refer [all-inputs build-graph]]
-            [advent-of-code-2023.utils :refer [map-vals split-string]]
+  (:require [advent-of-code-2023.graphs :refer [build-graph node-inputs
+                                                node-subgraph]]
+            [advent-of-code-2023.utils :refer [find-cycle map-vals
+                                               split-string]]
             [clojure.string :refer [split-lines]]))
 
 (defn parse-module [module]
@@ -99,21 +101,18 @@
        (map-vals #(map second %))))
 
 (defn day-20b [input]
-  (let [graph (parse-modules input)]
-    (->> graph
-         (map #(vector (first %) (all-inputs graph (first %))))
-         (filter second)))
-  #_(->> input
-         parse-modules
-         #_invert-modules
-      ;;  (iterate press-button)
-      ;;  rest
-      ;;  (take 10000)
-      ;;  (map meta)
-      ;;  (map :receivers)
-      ;;  (map #(% "rn"))
-      ;;  (partition-by identity)
-      ;;  (map #(vector (count %) (first %)))
-      ;;  (partition 2 2)
-      ;;  set
-         ))
+  (let [graph (parse-modules input)
+        subgraph-nodes (->> graph
+                            (map #(vector (first %) (node-inputs graph (first %))))
+                            (filter second)
+                            (map first))
+        history (doall (->> graph (iterate press-button) (take 10000)))]
+    (->> (for [node subgraph-nodes]
+           [node (->> history
+                      (map #(node-subgraph % node))
+                      find-cycle
+                      (#(select-keys % [:first :second])))])
+         (filter #(and (not-empty (second %))
+                       (not= (first %) "broadcaster")
+                       (not= (first %) "button")))
+         (into {}))))
