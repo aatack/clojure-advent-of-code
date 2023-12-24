@@ -36,5 +36,17 @@
        :reachable
        count))
 
-(defn day-21b [input]
+(defn day-21b
+  "Determine the same result but on an infinite grid with a much larger number of steps.
+   
+   This hinges on the realisation that:
+   
+   - The outer perimeter, and inner cross, of the puzzle input is always empty;
+   - Because you can't move diagonally, the Manhattan distance to a point on the grid is
+     *always* the quickest way of reaching that point.
+   
+   Hence we can analytically determine the number of steps needed to reach one of the
+   corners of a grid given it coordinates in the infinite tiling; or to reach the
+   midpoint of one of its sides."
+  [input]
   (->> input))
