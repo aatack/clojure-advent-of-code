@@ -1,6 +1,7 @@
 (ns advent-of-code-2025.solutions.day-01
   #_{:clj-kondo/ignore [:unused-referred-var :unused-namespace]}
   (:require
+   [advent-of-code-2025.helpers :refer [integers-between]]
    [clojure.math :refer [ceil floor]]
    [clojure.string :refer [split-lines]]))
 
@@ -24,9 +25,10 @@
        :count))
 
 (defn rotations-through-zero [old-value new-value]
-  (let [start (floor (/ (min old-value new-value) 100))
-        end (floor (/ (max old-value new-value) 100))]
-    (int (- end start))))
+  (->> (integers-between old-value new-value)
+       rest
+       (filter #(= (mod % 100) 0))
+       count))
 
 (defn update-state-comprehensive [state command]
   (let [direction (if (= (first command) \L) -1 1)
